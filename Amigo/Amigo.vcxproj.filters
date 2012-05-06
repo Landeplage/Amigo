@@ -1,0 +1,105 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <None Include="..\..\..\..\..\Downloads\Triangle\Triangle\Triangle.vcxproj" />
+    <None Include="..\..\..\..\..\Downloads\Triangle\Triangle\Triangle.vcxproj.filters" />
+    <None Include="..\..\..\..\..\Downloads\Triangle\Triangle\Triangle.vcxproj.user" />
+    <None Include="Notater.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header files">
+      <UniqueIdentifier>{9575399f-3387-46c2-84a1-94b36d65b578}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source files">
+      <UniqueIdentifier>{1c561267-e135-4385-b11f-9166a3a4f6b0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header files\States">
+      <UniqueIdentifier>{fc899310-c68a-4899-a78d-a239d429ddb2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header files\States\Base">
+      <UniqueIdentifier>{69c1a33c-eefe-445e-b00c-069d4f943736}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source files\States">
+      <UniqueIdentifier>{9f5da1fe-ad0c-4793-8649-12841db7924a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header files\Engine">
+      <UniqueIdentifier>{46f65a78-d435-4cd9-9df6-0a8c547a2ae7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source files\Engine">
+      <UniqueIdentifier>{55c938f4-dc2b-4d21-a1a6-736726cfe6b3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header files\Engine\TinyThread">
+      <UniqueIdentifier>{dba53b98-3598-4664-8139-b0fa37736320}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="IntroState.cpp">
+      <Filter>Source files\States</Filter>
+    </ClCompile>
+    <ClCompile Include="MenuState.cpp">
+      <Filter>Source files\States</Filter>
+    </ClCompile>
+    <ClCompile Include="GameEngine.cpp">
+      <Filter>Source files\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Sprite.cpp">
+      <Filter>Source files\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Main.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="Context.cpp">
+      <Filter>Source files\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Font.cpp">
+      <Filter>Source files\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="FreeType.cpp">
+      <Filter>Source files\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="DevIL.cpp">
+      <Filter>Source files\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="TinyThread\tinythread.cpp">
+      <Filter>Source files\Engine</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="MenuState.h">
+      <Filter>Header files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="IntroState.h">
+      <Filter>Header files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="GameState.h">
+      <Filter>Header files\States\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="Helper.h">
+      <Filter>Header files\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEngine.h">
+      <Filter>Header files\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Context.h">
+      <Filter>Header files\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Sprite.h">
+      <Filter>Header files\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Font.h">
+      <Filter>Header files\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="FreeType.h">
+      <Filter>Header files\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="DevIL.h">
+      <Filter>Header files\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="TinyThread\fast_mutex.h">
+      <Filter>Header files\Engine\TinyThread</Filter>
+    </ClInclude>
+    <ClInclude Include="TinyThread\tinythread.h">
+      <Filter>Header files\Engine\TinyThread</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
