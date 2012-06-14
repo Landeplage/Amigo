@@ -1,8 +1,10 @@
-#include "GameState.h"
+#include "State.h"
 #include "Sprite.h"
 #include "Font.h"
+#include "MenuSystem.h"
+#include "Menu.h"
 
-class MenuState : public GameState
+class MenuState : public State
 {
 public:
 	MenuState();
@@ -14,9 +16,13 @@ public:
 	virtual void Draw();
 
 private:
-	bool finishedLoading;
-	Sprite sprCursor, sprBackground, sprTest, sprUI;
-	GLfloat rot;
+	Sprite sprCursor, sprBackground, sprClouds, sprChequer, sprLogo, sprUI;
 	Font FontBold, FontRegular;
 	const char* version;
+	float cloudScroll, checkerScroll;
+	int screenW, screenH;
+	bool keyEscPrevious;
+
+	MenuSystem* menuSystem;
+	Menu *menuMain, *menuTiny, *menuTiny2;
 };

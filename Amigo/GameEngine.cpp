@@ -1,14 +1,15 @@
 // Libraries
 #include "GameEngine.h"
 #include "Context.h"
+#include "Input.h"
 #include "DevIL.h"
 #include "FreeType.h"
 
-#include "GameState.h"
+#include "State.h"
 #include "Sprite.h"
 #include "Helper.h"
 
-static GameState *currentState;
+static State *currentState;
 
 bool GameEngine::isLoading;
 bool GameEngine::gameRunning;
@@ -68,7 +69,7 @@ void GameEngine::Load()
 void GameEngine::GameLoop()
 {
 	// Set framerate cap
-	GLint framerate = 60;
+	GLint framerate = 9999;
 	GLdouble lastFrameTime = 0, currentFrameTime = 0, fpsLastUpdate = 0;
 	gameRunning = true;
 
@@ -102,8 +103,10 @@ void GameEngine::GameLoop()
 	GameEngine::Cleanup();
 }
 
+// Update the engine
 void GameEngine::Update(GLdouble time)
 {
+	Input::Update(time);
 	Context::Update(time);
 
 	// Rotation effect-variable
@@ -122,6 +125,7 @@ void GameEngine::Update(GLdouble time)
 	}
 }
 
+// Draw the engine
 void GameEngine::Draw()
 {
 	// Draw current game-state
@@ -134,32 +138,34 @@ void GameEngine::Draw()
 }
 
 // Switch game-state
-void GameEngine::ChangeState(GameState *gameState)
+void GameEngine::ChangeState(State *state)
 {
 	if (currentState)
 	{
 		delete currentState;
 	}
-	currentState = gameState;
+	currentState = state;
 	currentState->Init();
 	isLoading = true;
 }
 
 // Switch state, and choose whether or not the loading-screen appears
-void GameEngine::ChangeState(GameState *gameState, bool showLoading)
+void GameEngine::ChangeState(State *state, bool showLoading)
 {
-	ChangeState(gameState);
+	ChangeState(state);
 	isLoading = showLoading;
 	currentState->Load();
 }
 
-// end the game-loop
+// End the game-loop
 void GameEngine::StopGame()
 {
 	gameRunning = false;
 }
 
+// Cleanup the game
 void GameEngine::Cleanup()
 {
+	currentState->~State();
 	Context::Cleanup();
 }

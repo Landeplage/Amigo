@@ -1,7 +1,7 @@
-#include "GameState.h"
+#include "State.h"
 #include "Sprite.h"
 
-class IntroState : public GameState
+class IntroState : public State
 {
 public:
 	IntroState();

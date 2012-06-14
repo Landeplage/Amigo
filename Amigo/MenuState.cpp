@@ -1,221 +1,188 @@
 #include "Context.h"
-#include <GLTools.h>
+#include "Input.h"
 #include "MenuState.h"
-#include "IntroState.h"
+#include "GameState.h"
 #include "Sprite.h"
 #include "Helper.h"
 #include "GameEngine.h"
 #include "Font.h"
 #include <string>
 
+enum MENU
+{
+	MENU_MAIN,
+	MENU_SETTINGS
+};
+
 MenuState::MenuState() {}
 
 MenuState::~MenuState()
 {
 	printf("\n::: MenuState Exit :::\n\n");
+
+	menuSystem->~MenuSystem();
 }
 
 void MenuState::Init()
 {
-	// Initialize members
-	rot = 100;
-
-	finishedLoading = false;
 	printf("\n::: Menustate init :::\n\n");
+
+	screenW = Context::getWindowWidth();
+	screenH = Context::getWindowHeight();
+	cloudScroll = 0;
+	checkerScroll = 0;
+	keyEscPrevious = false;
 }
 
 bool MenuState::Load()
 {
-	if (rot == 100)
-	{
-		// Load sprites
-		if (!sprBackground.LoadImage("res\\tx\\back\\back_1.png")) return false;
-		if (!sprCursor.LoadImage("res\\tx\\ui\\cursor.png")) return false;
-		sprCursor.setOrigin(3, 1);
-		if (!sprTest.LoadImage("res\\hamster.png")) return false;
-		sprTest.setOriginCenter();
-		if (!sprUI.LoadImage("res\\tx\\ui\\ui.png")) return false;
-		sprUI.setInterpolationMode(GL_NEAREST);
+	// Load sprites
+	if (!sprBackground.LoadImage("res\\tx\\back\\back_sky.png")) return false;
+	if (!sprChequer.LoadImage("res\\tx\\back\\back_chequer2.png")) return false;
+	if (!sprClouds.LoadImage("res\\tx\\back\\back_clouds.png")) return false;
+	if (!sprCursor.LoadImage("res\\tx\\ui\\cursor.png")) return false;
+	sprCursor.setOrigin(3, 1);
+	if (!sprLogo.LoadImage("res\\tx\\ui\\gamelogo.png")) return false;
+	sprLogo.setOriginCenter();
+	if (!sprUI.LoadImage("res\\tx\\ui\\ui.png")) return false;
+	sprUI.setInterpolationMode(GL_NEAREST);
 
-		// Load fonts
-		FontRegular.LoadFont("res\\font\\robotor.ttf", 16);
-		FontBold.LoadFont("res\\font\\robotob.ttf", 24);
-	}
+	// Load fonts
+	FontRegular.LoadFont("res\\font\\robotob.ttf", 16);
+	FontBold.LoadFont("res\\font\\robotob.ttf", 24);
 
-	// we're pretending that loading takes a lot of time
-	rot--;
-	if (rot > 0)
+	// Initialize menu system
+	menuSystem = new MenuSystem(&sprCursor, &sprUI, &FontBold, &FontRegular);
+	
+	// Add the main menu
+	menuMain = menuSystem->AddMenu(0, 0, 1280, 720);
+	menuMain->SetTransition(200, 0, 0.0f, false);
+
+	// Some helper variables
+	int centerX, centerY, yy, sep;
+	centerX = screenW / 2;
+	centerY = screenH / 2;
+	yy = 0;
+	sep = 36;
+
+	// Main Menu
+	yy = 400;
+	menuMain->AddButton("Play", centerX - 100, yy, 200, 35, MenuItem::Align::CENTER, MENU_MAIN, [=]()
+		{
+			GameEngine::ChangeState(new GameState());
+		}); yy += sep;
+	menuMain->AddButton("Settings", centerX - 100, yy, 200, 35, MenuItem::Align::CENTER, MENU_MAIN, [=]()
+		{
+			menuMain->GoTo(MENU_SETTINGS);
+		}); yy += sep;
+	menuMain->AddButton("Map Editor", centerX - 100, yy, 200, 35, MenuItem::Align::CENTER, MENU_MAIN, [=]()
+		{
+			/**/
+		}); yy += sep;
+	menuMain->AddButton("Animator", centerX - 100, yy, 200, 35, MenuItem::Align::CENTER, MENU_MAIN, [=]()
+		{
+			/**/
+		}); yy += sep;
+	menuMain->AddButton("Quit", centerX - 100, screenH - 45, 200, 35, MenuItem::Align::CENTER, MENU_MAIN, [=]()
+		{
+			// Show quit-message
+			menuSystem->ShowMessage("HA!", "Why would you ever want to quit this game? LOL @ YOU", []()
+			{
+				//GameEngine::StopGame();
+			});
+		}); yy += sep;
+
+	// Settings
+	menuMain->AddBox("Settings", centerX - 150, 250, 300, 250, MENU_SETTINGS);
+	menuMain->AddButton("Back", centerX - 75, 515, 150, 35, MenuItem::Align::CENTER, MENU_SETTINGS, [=]()
+		{
+			menuMain->GoTo(MENU_MAIN);
+		});
+
+	// On draw-event for menuMain
+	menuMain->OnDraw([&]()
 	{
-		return false;
-	}
+		// Logo
+		GLfloat rot = menuSystem->GetRot();
+		if (menuMain->GetMenuCurrent() == MENU_MAIN)
+			sprLogo.Draw(Context::getWindowWidth() / 2 + lenDirX(30, rot * 2), 230 + lenDirY(10, rot), lenDirX(4, rot * 5), 1.0f, 1.0f, 1.0f);
+	});
+
+	// Add a little menu
+	menuTiny = menuSystem->AddMenu(10, screenH - 190, 300, 180);
+	menuTiny->SetTransition(0, 0, 0.0f, true);
+
+	menuTiny->AddBox("Info", 10, 40, 280, 130, 0);
+	menuTiny->AddButton("<", 20, 50, 50, 35, MenuItem::Align::CENTER, 0, [=](){ menuTiny->GoTo(1); });
+	menuTiny->AddButton(">", 230, 50, 50, 35, MenuItem::Align::CENTER, 0, [=](){ menuTiny->GoTo(1); });
+	
+	menuTiny->AddBox("More info", 10, 40, 280, 130, 1);
+	menuTiny->AddButton("<", 20, 50, 50, 35, MenuItem::Align::CENTER, 1, [=](){ menuTiny->GoTo(0); });
+	menuTiny->AddButton(">", 230, 50, 50, 35, MenuItem::Align::CENTER, 1, [=](){ menuTiny->GoTo(0); });
+
+	menuTiny->OnDraw([&]()
+	{
+		if (menuTiny->GetMenuCurrent() == 0)
+			FontRegular.DrawLinebreak(20, 90, "Hello, this is just some text to show how this little box looks with a lot of text in it.", 240, 18);
+		if (menuTiny->GetMenuCurrent() == 1)
+			FontRegular.DrawLinebreak(20, 90, "Oh hey, this is some more text to show how different text looks. Did you see the transition effect?", 240, 18);
+	});
 
 	return true;
 }
 
 void MenuState::Update(GLdouble time)
 {
-	// Rotation effect-variable
-	rot += time * 0.01f;
-	if (rot >= 360)
-		rot -= 360;
+	// Reset key-previous variable
+	keyEscPrevious = false;
 
-	// Get mouse position
-	POINT mouse = Context::getMousePos();
+	// ESC to exit game
+	if (Input::GetKey(GLFW_KEY_ESC) && !keyEscPrevious)
+	{
+		GameEngine::StopGame();
+		keyEscPrevious = true;
+	}
+
+	// Cloud background scrolling
+	cloudScroll += time;
+	if (cloudScroll > 1280)
+		cloudScroll -= 1280;
+	
+	// Checkered background scrolling
+	GLfloat slide = menuMain->GetSlide();
+	checkerScroll += time * 0.1f + abs(slide * 2.5f);
+	if (checkerScroll > 200)
+		checkerScroll -= 200;
+
+	// Update menu-system (do last, or deal with checking
+	// whether or not variables have been deleted from here
+	// on out)
+	menuSystem->Update(time);
 }
 
 void MenuState::Draw()
 {
-	// Background
-	sprBackground.Draw(0, 0);
+	GLfloat rot = menuSystem->GetRot();
 
-	// Flying hamsters
-	sprTest.Draw(Context::getWindowWidth() / 2 + lenDirX(200, rot * 5), 200, lenDirX(20, rot * 10), 1.0f, 1.0f, 1.0f);
+	// Landscape background
+	sprBackground.Draw(0, 0, 0.0f, Context::getWindowWidth(), 1.0f, 1.0f);
 
-	// Draw some text
-	std::string str;
-	str = "Look at the flying hamster!";
-	int charX, charW;
-	float scale;
-	charX = 0;
-	for(int i = 0; i < str.length(); i++)
-		scale = 1.0f + lenDirX(0.2f, -rot * 7 + i * 10);
-	charW = FontBold.GetWidth(str) * scale;
+	// Clouds
+	sprClouds.Draw(cloudScroll, 0);
+	sprClouds.Draw(cloudScroll - 1280, 0);
 
-	for(int i = 0; i < str.length(); i++)
+	// Chequered background
+	float bW, bH;
+	bW = 200;
+	bH = 200;
+	for(int i = 0; i < (Context::getWindowWidth() / bW) + 2; i ++)
 	{
-		FontBold.Draw(
-			Context::getWindowWidth() / 2 - charW / 2 + charX + 2,
-			130 + lenDirY(15, -rot * 8 + i * 10) + 2,
-			str.substr(i, 1),
-			lenDirY(9, rot * 8 + i * 10 - 90),
-			scale, scale,
-			0.0f,
-			0.0f,
-			0.0f,
-			1.0f
-			);
-		FontBold.Draw(
-			Context::getWindowWidth() / 2 - charW / 2 + charX,
-			130 + lenDirY(15, -rot * 8 + i * 10),
-			str.substr(i, 1),
-			lenDirY(9, rot * 8 + i * 10 - 90),
-			scale, scale,
-			0.5f - lenDirX(0.2f, -rot * 15 + i * 10),
-			0.5f - lenDirX(0.2f, -rot * 15 + i * 10),
-			1.0f,
-			1.0f
-			);
-		charX += FontBold.GetWidth(str.substr(i, 1));
-	}
-
-	// Draw the whole spritefont
-	int charY = 10, charH, maxWidth = Context::getWindowWidth() - 10;
-	charX = 10;
-	charW = FontBold.GetWidth("Æ") + 4;
-	charH = FontBold.GetHeight("|") + 4;
-	for(int i = 32; i <= 255; i++)
-	{
-		std::string str = toStringChar((wchar_t)i);
-		FontBold.Draw(charX, charY, str, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
-		charX += charW;
-		if (charX > maxWidth - charW)
+		for(int n = 0; n < (Context::getWindowHeight() / bH) + 2; n ++)
 		{
-			charX = 10;
-			charY += charH;
+			sprChequer.Draw((int)(i * bW + lenDirX(30, rot * 4)) - (bW * 1) + checkerScroll - 200, (int)(n * bH + lenDirY(100, rot * 3)) - (bH * 1), 0.0f, 1.0f, 1.0f, 0.25f);
 		}
 	}
 
-	// Get cursor position
-	POINT mouse = Context::getMousePos();
-
-	int x, y, w, h;
-
-	// Draw a box
-	x = 400;
-	y = 400;
-	w = 300;
-	h = 200;
-
-	std::string strTitle = "Title";
-
-	sprUI.Draw(x - 10, y - 10, 0.0f, 1.0f, 1.0f, 1.0f, 39, 0, 10, 10); // Top left
-	sprUI.Draw(x, y - 10, 0.0f, w, 1.0f, 1.0f, 49, 0, 1, 10); // Top
-	sprUI.Draw(x + w, y - 10, 0.0f, 1.0f, 1.0f, 1.0f, 50, 0, 10, 10); // Top right
-	sprUI.Draw(x + w, y, 0.0f, 1.0f, h, 1.0f, 50, 10, 10, 1); // Right
-	sprUI.Draw(x + w, y + h, 0.0f, 1.0f, 1.0f, 1.0f, 50, 11, 10, 10); // Bottom right
-	sprUI.Draw(x, y + h, 0.0f, w, 1.0f, 1.0f, 49, 11, 1, 10); // Bottom
-	sprUI.Draw(x - 10, y + h, 0.0f, 1.0f, 1.0f, 1.0f, 39, 11, 10, 10); // Bottom left
-	sprUI.Draw(x - 10, y, 0.0f, 1.0f, h, 1.0f, 39, 10, 10, 1); // Left
-	sprUI.Draw(x, y, 0.0f, w, h, 0.5f, 49, 10, 1, 1); // Middle
-
-	// Draw title over box
-	if (strTitle != "")
-	{
-		sprUI.Draw(x, y - 40, 0.0f, 1.0f, 1.0f, 1.0f, 28, 0, 5, 36); // Left
-		sprUI.Draw(x + 5, y - 40, 0.0f, w - 10, 1.0f, 1.0f, 33, 0, 1, 36); // Middle
-		sprUI.Draw(x + w - 5, y - 40, 0.0f, 1.0f, 1.0f, 1.0f, 34, 0, 5, 36); // Right
-		FontBold.Draw(x + 10, y - 31 - 1, strTitle, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.25f);
-		FontBold.Draw(x + 10, y - 31, strTitle, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
-	}
-
-	// Draw some text in the box
-	x += 10;
-	y += 10;
-	FontRegular.DrawFormatted(x, y, "This string is too damn long! Linebreak is tricky... Yes, it is highly difficult for me.", w - 20, 18);
-
-	// Draw a button
-	x += 10;
-	y += -10 + h - 45;
-	w = 200;
-	h = 35;
-
-	int hh = 17, xOff = 0;
-
-	if (isInside(mouse.x, mouse.y, x, y, x + w, y + h))
-	{
-		xOff = 7;
-		if (glfwGetMouseButton(GLFW_MOUSE_BUTTON_LEFT))
-		{
-			xOff += 7;
-		}
-	}
-
-	if (h > 35)
-	{
-		sprUI.Draw(x + w - 3, y + 17, 0.0f, 1.0f, h - 35, 1.0f, 4 + xOff, 17, 3, 1); // Right
-		sprUI.Draw(x, y + 17, 0.0f, 1.0f, h - 35, 1.0f, xOff, 17, 3, 1); // Left
-		sprUI.Draw(x + 3, y + 17, 0.0f, w - 6, h - 35, 1.0f, 3 + xOff, 17, 1, 1); // Middle
-	}
-	else
-	{
-		hh = h / 2;
-	}
-	sprUI.Draw(x, y, 0.0f, 1.0f, 1.0f, 1.0f, xOff, 0, 3, hh); // Top left
-	sprUI.Draw(x + 3, y, 0.0f, w - 6, 1.0f, 1.0f, 3 + xOff, 0, 1, hh); // Top
-	sprUI.Draw(x + w - 3, y, 0.0f, 1.0f, 1.0f, 1.0f, 4 + xOff, 0, 3, hh); // Top right
-	sprUI.Draw(x + w - 3, y + h - 35 + (-hh + 34), 0.0f, 1.0f, 1.0f, 1.0f, 4 + xOff, 18 - hh + 16, 3, hh + 1); // Bottom right
-	sprUI.Draw(x + 3, y + h - 35 + (-hh + 34), 0.0f, w - 6, 1.0f, 1.0f, 3 + xOff, 18 - hh + 16, 1, hh + 1); // Bottom
-	sprUI.Draw(x, y + h - 35 + (-hh + 34), 0.0f, 1.0f, 1.0f, 1.0f, xOff, 18 - hh + 16, 3, hh + 1); // Bottom left
-
-	std::string bStr = "Button";
-	FontBold.Draw(x + (w - FontBold.GetWidth(bStr)) / 2, y + h / 2 - 11 - 1, bStr, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.25f);
-	FontBold.Draw(x + (w - FontBold.GetWidth(bStr)) / 2, y + h / 2 - 11, bStr, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
-
-	// Glow around button
-	float glowAlpha = 0.0f;
-	if (xOff == 7 || xOff == 14)
-		glowAlpha = 0.35f + lenDirX(0.1f, rot * 50);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE); // Additive blending
-	sprUI.Draw(x - 12, y - 12, 0.0f, 1.0f, 1.0f, glowAlpha, 0, 35, 15, 15); // Top left
-	sprUI.Draw(x + 3, y - 12, 0.0f, w - 6, 1.0f, glowAlpha, 15, 35, 1, 15); // Top
-	sprUI.Draw(x + w - 3 + 15, y - 12, 90.0f, 1.0f, 1.0f, glowAlpha, 0, 35, 15, 15); // Top right
-	sprUI.Draw(x + w - 3 + 15, y + 3, 90.0f, h - 6, 1.0f, glowAlpha, 15, 35, 1, 15); // Right
-	sprUI.Draw(x + w - 3 + 15, y + h + 12, 180.0f, 1.0f, 1.0f, glowAlpha, 0, 35, 15, 15); // Bottom right
-	sprUI.Draw(x + w - 3, y + h + 12, 180.0f, w - 6, 1.0f, glowAlpha, 15, 35, 1, 15); // Bottom
-	sprUI.Draw(x - 12, y + h + 12, 270.0f, 1.0f, 1.0f, glowAlpha, 0, 35, 15, 15); // Bottom left
-	sprUI.Draw(x - 12, y + h - 3, 270.0f, h - 6, 1.0f, glowAlpha, 15, 35, 1, 15); // Left
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // Reset to normal blending
-
-	// Draw the cursor
-	sprCursor.Draw(mouse.x, mouse.y);
+	// Draw menu-system
+	menuSystem->Draw();
 }

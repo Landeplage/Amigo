@@ -28,8 +28,11 @@
     <Filter Include="Source files\Engine">
       <UniqueIdentifier>{55c938f4-dc2b-4d21-a1a6-736726cfe6b3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header files\Engine\TinyThread">
-      <UniqueIdentifier>{dba53b98-3598-4664-8139-b0fa37736320}</UniqueIdentifier>
+    <Filter Include="Header files\Menu">
+      <UniqueIdentifier>{383f5301-ae17-4e85-ac35-61f952f54d90}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source files\Menu">
+      <UniqueIdentifier>{8511e42b-7a5a-4c23-904b-8c9f1e7714c8}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -63,6 +66,33 @@
     <ClCompile Include="TinyThread\tinythread.cpp">
       <Filter>Source files\Engine</Filter>
     </ClCompile>
+    <ClCompile Include="MenuSystem.cpp">
+      <Filter>Source files\Menu</Filter>
+    </ClCompile>
+    <ClCompile Include="Button.cpp">
+      <Filter>Source files\Menu</Filter>
+    </ClCompile>
+    <ClCompile Include="Input.cpp">
+      <Filter>Source files\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Box.cpp">
+      <Filter>Source files\Menu</Filter>
+    </ClCompile>
+    <ClCompile Include="GameState.cpp">
+      <Filter>Source files\States</Filter>
+    </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="Menu.cpp">
+      <Filter>Source files\Menu</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderTarget.cpp">
+      <Filter>Source files\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="MenuItem.cpp">
+      <Filter>Source files\Menu</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MenuState.h">
@@ -70,9 +100,6 @@
     </ClInclude>
     <ClInclude Include="IntroState.h">
       <Filter>Header files\States</Filter>
-    </ClInclude>
-    <ClInclude Include="GameState.h">
-      <Filter>Header files\States\Base</Filter>
     </ClInclude>
     <ClInclude Include="Helper.h">
       <Filter>Header files\Engine</Filter>
@@ -95,11 +122,38 @@
     <ClInclude Include="DevIL.h">
       <Filter>Header files\Engine</Filter>
     </ClInclude>
-    <ClInclude Include="TinyThread\fast_mutex.h">
-      <Filter>Header files\Engine\TinyThread</Filter>
+    <ClInclude Include="MenuSystem.h">
+      <Filter>Header files\Menu</Filter>
     </ClInclude>
-    <ClInclude Include="TinyThread\tinythread.h">
-      <Filter>Header files\Engine\TinyThread</Filter>
+    <ClInclude Include="MenuItem.h">
+      <Filter>Header files\Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="Button.h">
+      <Filter>Header files\Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="Input.h">
+      <Filter>Header files\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Point.h">
+      <Filter>Header files\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Box.h">
+      <Filter>Header files\Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="State.h">
+      <Filter>Header files\States\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="GameState.h">
+      <Filter>Header files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="Menu.h">
+      <Filter>Header files\Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderTarget.h">
+      <Filter>Header files\Engine</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

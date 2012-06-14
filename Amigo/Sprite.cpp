@@ -59,7 +59,7 @@ void Sprite::setInterpolationMode(GLint mode)
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mode);
 }
 
-// Member functions
+// Load image from file
 bool Sprite::LoadImage(char *imagePath)
 {
 	// Init image variables
@@ -139,7 +139,17 @@ void Sprite::Draw(GLint x, GLint y, GLfloat rotation, GLfloat scaleX, GLfloat sc
 	Draw(x, y, rotation, scaleX, scaleY, alpha, 0, 0, width, height);
 }
 
+void Sprite::Draw(GLint x, GLint y, GLfloat rotation, GLfloat scaleX, GLfloat scaleY, GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha)
+{
+	Draw(x, y, rotation, scaleX, scaleY, red, green, blue, alpha, 0, 0, width, height);
+}
+
 void Sprite::Draw(GLint x, GLint y, GLfloat rotation, GLfloat scaleX, GLfloat scaleY, GLfloat alpha, GLint xx, GLint yy, GLint w, GLint h)
+{
+	Draw(x, y, rotation, scaleX, scaleY, 1.0f, 1.0f, 1.0f, alpha, xx, yy, w, h);
+}
+
+void Sprite::Draw(GLint x, GLint y, GLfloat rotation, GLfloat scaleX, GLfloat scaleY, GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha, GLint xx, GLint yy, GLint w, GLint h)
 {
 	// Bind texture
 	glBindTexture(GL_TEXTURE_2D, texture);
@@ -160,7 +170,7 @@ void Sprite::Draw(GLint x, GLint y, GLfloat rotation, GLfloat scaleX, GLfloat sc
 
 	// Draw the textured quad
 	glBegin(GL_QUADS);
-	glColor4f(1.0f, 1.0f, 1.0f, alpha);
+	glColor4f(red, green, blue, alpha);
 	glTexCoord2d(coX1, coY1); glVertex2d(-originX * scaleX,			-originY * scaleY);
 	glTexCoord2d(coX2, coY1); glVertex2d((w - originX) * scaleX,	-originY * scaleY);
 	glTexCoord2d(coX2, coY2); glVertex2d((w - originX) * scaleX,	(h - originY) * scaleY);

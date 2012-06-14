@@ -1,13 +1,18 @@
-#pragma once
-#include "TinyThread\tinythread.h"
-using namespace tthread;
+#include "State.h"
+#include "Sprite.h"
+#include "Player.h"
 
-class GameState
+class GameState : public State
 {
 public:
-	virtual ~GameState() { }
-	virtual void Init() = 0;
-	virtual bool Load() = 0;
-	virtual void Update(GLdouble time) = 0;
-	virtual void Draw() = 0;
+	GameState();
+	~GameState();
+	virtual void Init();
+	virtual bool Load();
+	virtual void Update(GLdouble time);
+	virtual void Draw();
+
+private:
+	Sprite sprBackground, sprGround, sprPlayer;
+	Player player;
 };

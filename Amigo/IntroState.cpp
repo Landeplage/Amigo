@@ -1,5 +1,4 @@
 #include "Context.h"
-#include <GLTools.h>
 #include "IntroState.h"
 #include "MenuState.h"
 #include "Sprite.h"

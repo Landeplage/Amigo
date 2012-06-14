@@ -1,12 +1,10 @@
 #pragma once
-
 #include <GLTools.h>
 #include <GL\glfw.h>
 
 static class Context
 {
 public:
-	static POINT getMousePos();
 	static GLint getWindowWidth();
 	static GLint getWindowHeight();
 	
@@ -18,7 +16,6 @@ private:
 	static void GLFWCALL ChangeSize();
 	static int GLFWCALL CloseWindow();
 
-	static POINT mouse;
 	static GLint windowWidth, windowHeight;
 	static GLShaderManager shaderManager;
 };

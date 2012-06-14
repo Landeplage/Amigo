@@ -4,7 +4,6 @@
 GLShaderManager Context::shaderManager;
 GLint Context::windowWidth;
 GLint Context::windowHeight;
-POINT Context::mouse;
 
 int Context::Initialize(int argv, char* argc[])
 {
@@ -18,8 +17,12 @@ int Context::Initialize(int argv, char* argc[])
 	// Set some GLFW properties
 	glfwSwapInterval(1); // V-sync
 
+	// Set window size
+	windowWidth = 1280;
+	windowHeight = 720;
+
 	// Open a GLFW window
-	if (!glfwOpenWindow(1280, 720, 0, 0, 0, 0, 32, 0, GLFW_WINDOW ))
+	if (!glfwOpenWindow(windowWidth, windowHeight, 0, 0, 0, 0, 32, 0, GLFW_WINDOW ))
 	{
 		glfwTerminate();
 		printf("Failed to create GLFW window!");
@@ -31,6 +34,7 @@ int Context::Initialize(int argv, char* argc[])
 	glfwSetWindowPos(200, 200);
 	glfwSetWindowRefreshCallback(ChangeSize);
 	glfwSetWindowCloseCallback(CloseWindow);
+	//glfwDisable(GLFW_MOUSE_CURSOR);
 
 	// Initiate Glew
 	GLenum err = glewInit();
@@ -44,12 +48,18 @@ int Context::Initialize(int argv, char* argc[])
 	shaderManager.InitializeStockShaders();
 
 	// Set some OpenGL properties
-	glShadeModel(GL_SMOOTH);
-	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glDisable(GL_DEPTH_TEST);
+	glShadeModel(GL_SMOOTH);
+	glAlphaFunc(GL_GREATER, 0.0f);
 
-	// Clear background
+	// Enables/disables
+	glEnable(GL_ALPHA_TEST);
+	glEnable(GL_BLEND);
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_DITHER);
+	glDisable(GL_LIGHTING);
+
+	// Set clear-color
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 	return 0;
@@ -57,10 +67,7 @@ int Context::Initialize(int argv, char* argc[])
 
 void Context::Update(GLdouble time)
 {
-	// Get mouse-position relative to window
-	GetCursorPos(&mouse);
-	mouse.x -= 0;
-	mouse.y -= 0;
+	// Update
 }
 
 void Context::Draw()
@@ -94,11 +101,6 @@ int Context::CloseWindow()
 	GameEngine::StopGame();
 
 	return 0;
-}
-
-POINT Context::getMousePos()
-{
-	return mouse;
 }
 
 int Context::getWindowWidth()

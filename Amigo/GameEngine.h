@@ -1,14 +1,13 @@
 #pragma once
-
-#include <GLTools.h>
-#include "GameState.h"
+#include <GL\glew.h>
+#include "State.h"
 #include "Sprite.h"
 
 static class GameEngine
 {
 public:
-	static void ChangeState(GameState *gameState);
-	static void ChangeState(GameState *gameState, bool showLoading);
+	static void ChangeState(State *state);
+	static void ChangeState(State *state, bool showLoading);
 	static void StopGame();
 	
 	static bool Initialize(int argc, char* argv[]);

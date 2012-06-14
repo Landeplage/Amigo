@@ -1,2 +1,28 @@
 To do:
 - 
+
+Bugs:
+- 
+
+Tips:
+- For å unngå circular include, pre-define class'en i header-filen "manuelt" og include i .cpp-filen
+
+:: NIFTY SHIT ::
+
+// Draw the whole spritefont
+	/*int charY = 10, charH, maxWidth = Context::getWindowWidth() - 10;
+	charX = 10;
+	charW = FontBold.GetWidth("Æ") + 4;
+	charH = FontBold.GetHeight("|") + 4;
+	for(int i = 32; i <= 255; i++)
+	{
+		std::string str = toStringChar((wchar_t)i);
+		FontBold.Draw(charX, charY, str, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+		charX += charW;
+		if (charX > maxWidth - charW)
+		{
+			charX = 10;
+			charY += charH;
+		}
+	}*/
+

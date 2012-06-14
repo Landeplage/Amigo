@@ -3,6 +3,9 @@
 #include "Font.h"
 #include "Helper.h"
 #include "DevIL.h"
+#include <string>
+
+using namespace std;
 
 #define SPRITEFONT_MAX_WIDTH 1000
 
@@ -29,6 +32,9 @@ Font::Font()
 
 Font::~Font()
 {
+	if (texture > 0)
+		glDeleteTextures(1, &texture);
+	printf("- Unloaded a font: %i\n", texture);
 }
 
 void Font::LoadFont(const char* path, int size)
@@ -204,7 +210,7 @@ void Font::LoadFont(const char* path, int size)
 		}
 	}
 
-	printf("Done.\n");
+	printf("Done :: %i\n", texture);
 }
 
 void Font::Draw(int x, int y, std::string str, float rotation, float scaleX, float scaleY, float red, float green, float blue, float alpha)
@@ -256,43 +262,64 @@ void Font::Draw(int x, int y, std::string str)
 	Draw(x, y, str, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
 }
 
-void Font::DrawFormatted(int x, int y, std::string str, int width, int lineHeight)
+void Font::DrawShorten(int x, int y, std::string str, float rotation, float scaleX, float scaleY, float red, float green, float blue, float alpha, int width)
 {
-	/*int prevPos = 0;
-	while(GetWidth(str) > width)
+	int pos = 1;
+	if (GetWidth(str) > width)
 	{
-		int pos = 0;
-		while(GetWidth(str.substr(0, pos)) < width)
+		while(GetWidth(str.substr(0, str.length() - pos) + "...") > width) // shorten the string if it's too long
 		{
 			pos ++;
+			if (str.length() - pos <= 1)
+				break;
+			if (str.substr(str.length() - pos - 1, 1) == " ") // we don't want the last character to be a space
+			{
+				pos ++;
+				if (str.length() - pos <= 1)
+				break;
+			}
 		}
-		Draw(x, y, str.substr(0, pos - prevPos), 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
-		if (str.length() > 0)
-			str = str.substr(pos);
-		else
-			break;
-		y += lineHeight;
-		prevPos = pos;
-	}*/
+		str = str.substr(0, str.length() - pos) + "...";
+	}
+	Draw(x, y, str, rotation, scaleX, scaleY, red, green, blue, alpha);
+}
+
+void Font::DrawLinebreak(int x, int y, std::string str, int width, int lineHeight)
+{
 	int pos = 0, posPrev = 0;
 	while(GetWidth(str.substr(posPrev, str.length() - posPrev)) > width)
 	{
-		while(GetWidth(str.substr(posPrev, pos)) < width && pos < str.length())
+		while(GetWidth(str.substr(posPrev, pos - posPrev)) < width) // find the first line
 		{
 			pos ++;
 		}
 
-		Draw(x, y, str.substr(posPrev, pos), 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+		if (pos == 0) break;
+
+		if (str.substr(posPrev, pos - posPrev).find_first_of(" ", 0) != string::npos) // if the line contains a space
+		{
+			while(str.substr(pos - 1, 1) != " ") // find last occurring space
+			{ pos --; }
+		}
+		else if (str.substr(posPrev, pos - posPrev).find_first_of("-", 0) != string::npos) // if the line contains a dash
+		{
+			while(str.substr(pos - 1, 1) != "-") // find last occurring dash
+			{ pos --; }
+		}
+		else if (pos - posPrev > 2) // insert a dash at the end of the line (check if there are more than two characters in the line to avoid infinite loop)
+		{
+			pos--;
+			str.insert(pos - 1, "-");
+		}
+
+		Draw(x, y, str.substr(posPrev, pos - posPrev));
 		y += lineHeight;
 
 		posPrev = pos;
-
-		if (GetWidth(str.substr(posPrev, str.length() - posPrev)) <= width)
-		{
-			Draw(x, y, str.substr(posPrev, str.length() - posPrev), 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
-			break;
-		}
 	}
+
+	// Draw the last line
+	Draw(x, y, str.substr(pos, str.length() - pos));
 }
 
 int Font::GetWidth(std::string str)
@@ -314,6 +341,44 @@ int Font::GetHeight(std::string str)
 		if (glyphs[(int)((unsigned char)(str[i] - 32))].advanceY > h)
 			h = glyphs[(int)((unsigned char)(str[i] - 32))].advanceY;
 	}
+
+	return h;
+}
+
+int Font::GetHeight(std::string str, GLint width, GLint lineHeight)
+{
+	int pos = 0, posPrev = 0, h = 0;
+	while(GetWidth(str.substr(posPrev, str.length() - posPrev)) > width)
+	{
+		while(GetWidth(str.substr(posPrev, pos - posPrev)) < width) // find the first line
+		{
+			pos ++;
+		}
+
+		if (pos == 0) break;
+
+		if (str.substr(posPrev, pos - posPrev).find_first_of(" ", 0) != string::npos) // if the line contains a space
+		{
+			while(str.substr(pos - 1, 1) != " ") // find last occurring space
+			{ pos --; }
+		}
+		else if (str.substr(posPrev, pos - posPrev).find_first_of("-", 0) != string::npos) // if the line contains a dash
+		{
+			while(str.substr(pos - 1, 1) != "-") // find last occurring dash
+			{ pos --; }
+		}
+		else if (pos - posPrev > 2) // insert a dash at the end of the line (check if there are more than two characters in the line to avoid infinite loop)
+		{
+			pos--;
+			str.insert(pos - 1, "-");
+		}
+
+		h += lineHeight;
+
+		posPrev = pos;
+	}
+
+	h += GetHeight(str.substr(pos, str.length() - pos));
 
 	return h;
 }
