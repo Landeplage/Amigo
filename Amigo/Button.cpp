@@ -20,7 +20,6 @@ Button::Button(MenuSystem* menuSystem, std::string text, GLint x, GLint y, GLint
 	this->font = menuSystem->GetFontBold();
 	this->sprite = menuSystem->GetSpriteUI();
 
-	active = true;
 	state = 0;
 	hasBeenClicked = false;
 
@@ -34,6 +33,9 @@ void Button::Unload()
 
 void Button::Update(GLdouble time)
 {
+	if (!(active && visible))
+		return;
+
 	// Get the focused item
 	MenuItem* focus = menuSystem->GetFocus();
 
@@ -92,6 +94,9 @@ void Button::Update(GLdouble time)
 
 void Button::Draw()
 {
+	if (!visible)
+		return;
+
 	float rot;
 	rot = menuSystem->GetRot();
 
@@ -100,7 +105,8 @@ void Button::Draw()
 	h = size.y;
 	hh = 17;
 	xOff = state * 7;
-
+	if (!active)
+		xOff = 21;
 
 	if (h > 35)
 	{
@@ -130,7 +136,7 @@ void Button::Draw()
 	{
 		float glowAlpha;
 		glowAlpha = 0.25f + lenDirX(0.1f, rot * 50);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE); // Additive blending
+		//glBlendFunc(GL_SRC_ALPHA, GL_ONE); // Additive blending
 		sprite->Draw(x - 12, y - 12, 0.0f, 1.0f, 1.0f, glowAlpha, 0, 35, 15, 15); // Top left
 		sprite->Draw(x + 3, y - 12, 0.0f, w - 6, 1.0f, glowAlpha, 15, 35, 1, 15); // Top
 		sprite->Draw(x + w - 3 + 15, y - 12, 90.0f, 1.0f, 1.0f, glowAlpha, 0, 35, 15, 15); // Top right
@@ -139,7 +145,7 @@ void Button::Draw()
 		sprite->Draw(x + w - 3, y + h + 12, 180.0f, w - 6, 1.0f, glowAlpha, 15, 35, 1, 15); // Bottom
 		sprite->Draw(x - 12, y + h + 12, 270.0f, 1.0f, 1.0f, glowAlpha, 0, 35, 15, 15); // Bottom left
 		sprite->Draw(x - 12, y + h - 3, 270.0f, h - 6, 1.0f, glowAlpha, 15, 35, 1, 15); // Left
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // Reset to normal blending
+		//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // Reset to normal blending
 	}
 }
 

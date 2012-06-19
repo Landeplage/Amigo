@@ -81,8 +81,8 @@ void Menu::Update(GLdouble time)
 	}
 
 	// Slide to target
-	slideSpeed = menuSystem->Wobble(slide, slideTarget, slideSpeed, 0.05f, 0.05f, time);
-	slide += slideSpeed;
+	slideSpeed = menuSystem->Wobble(slide, slideTarget, slideSpeed, 0.1f, 0.1f, time);
+	slide += slideSpeed * time;
 }
 
 // Draw the rendertarget texture

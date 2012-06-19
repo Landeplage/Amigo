@@ -5,6 +5,8 @@
 class MenuItem
 {
 public:
+	MenuItem();
+
 	enum Align
 	{
 		TOP,

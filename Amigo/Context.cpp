@@ -62,6 +62,18 @@ int Context::Initialize(int argv, char* argc[])
 	// Set clear-color
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
+	// Check if GPU can handle framebuffers
+	GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	switch(status)
+	{
+	case GL_FRAMEBUFFER_COMPLETE:
+		printf("Framebuffers are supported.\n");
+		break;
+	default:
+		printf("Whoops! FBOs are not supported on your GPU! #%i\n", status);
+		break;
+	}
+
 	return 0;
 }
 

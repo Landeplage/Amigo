@@ -24,4 +24,6 @@ private:
 	GLuint* texRT;
 	GLint texCount;
 	Point size, windowSize;
+
+	GLfloat rot;
 };

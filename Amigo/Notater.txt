@@ -7,6 +7,16 @@ Bugs:
 Tips:
 - For å unngå circular include, pre-define class'en i header-filen "manuelt" og include i .cpp-filen
 
+How to setup git for commit/push:
+- cd "C:\Users\Bla\Bla\Amigo"
+- git init
+- git remote add origin [*SSH link*]
+
+How to commit/push to GitHub:
+- git add .
+- git commit -a -m "Message"
+- git push origin master
+
 :: NIFTY SHIT ::
 
 // Draw the whole spritefont

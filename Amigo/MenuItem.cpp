@@ -1,5 +1,11 @@
 #include "MenuItem.h"
 
+MenuItem::MenuItem()
+{
+	visible = true;
+	active = true;
+}
+
 void MenuItem::SetSize(GLint width, GLint height)
 {
 	size.x = width;

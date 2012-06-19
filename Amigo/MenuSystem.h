@@ -33,8 +33,12 @@ public:
 	GLfloat GetOverlaySlide();
 	bool GetOverlayShow();
 
+	void MenuSystem::OverlayInit(std::string title, std::string text);
+	void ShowMessage(std::string title, std::string text);
 	void ShowMessage(std::string title, std::string text, std::function<void()> onButton1);
+	void ShowQuestion(std::string title, std::string question, std::function<void()> onButton1, std::function<void()> onButton2);
 	void OnButton1();
+	void OnButton2();
 
 private:
 	void HideOverlay();
@@ -52,6 +56,6 @@ private:
 	std::string overlayText;
 	std::vector<MenuItem*> overlayItems;
 	Box *overlayBox;
-	std::function<void()> onButton1;
-	Button *overlayButton1;
+	std::function<void()> onButton1, onButton2;
+	Button *overlayButton1, *overlayButton2;
 };

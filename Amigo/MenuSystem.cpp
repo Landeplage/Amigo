@@ -23,12 +23,15 @@ MenuSystem::MenuSystem(Sprite* sprCursor, Sprite* sprUI, Font* fontBold, Font* f
 	overlayRenderTarget = new RenderTarget(420, Context::getWindowHeight(), 1);
 	menuRenderTarget = new RenderTarget(Context::getWindowWidth(), Context::getWindowHeight(), 1);
 	onButton1 = [](){};
+	onButton2 = [](){};
 
 	// Add items to overlay
 	overlayItems.push_back(new Box(this, "", 10, 10, 10, 10, 0));
 	overlayBox = (Box*)overlayItems[overlayItems.size() - 1];
 	overlayItems.push_back(new Button(this, "", 0, 0, 0, 0, MenuItem::Align::CENTER, 0, [](){}, Point(0, 0)));
 	overlayButton1 = (Button*)overlayItems[overlayItems.size() - 1];
+	overlayItems.push_back(new Button(this, "", 0, 0, 0, 0, MenuItem::Align::CENTER, 0, [](){}, Point(0, 0)));
+	overlayButton2 = (Button*)overlayItems[overlayItems.size() - 1];
 }
 
 MenuSystem::~MenuSystem()
@@ -79,8 +82,8 @@ void MenuSystem::Update(GLdouble time)
 		rot -= 360;
 
 	// Slide variable for the overlay
-	overlaySlideSpeed = Wobble(overlaySlide, overlaySlideTarget, overlaySlideSpeed, 0.05f, 0.05f, time);
-	overlaySlide += overlaySlideSpeed;
+	overlaySlideSpeed = Wobble(overlaySlide, overlaySlideTarget, overlaySlideSpeed, 0.1f, 0.1f, time);
+	overlaySlide += overlaySlideSpeed * time;
 	if (!overlayShow && overlaySlide > 1)
 	{
 		overlaySlideSpeed = 0;
@@ -100,7 +103,13 @@ void MenuSystem::Update(GLdouble time)
 void MenuSystem::Draw()
 {
 	// Draw debug-text
-	fontBold->Draw(10, 10, toString(overlaySlide));
+	std::string str = toString(abs(overlaySlide + 1));
+	fontBold->Draw((Context::getWindowWidth() - fontBold->GetWidth(str)) / 2, 10, str);
+
+	// Little debug-box of text
+	str = "This string and box are drawn directly.";
+	sprUI->Draw(0, 0, 0.0f, 200, fontRegular->GetHeight(str, 200, 18), 0.0f, 0.0f, 0.0f, 0.5f, 49, 10, 1, 1);
+	fontRegular->DrawLinebreak(0, 0, str, 200, 18);
 
 	// Render the menus to their rendertargets
 	for(int i = 0; i < menus.size(); i ++)
@@ -110,6 +119,11 @@ void MenuSystem::Draw()
 
 	// Begin menu-rendertarget
 	menuRenderTarget->Begin();
+
+	// Draw debug-stuff
+	str = "This string and box are drawn via one framebuffer.";
+	sprUI->Draw(0, 35, 0.0f, 200, fontRegular->GetHeight(str, 200, 18), 0.0f, 0.0f, 0.0f, 0.5f, 49, 10, 1, 1);
+	fontRegular->DrawLinebreak(0, 35, str, 200, 18);
 
 	// Draw menus
 	for(int i = 0; i < menus.size(); i ++)
@@ -125,7 +139,7 @@ void MenuSystem::Draw()
 	menuRenderTarget->Draw(0, 0, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, mod, 0, 0, menuRenderTarget->GetSize().x, menuRenderTarget->GetSize().y);
 
 	// Draw overlay for messages/questions
-	if (overlayShow || (overlaySlide < 1 &&  overlaySlide > 0))
+	if (abs(overlaySlide + 1) > 0)
 	{
 		// Black transparent fullscreen box
 		sprUI->Draw(0, 0, 0.0f, Context::getWindowWidth(), Context::getWindowHeight(), 0.0f, 0.0f, 0.0f, 0.35f * (1 - abs(overlaySlide)), 49, 10, 1, 1);
@@ -146,18 +160,14 @@ void MenuSystem::Draw()
 		overlayRenderTarget->End();
 
 		// Draw rendertarget
-		overlayRenderTarget->Draw((Context::getWindowWidth() - overlayRenderTarget->GetSize().x) / 2 + (overlaySlide * 100),
-			0, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1 - abs(overlaySlide), 0, 0, overlayRenderTarget->GetSize().x, overlayRenderTarget->GetSize().y);
+		GLfloat overlayScale = (abs(overlaySlide) + 1) * 0.2f + 0.8f;
+		overlayRenderTarget->Draw((Context::getWindowWidth() - overlayRenderTarget->GetSize().x * overlayScale) / 2,
+			-(overlayRenderTarget->GetSize().y * (overlayScale - 1)) / 2, 0.0f, overlayScale, overlayScale, 1.0f, 1.0f, 1.0f, 1 - abs(overlaySlide), 0, 0, overlayRenderTarget->GetSize().x, overlayRenderTarget->GetSize().y);
 	}
 
 	// Draw cursor
 	Point mouse = Input::getMousePos();
 	sprCursor->Draw(mouse.x, mouse.y, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, cursorOffset * 32, 0, 32, 32);
-
-	// Debug
-	std::string str = "I realise the answer to this may be inherrently non-portable, but I don't quite understand GL_LUMIgghjyNANCE.";
-	sprUI->Draw(0, 0, 0.0f, 200, fontRegular->GetHeight(str, 200, 18), 0.0f, 0.0f, 0.0f, 0.5f, 49, 10, 1, 1);
-	fontRegular->DrawLinebreak(0, 0, str, 200, 18);
 }
 
 // Add a menu
@@ -170,8 +180,8 @@ Menu* MenuSystem::AddMenu(GLint x, GLint y, GLint width, GLint height)
 // Make a variable wobble to target value
 GLfloat MenuSystem::Wobble(GLfloat currentX, GLfloat targetX, GLfloat currentSpeed, GLfloat force, GLfloat friction, GLdouble time)
 {
-	if (currentX < targetX) { currentSpeed += (targetX - currentX) * force * time * 0.01; }
-	else if (currentX > targetX) { currentSpeed -= (currentX - targetX) * force * time * 0.01; }
+	if (currentX < targetX) { currentSpeed += (targetX - currentX) * force * 0.01; }
+	else if (currentX > targetX) { currentSpeed -= (currentX - targetX) * force * 0.01; }
     currentSpeed = currentSpeed * (1.0f - friction);
     return currentSpeed;
 }
@@ -236,30 +246,68 @@ void MenuSystem::SetCursor(GLint cursorOffset)
 }
 
 // Show a message-overlay on screen
+void MenuSystem::ShowMessage(std::string title, std::string text)
+{
+	ShowMessage(title, text, [](){});
+}
+
+// Show a message-overlay on screen
 void MenuSystem::ShowMessage(std::string title, std::string text, std::function<void()> onButton1)
 {
-	GLint centerX, centerY;
-	centerX = Context::getWindowWidth() / 2;
-	centerY = Context::getWindowHeight() / 2;
-
-	overlayText = text;
-
-	// Setup box
-	overlayBox->SetTitle(title);
-	overlayBox->SetSize(400, fontRegular->GetHeight(overlayText, 400 - 20, 18) + 20);
-	overlayBox->SetPosition(10, centerY - 200 / 2);
+	OverlayInit(title, text);
 
 	// Setup "Okay"-button
 	overlayButton1->SetSize(200, 35);
 	overlayButton1->SetText("Okay", MenuItem::Align::CENTER);
 	overlayButton1->SetPosition(overlayBox->GetPosition().x + overlayBox->GetSize().x / 2 - 100, overlayBox->GetPosition().y + overlayBox->GetSize().y + 15);
-	overlayButton1->SetMenuOffset(centerX - overlayRenderTarget->GetSize().x / 2, 0);
+	overlayButton1->SetMenuOffset((Context::getWindowWidth() - overlayRenderTarget->GetSize().x) / 2, 0);
 	overlayButton1->SetOnClick([=](){ this->OnButton1(); });
 	this->onButton1 = onButton1;
 
+	// Hide the other button
+	overlayButton2->active = false;
+	overlayButton2->visible = false;
+}
+
+// Show a question on screen, with two options
+void MenuSystem::ShowQuestion(std::string title, std::string text, std::function<void()> onButton1, std::function<void()> onButton2)
+{
+	OverlayInit(title, text);
+
+	// Setup "Yes"-button
+	overlayButton1->SetSize(195, 35);
+	overlayButton1->SetText("Yes", MenuItem::Align::CENTER);
+	overlayButton1->SetPosition(overlayBox->GetPosition().x, overlayBox->GetPosition().y + overlayBox->GetSize().y + 15);
+	overlayButton1->SetMenuOffset((Context::getWindowWidth() - overlayRenderTarget->GetSize().x) / 2, 0);
+	overlayButton1->SetOnClick([=](){ this->OnButton1(); });
+	this->onButton1 = onButton1;
+
+	// Setup "No" button
+	overlayButton2->SetSize(195, 35);
+	overlayButton2->SetText("No", MenuItem::Align::CENTER);
+	overlayButton2->SetPosition(overlayBox->GetPosition().x + overlayBox->GetSize().x - overlayButton2->GetSize().x, overlayBox->GetPosition().y + overlayBox->GetSize().y + 15);
+	overlayButton2->SetMenuOffset((Context::getWindowWidth() - overlayRenderTarget->GetSize().x) / 2, 0);
+	overlayButton2->SetOnClick([=](){ this->OnButton2(); });
+	this->onButton2 = onButton2;
+
+	// Make sure the "No" button is visible and active
+	overlayButton2->active = true;
+	overlayButton2->visible = true;
+}
+
+// Initiate the overlay-box
+void MenuSystem::OverlayInit(std::string title, std::string text)
+{
+	// Setup overlay
+	overlayText = text;
 	overlayShow = true;
 	overlaySlideTarget = 0;
 	ResetFocus();
+
+	// Setup box
+	overlayBox->SetTitle(title);
+	overlayBox->SetSize(400, fontRegular->GetHeight(overlayText, 400 - 20, 18) + 20);
+	overlayBox->SetPosition(10, (Context::getWindowHeight() - overlayBox->GetSize().y) / 2);
 }
 
 // Hide the overlay
@@ -274,5 +322,12 @@ void MenuSystem::HideOverlay()
 void MenuSystem::OnButton1()
 {
 	onButton1();
+	HideOverlay();
+}
+
+// Perform the action of Button 2
+void MenuSystem::OnButton2()
+{
+	onButton2();
 	HideOverlay();
 }

@@ -77,18 +77,24 @@ bool MenuState::Load()
 		}); yy += sep;
 	menuMain->AddButton("Map Editor", centerX - 100, yy, 200, 35, MenuItem::Align::CENTER, MENU_MAIN, [=]()
 		{
-			/**/
+			menuSystem->ShowMessage("Map Editor", "Dat ain't done yet.");
 		}); yy += sep;
 	menuMain->AddButton("Animator", centerX - 100, yy, 200, 35, MenuItem::Align::CENTER, MENU_MAIN, [=]()
 		{
-			/**/
+			menuSystem->ShowMessage("Animator", "Dat ain't done yet.");
 		}); yy += sep;
 	menuMain->AddButton("Quit", centerX - 100, screenH - 45, 200, 35, MenuItem::Align::CENTER, MENU_MAIN, [=]()
 		{
 			// Show quit-message
-			menuSystem->ShowMessage("HA!", "Why would you ever want to quit this game? LOL @ YOU", []()
+			menuSystem->ShowQuestion("Quit", "Are you really, really, really sure you want to quit? I mean... really?",
+			[]()
 			{
-				//GameEngine::StopGame();
+				// Yes-button
+				GameEngine::StopGame();
+			},
+			[]()
+			{
+				// No-button
 			});
 		}); yy += sep;
 
@@ -106,6 +112,11 @@ bool MenuState::Load()
 		GLfloat rot = menuSystem->GetRot();
 		if (menuMain->GetMenuCurrent() == MENU_MAIN)
 			sprLogo.Draw(Context::getWindowWidth() / 2 + lenDirX(30, rot * 2), 230 + lenDirY(10, rot), lenDirX(4, rot * 5), 1.0f, 1.0f, 1.0f);
+
+		// Little debug-box of text
+		std::string str = "This string and box are drawn via two framebuffers.";
+		sprUI.Draw(0, 70, 0.0f, 200, FontRegular.GetHeight(str, 200, 18), 0.0f, 0.0f, 0.0f, 0.5f, 49, 10, 1, 1);
+		FontRegular.DrawLinebreak(0, 70, str, 200, 18);
 	});
 
 	// Add a little menu

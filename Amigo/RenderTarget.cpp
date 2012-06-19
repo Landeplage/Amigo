@@ -3,10 +3,14 @@
 #include <math.h>
 #include <stdio.h>
 
+#include "Helper.h" // remove this
+
 RenderTarget::Viewport RenderTarget::viewport;
 
 RenderTarget::RenderTarget(GLint width, GLint height, GLint texCount)
 {
+	rot = 0;
+
 	size.x = width;
 	size.y = height;
 	this->texCount = texCount;
@@ -29,7 +33,7 @@ RenderTarget::RenderTarget(GLint width, GLint height, GLint texCount)
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, texRT[i], 0);
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	
+
 	printf("+ RenderTarget added\n");
 }
 
@@ -46,6 +50,41 @@ void RenderTarget::Begin()
 	glViewport(0, size.y - windowSize.y, windowSize.x, windowSize.y);
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBufferRT);
 
+	GLint max_texture_image_units, active_unit;
+    glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &max_texture_image_units);
+    glGetIntegerv(GL_ACTIVE_TEXTURE, &active_unit); // yes I know the naming is odd
+	
+	if (texCount > 1)
+    {
+            for (GLuint i = 0; i < texCount; i++)
+            {
+                    // make sure RT textures are unbound before attaching
+                    for(GLuint u = 0; u < max_texture_image_units; u++)
+					{
+                            GLint bound_texture;
+                            glActiveTexture(GL_TEXTURE0 + u);
+                            glGetIntegerv(GL_TEXTURE_BINDING_2D, &bound_texture);
+                            if(bound_texture = texRT[i])
+							{
+                                    // better yet, store (unit,texture) pairs, so that we can restore in RenderTarget::End.
+                                    glBindTexture(GL_TEXTURE_2D, 0);
+                            }
+                    }
+            }
+
+            glActiveTexture(active_unit); //okay, this is a kludge. Ideally the code rendering to the FBO takes care of this. But if now, we fail safely.
+ 
+            GLenum* buffers = new GLenum[texCount];
+            glBindFramebuffer(GL_FRAMEBUFFER, frameBufferRT);
+            for (GLuint i = 0; i < texCount; i++)
+            {
+                    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, texRT[i], 0);
+                    buffers[i] = GL_COLOR_ATTACHMENT0 + i;
+            }
+            glDrawBuffers(texCount, buffers);
+            delete[] buffers;
+    }
+	/*
 	if (texCount > 1)
 	{
 		GLenum* buffers = new GLenum[texCount];
@@ -55,17 +94,25 @@ void RenderTarget::Begin()
 		}
 		glDrawBuffers(texCount, buffers);
 		delete[] buffers;
-	}
+	}*/
+
+	// Set blend-mode
+	glDisable(GL_BLEND);
 
 	// Clear the buffer
-	glClearColor(0.5f, 0.5f, 0.5f, 0.0f);
+	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glClear(GL_COLOR_BUFFER_BIT);
 }
 
 void RenderTarget::End()
 {
+	// Reset blend-mode
+	glEnable(GL_BLEND);
+
 	// Reset framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	// Reset viewport
 	glViewport(viewport.x, viewport.y, viewport.width, viewport.height);
 }
 
@@ -105,10 +152,15 @@ void RenderTarget::Draw(GLint x, GLint y, GLfloat rotation, GLfloat scaleX, GLfl
 	// Draw the textured quad
 	glBegin(GL_QUADS);
 	glColor4f(red, green, blue, alpha);
+	
 	glTexCoord2d(coX1, coY2); glVertex2d(0,				0);
 	glTexCoord2d(coX2, coY2); glVertex2d(w * scaleX,	0);
 	glTexCoord2d(coX2, coY1); glVertex2d(w * scaleX,	h * scaleY);
 	glTexCoord2d(coX1, coY1); glVertex2d(0,				h * scaleY);
+	//glTexCoord2d(coX1, coY2); glVertex2d(lenDirX(5, rot * 2), lenDirY(5, rot * 3));
+	//glTexCoord2d(coX2, coY2); glVertex2d(w * scaleX + lenDirX(5, rot),	lenDirX(5, rot * 4));
+	//glTexCoord2d(coX2, coY1); glVertex2d(w * scaleX + lenDirY(5, rot * 4),	h * scaleY + lenDirX(5, rot));
+	//glTexCoord2d(coX1, coY1); glVertex2d(lenDirX(-5, rot * 3),				h * scaleY + lenDirX(-5, rot * 2));
 	glEnd();
 
 	// Return to default blend-function
@@ -116,6 +168,8 @@ void RenderTarget::Draw(GLint x, GLint y, GLfloat rotation, GLfloat scaleX, GLfl
 
 	// Pop the matrix
 	glPopMatrix();
+
+	rot += 0.5f;
 }
 
 // Get size of rendertarget
