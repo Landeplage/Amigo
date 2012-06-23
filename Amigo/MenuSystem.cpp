@@ -32,6 +32,9 @@ MenuSystem::MenuSystem(Sprite* sprCursor, Sprite* sprUI, Font* fontBold, Font* f
 	overlayButton1 = (Button*)overlayItems[overlayItems.size() - 1];
 	overlayItems.push_back(new Button(this, "", 0, 0, 0, 0, MenuItem::Align::CENTER, 0, [](){}, Point(0, 0)));
 	overlayButton2 = (Button*)overlayItems[overlayItems.size() - 1];
+
+	blend1 = 0;
+	blend2 = 0;
 }
 
 MenuSystem::~MenuSystem()
@@ -103,13 +106,47 @@ void MenuSystem::Update(GLdouble time)
 void MenuSystem::Draw()
 {
 	// Draw debug-text
-	std::string str = toString(abs(overlaySlide + 1));
+	std::string str = toString(blend1) + " x " + toString(blend2);
 	fontBold->Draw((Context::getWindowWidth() - fontBold->GetWidth(str)) / 2, 10, str);
 
 	// Little debug-box of text
 	str = "This string and box are drawn directly.";
 	sprUI->Draw(0, 0, 0.0f, 200, fontRegular->GetHeight(str, 200, 18), 0.0f, 0.0f, 0.0f, 0.5f, 49, 10, 1, 1);
 	fontRegular->DrawLinebreak(0, 0, str, 200, 18);
+
+	// Debugging rendertarget blending
+	GLint funcArray[15];
+	funcArray[0] = GL_ZERO;
+	funcArray[1] = GL_ONE;
+	funcArray[2] = GL_SRC_COLOR;
+	funcArray[3] = GL_ONE_MINUS_SRC_COLOR;
+	funcArray[4] = GL_DST_COLOR;
+	funcArray[5] = GL_ONE_MINUS_DST_COLOR;
+	funcArray[6] = GL_SRC_ALPHA;
+	funcArray[7] = GL_ONE_MINUS_SRC_ALPHA;
+	funcArray[8] = GL_DST_ALPHA;
+	funcArray[9] = GL_ONE_MINUS_DST_ALPHA;
+	funcArray[10] = GL_CONSTANT_COLOR;
+	funcArray[11] = GL_ONE_MINUS_CONSTANT_COLOR;
+	funcArray[12] = GL_CONSTANT_ALPHA;
+	funcArray[13] = GL_ONE_MINUS_CONSTANT_ALPHA;
+	funcArray[14] = GL_SRC_ALPHA_SATURATE;
+
+	if (Input::getMouseLeftPressed())
+	{
+		blend1 ++;
+		if (blend1 > 14)
+			blend1 = 0;
+	}
+
+	if (Input::getMouseRightPressed())
+	{
+		blend2 ++;
+		if (blend2 > 14)
+			blend2 = 0;
+	}
+
+	glBlendFunc(funcArray[blend1], funcArray[blend2]);
 
 	// Render the menus to their rendertargets
 	for(int i = 0; i < menus.size(); i ++)
@@ -119,11 +156,12 @@ void MenuSystem::Draw()
 
 	// Begin menu-rendertarget
 	menuRenderTarget->Begin();
-
+	/*
 	// Draw debug-stuff
 	str = "This string and box are drawn via one framebuffer.";
 	sprUI->Draw(0, 35, 0.0f, 200, fontRegular->GetHeight(str, 200, 18), 0.0f, 0.0f, 0.0f, 0.5f, 49, 10, 1, 1);
 	fontRegular->DrawLinebreak(0, 35, str, 200, 18);
+	*/
 
 	// Draw menus
 	for(int i = 0; i < menus.size(); i ++)

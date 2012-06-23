@@ -58,4 +58,5 @@ private:
 	Box *overlayBox;
 	std::function<void()> onButton1, onButton2;
 	Button *overlayButton1, *overlayButton2;
+	GLint blend1, blend2;
 };

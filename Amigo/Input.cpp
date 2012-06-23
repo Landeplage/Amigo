@@ -7,6 +7,10 @@ bool Input::mouseLeftCurrent;
 bool Input::mouseLeftPrevious;
 bool Input::mouseLeftPressed;
 bool Input::mouseLeftReleased;
+bool Input::mouseRightCurrent;
+bool Input::mouseRightPrevious;
+bool Input::mouseRightPressed;
+bool Input::mouseRightReleased;
 
 void Input::Update(GLdouble time)
 {
@@ -45,6 +49,22 @@ void Input::Update(GLdouble time)
 	}
 
 	mouseLeftPrevious = mouseLeftCurrent;
+
+	// Get mouse right click
+	mouseRightPressed = false;
+	mouseRightReleased = false;
+	mouseRightCurrent = (bool)glfwGetMouseButton(GLFW_MOUSE_BUTTON_RIGHT);
+
+	if (mouseRightCurrent && !mouseRightPrevious)
+	{
+		mouseRightPressed = true;
+	}
+	if (!mouseRightCurrent && mouseRightPrevious)
+	{
+		mouseRightReleased = true;
+	}
+
+	mouseRightPrevious = mouseRightCurrent;
 }
 
 Point Input::getMousePos()
@@ -65,6 +85,21 @@ bool Input::getMouseLeftPressed()
 bool Input::getMouseLeftReleased()
 {
 	return(mouseLeftReleased);
+}
+
+bool Input::getMouseRight()
+{
+	return(mouseRightCurrent);
+}
+
+bool Input::getMouseRightPressed()
+{
+	return(mouseRightPressed);
+}
+
+bool Input::getMouseRightReleased()
+{
+	return(mouseRightReleased);
 }
 
 GLint Input::GetKey(GLint key)

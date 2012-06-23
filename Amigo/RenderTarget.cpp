@@ -97,7 +97,7 @@ void RenderTarget::Begin()
 	}*/
 
 	// Set blend-mode
-	glDisable(GL_BLEND);
+	//glDisable(GL_BLEND);
 
 	// Clear the buffer
 	glClearColor(0.0, 0.0, 0.0, 0.0);
@@ -107,7 +107,7 @@ void RenderTarget::Begin()
 void RenderTarget::End()
 {
 	// Reset blend-mode
-	glEnable(GL_BLEND);
+	//glEnable(GL_BLEND);
 
 	// Reset framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
