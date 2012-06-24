@@ -134,8 +134,7 @@ void Button::Draw()
 	// Glow around button
 	if (state > 0)
 	{
-		float glowAlpha;
-		glowAlpha = 0.25f + lenDirX(0.1f, rot * 50);
+		float glowAlpha = 0.25f + lenDirX(0.1f, rot * 50);
 		//glBlendFunc(GL_SRC_ALPHA, GL_ONE); // Additive blending
 		sprite->Draw(x - 12, y - 12, 0.0f, 1.0f, 1.0f, glowAlpha, 0, 35, 15, 15); // Top left
 		sprite->Draw(x + 3, y - 12, 0.0f, w - 6, 1.0f, glowAlpha, 15, 35, 1, 15); // Top

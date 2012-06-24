@@ -146,7 +146,7 @@ void MenuSystem::Draw()
 			blend2 = 0;
 	}
 
-	glBlendFunc(funcArray[blend1], funcArray[blend2]);
+	glBlendFuncSeparate(funcArray[blend1], funcArray[blend2], GL_ONE, GL_ZERO);
 
 	// Render the menus to their rendertargets
 	for(int i = 0; i < menus.size(); i ++)
