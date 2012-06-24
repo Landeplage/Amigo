@@ -157,10 +157,10 @@ void RenderTarget::Draw(GLint x, GLint y, GLfloat rotation, GLfloat scaleX, GLfl
 	glTexCoord2d(coX2, coY2); glVertex2d(w * scaleX,	0);
 	glTexCoord2d(coX2, coY1); glVertex2d(w * scaleX,	h * scaleY);
 	glTexCoord2d(coX1, coY1); glVertex2d(0,				h * scaleY);
-	//glTexCoord2d(coX1, coY2); glVertex2d(lenDirX(5, rot * 2), lenDirY(5, rot * 3));
-	//glTexCoord2d(coX2, coY2); glVertex2d(w * scaleX + lenDirX(5, rot),	lenDirX(5, rot * 4));
-	//glTexCoord2d(coX2, coY1); glVertex2d(w * scaleX + lenDirY(5, rot * 4),	h * scaleY + lenDirX(5, rot));
-	//glTexCoord2d(coX1, coY1); glVertex2d(lenDirX(-5, rot * 3),				h * scaleY + lenDirX(-5, rot * 2));
+	//glTexCoord2d(coX1, coY2); glVertex2d(ldirX(5, rot * 2), ldirY(5, rot * 3));
+	//glTexCoord2d(coX2, coY2); glVertex2d(w * scaleX + ldirX(5, rot),	ldirX(5, rot * 4));
+	//glTexCoord2d(coX2, coY1); glVertex2d(w * scaleX + ldirY(5, rot * 4),	h * scaleY + ldirX(5, rot));
+	//glTexCoord2d(coX1, coY1); glVertex2d(ldirX(-5, rot * 3),				h * scaleY + ldirX(-5, rot * 2));
 	glEnd();
 
 	// Return to default blend-function
@@ -173,7 +173,7 @@ void RenderTarget::Draw(GLint x, GLint y, GLfloat rotation, GLfloat scaleX, GLfl
 }
 
 // Get size of rendertarget
-Point RenderTarget::GetSize()
+Vec2 RenderTarget::GetSize()
 {
 	return size;
 }

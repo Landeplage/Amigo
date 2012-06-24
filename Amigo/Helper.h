@@ -2,18 +2,19 @@
 
 #include <GLTools.h>
 #include <sstream>
+#include "Vec2.h"
 
 #define _USE_MATH_DEFINES
 #include <math.h> // Math-helper
 
 // Calculate the vector of a given length and direction
-static GLfloat lenDirX(GLfloat length, GLfloat direction)
+static GLfloat ldirX(GLfloat length, GLfloat direction)
 {
 	return (cos(direction * (M_PI / 180.0f)) * length);
 }
 
 // Calculate the vector of a given length and direction
-static GLfloat lenDirY(GLfloat length, GLfloat direction)
+static GLfloat ldirY(GLfloat length, GLfloat direction)
 {
 	return (sin(direction * (M_PI / 180.0f)) * length);
 }
@@ -76,9 +77,9 @@ static int getNextPower2(int a)
 }
 
 // Check if a point is inside a rectangle
-static bool isInside(int x, int y, int x1, int y1, int x2, int y2)
+static bool IsInside(Vec2 Point, int x1, int y1, int x2, int y2)
 {
-	if (x >= x1 && x < x2 && y >= y1 && y < y2)
+	if (Point.x >= x1 && Point.x < x2 && Point.y >= y1 && Point.y < y2)
 		return true;
 	return false;
 }

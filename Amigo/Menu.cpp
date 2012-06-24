@@ -160,7 +160,7 @@ GLfloat Menu::GetSlide()
 }
 
 // Get the position of the menu
-Point Menu::GetPosition()
+Vec2 Menu::GetPosition()
 {
 	return position;
 }

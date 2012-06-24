@@ -2,7 +2,7 @@
 #include <GL\glfw.h>
 #include "Context.h"
 
-Point Input::mouse;
+Vec2 Input::mouse;
 bool Input::mouseLeftCurrent;
 bool Input::mouseLeftPrevious;
 bool Input::mouseLeftPressed;
@@ -67,7 +67,7 @@ void Input::Update(GLdouble time)
 	mouseRightPrevious = mouseRightCurrent;
 }
 
-Point Input::getMousePos()
+Vec2 Input::getMousePos()
 {
 	return mouse;
 }

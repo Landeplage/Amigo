@@ -3,7 +3,7 @@
 #include "MenuItem.h"
 #include "Sprite.h"
 #include "Font.h"
-#include "Point.h"
+#include "Vec2.h"
 #include <vector>
 #include <functional>
 #include "RenderTarget.h"
@@ -26,7 +26,7 @@ public:
 
 	GLint GetMenuCurrent();
 	GLfloat GetSlide();
-	Point GetPosition();
+	Vec2 GetPosition();
 
 	void SetTransition(GLint moveX, GLint moveY, GLfloat scale, bool fancyEffect);
 	void OnDraw(std::function<void()> onDraw);
@@ -38,7 +38,7 @@ private:
 	// Properties
 	std::function<void()> onDraw;
 	bool active, fancyEffect;
-	Point position;
+	Vec2 position;
 	MenuSystem* menuSystem;
 	std::vector<MenuItem*> items;
 	Sprite* sprite;

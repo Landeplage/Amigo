@@ -1,6 +1,6 @@
 #pragma once
 #include <GL\glew.h>
-#include "Point.h"
+#include "Vec2.h"
 
 class MenuItem
 {
@@ -20,13 +20,13 @@ public:
 	virtual void Draw() = 0;
 	virtual void Unload() = 0;
 
-	Point GetSize();
-	Point GetPosition();
+	Vec2 GetSize();
+	Vec2 GetPosition();
 
 	void SetSize(GLint width, GLint height);
 	void SetPosition(GLint x, GLint y);
 
 	bool active, visible;
 	int x, y, menuID;
-	Point size;
+	Vec2 size;
 };

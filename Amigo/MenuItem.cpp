@@ -18,12 +18,12 @@ void MenuItem::SetPosition(GLint x, GLint y)
 	this->y = y;
 }
 
-Point MenuItem::GetSize()
+Vec2 MenuItem::GetSize()
 {
 	return size;
 }
 
-Point MenuItem::GetPosition()
+Vec2 MenuItem::GetPosition()
 {
-	return Point(x, y);
+	return Vec2(x, y);
 }

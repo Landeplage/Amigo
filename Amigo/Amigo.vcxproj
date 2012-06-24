@@ -124,7 +124,7 @@
     <ClInclude Include="MenuItem.h" />
     <ClInclude Include="MenuState.h" />
     <ClInclude Include="MenuSystem.h" />
-    <ClInclude Include="Point.h" />
+    <ClInclude Include="Vec2.h" />
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="Context.h" />
   </ItemGroup>

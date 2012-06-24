@@ -134,9 +134,6 @@
     <ClInclude Include="Input.h">
       <Filter>Header files\Engine</Filter>
     </ClInclude>
-    <ClInclude Include="Point.h">
-      <Filter>Header files\Engine</Filter>
-    </ClInclude>
     <ClInclude Include="Box.h">
       <Filter>Header files\Menu</Filter>
     </ClInclude>
@@ -153,6 +150,9 @@
       <Filter>Header files\Menu</Filter>
     </ClInclude>
     <ClInclude Include="RenderTarget.h">
+      <Filter>Header files\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Vec2.h">
       <Filter>Header files\Engine</Filter>
     </ClInclude>
   </ItemGroup>

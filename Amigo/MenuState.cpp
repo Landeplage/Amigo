@@ -111,7 +111,7 @@ bool MenuState::Load()
 		// Logo
 		GLfloat rot = menuSystem->GetRot();
 		if (menuMain->GetMenuCurrent() == MENU_MAIN)
-			sprLogo.Draw(Context::getWindowWidth() / 2 + lenDirX(30, rot * 2), 230 + lenDirY(10, rot), lenDirX(4, rot * 5), 1.0f, 1.0f, 1.0f);
+			sprLogo.Draw(Context::getWindowWidth() / 2 + ldirX(30, rot * 2), 230 + ldirY(10, rot), ldirX(4, rot * 5), 1.0f, 1.0f, 1.0f);
 
 		// Little debug-box of text
 		std::string str = "This string and box are drawn via two framebuffers.";
@@ -190,7 +190,7 @@ void MenuState::Draw()
 	{
 		for(int n = 0; n < (Context::getWindowHeight() / bH) + 2; n ++)
 		{
-			sprChequer.Draw((int)(i * bW + lenDirX(30, rot * 4)) - (bW * 1) + checkerScroll - 200, (int)(n * bH + lenDirY(100, rot * 3)) - (bH * 1), 0.0f, 1.0f, 1.0f, 0.25f);
+			sprChequer.Draw((int)(i * bW + ldirX(30, rot * 4)) - (bW * 1) + checkerScroll - 200, (int)(n * bH + ldirY(100, rot * 3)) - (bH * 1), 0.0f, 1.0f, 1.0f, 0.25f);
 		}
 	}
 

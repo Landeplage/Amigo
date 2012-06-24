@@ -6,7 +6,7 @@ const float acceleration = 0.3f;
 
 Player::Player()
 {
-	position = Point(100, 100);
+	position = Vec2(100, 100);
 }
 
 Player::~Player()
@@ -30,12 +30,12 @@ void Player::Draw()
 	sprite->Draw(position.x, position.y);
 }
 
-void Player::SetPosition(Point position)
+void Player::SetPosition(Vec2 position)
 {
 	this->position = position;
 }
 
-Point Player::GetPosition()
+Vec2 Player::GetPosition()
 {
 	return position;
 }

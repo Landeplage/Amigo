@@ -5,7 +5,7 @@
 #include "Input.h"
 #include "MenuSystem.h"
 
-Button::Button(MenuSystem* menuSystem, std::string text, GLint x, GLint y, GLint w, GLint h, MenuItem::Align align, GLint menuID, std::function<void()> onClick, Point menuOffset)
+Button::Button(MenuSystem* menuSystem, std::string text, GLint x, GLint y, GLint w, GLint h, MenuItem::Align align, GLint menuID, std::function<void()> onClick, Vec2 menuOffset)
 {
 	this->menuSystem = menuSystem;
 	this->text = text;
@@ -42,13 +42,12 @@ void Button::Update(GLdouble time)
 	if (focus == NULL || focus == this)
 	{
 		// Handle button-states
-		Point mouse = Input::getMousePos();
+		Vec2 mouse = Input::getMousePos();
 		mouse.x -= menuOffset.x;
 		mouse.y -= menuOffset.y;
 
 		// Check if mouse is over button
-		if (isInside(mouse.x, mouse.y,
-			x, y, x + size.x, y + size.y))
+		if (IsInside(mouse, x, y, x + size.x, y + size.y))
 		{
 			// One-off event when mouse enters button
 			if (state == 0 && focus == NULL)
@@ -134,7 +133,7 @@ void Button::Draw()
 	// Glow around button
 	if (state > 0)
 	{
-		float glowAlpha = 0.25f + lenDirX(0.1f, rot * 50);
+		float glowAlpha = 0.25f + ldirX(0.1f, rot * 50);
 		//glBlendFunc(GL_SRC_ALPHA, GL_ONE); // Additive blending
 		sprite->Draw(x - 12, y - 12, 0.0f, 1.0f, 1.0f, glowAlpha, 0, 35, 15, 15); // Top left
 		sprite->Draw(x + 3, y - 12, 0.0f, w - 6, 1.0f, glowAlpha, 15, 35, 1, 15); // Top

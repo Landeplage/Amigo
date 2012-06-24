@@ -28,9 +28,9 @@ MenuSystem::MenuSystem(Sprite* sprCursor, Sprite* sprUI, Font* fontBold, Font* f
 	// Add items to overlay
 	overlayItems.push_back(new Box(this, "", 10, 10, 10, 10, 0));
 	overlayBox = (Box*)overlayItems[overlayItems.size() - 1];
-	overlayItems.push_back(new Button(this, "", 0, 0, 0, 0, MenuItem::Align::CENTER, 0, [](){}, Point(0, 0)));
+	overlayItems.push_back(new Button(this, "", 0, 0, 0, 0, MenuItem::Align::CENTER, 0, [](){}, Vec2(0, 0)));
 	overlayButton1 = (Button*)overlayItems[overlayItems.size() - 1];
-	overlayItems.push_back(new Button(this, "", 0, 0, 0, 0, MenuItem::Align::CENTER, 0, [](){}, Point(0, 0)));
+	overlayItems.push_back(new Button(this, "", 0, 0, 0, 0, MenuItem::Align::CENTER, 0, [](){}, Vec2(0, 0)));
 	overlayButton2 = (Button*)overlayItems[overlayItems.size() - 1];
 
 	blend1 = 0;
@@ -204,7 +204,7 @@ void MenuSystem::Draw()
 	}
 
 	// Draw cursor
-	Point mouse = Input::getMousePos();
+	Vec2 mouse = Input::getMousePos();
 	sprCursor->Draw(mouse.x, mouse.y, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, cursorOffset * 32, 0, 32, 32);
 }
 

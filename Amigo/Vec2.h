@@ -1,10 +1,10 @@
 #pragma once
 #include <GL\glew.h>
 
-class Point
+class Vec2
 {
 public:
-	Point(GLfloat x = 0, GLfloat y = 0)
+	Vec2(GLfloat x = 0, GLfloat y = 0)
 	{
 		this->x = x;
 		this->y = y;

@@ -1,5 +1,5 @@
 #pragma once
-#include "Point.h"
+#include "Vec2.h"
 
 static class Input
 {
@@ -10,7 +10,7 @@ public:
 	static bool getMouseRight();
 	static bool getMouseRightPressed();
 	static bool getMouseRightReleased();
-	static Point getMousePos();
+	static Vec2 getMousePos();
 
 	static GLint GetKey(GLint key);
 
@@ -18,5 +18,5 @@ public:
 private:
 	static bool mouseLeftCurrent, mouseLeftPrevious, mouseLeftPressed, mouseLeftReleased;
 	static bool mouseRightCurrent, mouseRightPrevious, mouseRightPressed, mouseRightReleased;
-	static Point mouse;
+	static Vec2 mouse;
 };

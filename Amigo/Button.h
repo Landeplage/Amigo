@@ -3,14 +3,14 @@
 #include "Sprite.h"
 #include "Font.h"
 #include <functional>
-#include "Point.h"
+#include "Vec2.h"
 
 class MenuSystem;
 
 class Button : public MenuItem
 {
 public:
-	Button(MenuSystem* menuSystem, std::string text, GLint x, GLint y, GLint w, GLint h, MenuItem::Align align, GLint menuID, std::function<void()> onClick, Point menuOffset);
+	Button(MenuSystem* menuSystem, std::string text, GLint x, GLint y, GLint w, GLint h, MenuItem::Align align, GLint menuID, std::function<void()> onClick, Vec2 menuOffset);
 	
 	virtual void Update(GLdouble time);
 	virtual void Draw();
@@ -31,5 +31,5 @@ protected:
 	std::function<void()> function;
 	MenuSystem* menuSystem;
 	bool hasBeenClicked;
-	Point textOffset, menuOffset;
+	Vec2 textOffset, menuOffset;
 };

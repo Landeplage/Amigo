@@ -1,6 +1,6 @@
 #pragma once
 #include <GL\glew.h>
-#include "Point.h"
+#include "Vec2.h"
 #include "Sprite.h"
 
 class Player
@@ -12,11 +12,11 @@ public:
 	void Update(GLdouble time);
 	void Draw();
 
-	void SetPosition(Point position);
-	Point GetPosition();
+	void SetPosition(Vec2 position);
+	Vec2 GetPosition();
 	void SetSprite(Sprite* sprite);
 
 private:
-	Point position;
+	Vec2 position;
 	Sprite* sprite;
 };

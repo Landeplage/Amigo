@@ -1,6 +1,6 @@
 #pragma once
 #include <GL\glew.h>
-#include "Point.h"
+#include "Vec2.h"
 
 class RenderTarget
 {
@@ -15,7 +15,7 @@ public:
 	void Draw(GLint x, GLint y, GLfloat alpha);
 	void Draw(GLint x, GLint y, GLfloat rotation, GLfloat scaleX, GLfloat scaleY, GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha, GLint xx, GLint yy, GLint w, GLint h);
 
-	Point GetSize();
+	Vec2 GetSize();
 private:
 	// Rendertarget stuff
 	union Viewport { struct { GLint x, y; GLint width, height; }; GLint vp[4]; };
@@ -23,7 +23,7 @@ private:
 	GLuint frameBufferRT;
 	GLuint* texRT;
 	GLint texCount;
-	Point size, windowSize;
+	Vec2 size, windowSize;
 
 	GLfloat rot;
 };
