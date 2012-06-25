@@ -11,6 +11,7 @@ public:
 	static bool getMouseRightPressed();
 	static bool getMouseRightReleased();
 	static Vec2 getMousePos();
+	static void setMousePos(Vec2 position);
 
 	static GLint GetKey(GLint key);
 

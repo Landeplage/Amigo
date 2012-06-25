@@ -102,6 +102,11 @@ bool Input::getMouseRightReleased()
 	return(mouseRightReleased);
 }
 
+void Input::setMousePos(Vec2 position)
+{
+	glfwSetMousePos(position.x, position.y);
+}
+
 GLint Input::GetKey(GLint key)
 {
 	return glfwGetKey(key);
