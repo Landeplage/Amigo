@@ -4,6 +4,10 @@ MenuItem::MenuItem()
 {
 	visible = true;
 	active = true;
+	position = Vec2(0, 0);
+	size = Vec2(0, 0);
+	menuOffset = Vec2(0, 0);
+	menuID = 0;
 }
 
 void MenuItem::SetSize(GLint width, GLint height)
@@ -14,8 +18,8 @@ void MenuItem::SetSize(GLint width, GLint height)
 
 void MenuItem::SetPosition(GLint x, GLint y)
 {
-	this->x = x;
-	this->y = y;
+	this->position.x = x;
+	this->position.y = y;
 }
 
 Vec2 MenuItem::GetSize()
@@ -25,5 +29,5 @@ Vec2 MenuItem::GetSize()
 
 Vec2 MenuItem::GetPosition()
 {
-	return Vec2(x, y);
+	return position;
 }

@@ -9,10 +9,8 @@ Button::Button(MenuSystem* menuSystem, std::string text, GLint x, GLint y, GLint
 {
 	this->menuSystem = menuSystem;
 	this->text = text;
-	this->x = x;
-	this->y = y;
-	this->size.x = w;
-	this->size.y = h;
+	this->position = Vec2(x, y);
+	this->size = Vec2(w, h);
 	this->menuID = menuID;
 	this->function = onClick;
 	this->menuOffset = menuOffset;
@@ -21,9 +19,10 @@ Button::Button(MenuSystem* menuSystem, std::string text, GLint x, GLint y, GLint
 	this->sprite = menuSystem->GetSpriteUI();
 
 	state = 0;
-	hasBeenClicked = false;
 
 	SetTextAlignment(align);
+
+	hasBeenClicked = false;
 }
 
 void Button::Unload()
@@ -33,6 +32,9 @@ void Button::Unload()
 
 void Button::Update(GLdouble time)
 {
+	// Reset hasBeenClicked variable
+	hasBeenClicked = false;
+
 	if (!(active && visible))
 		return;
 
@@ -47,7 +49,7 @@ void Button::Update(GLdouble time)
 		mouse.y -= menuOffset.y;
 
 		// Check if mouse is over button
-		if (IsInside(mouse, x, y, x + size.x, y + size.y))
+		if (IsInside(mouse, position.x, position.y, position.x + size.x, position.y + size.y))
 		{
 			// One-off event when mouse enters button
 			if (state == 0 && focus == NULL)
@@ -62,16 +64,18 @@ void Button::Update(GLdouble time)
 			// Change cursor
 			menuSystem->SetCursor(1);
 
-			// Button clicked
+			// Button pressed
 			if (Input::getMouseLeft() && focus == this)
 			{
 				state = 2;
-				if (!hasBeenClicked)
+
+				// Clicked
+				if (Input::getMouseLeftPressed())
 					hasBeenClicked = true;
 			}
 
 			// Button released
-			if (Input::getMouseLeftReleased() && hasBeenClicked)
+			if (Input::getMouseLeftReleased())
 			{
 				state = 0;
 				onClick();
@@ -85,7 +89,9 @@ void Button::Update(GLdouble time)
 				if (Input::getMouseLeft())
 					state = 1;
 				else
+				{
 					menuSystem->ResetFocus();
+				}
 			}
 		}
 	}
@@ -99,7 +105,9 @@ void Button::Draw()
 	float rot;
 	rot = menuSystem->GetRot();
 
-	int w, h, hh, xOff;
+	int x, y, w, h, hh, xOff;
+	x = position.x;
+	y = position.y;
 	w = size.x;
 	h = size.y;
 	hh = 17;
@@ -177,4 +185,9 @@ void Button::SetMenuOffset(GLint xOffset, GLint yOffset)
 {
 	menuOffset.x = xOffset;
 	menuOffset.y = yOffset;
+}
+
+bool Button::GetHasBeenClicked()
+{
+	return hasBeenClicked;
 }

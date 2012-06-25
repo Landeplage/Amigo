@@ -1,6 +1,7 @@
 #include "Menu.h"
 #include "Box.h"
 #include "Button.h"
+#include "Slider.h"
 #include "MenuSystem.h"
 
 Menu::Menu(GLint x, GLint y, GLint width, GLint height, MenuSystem* menuSystem)
@@ -198,5 +199,12 @@ MenuItem* Menu::AddBox(std::string title, GLint x, GLint y, GLint width, GLint h
 MenuItem* Menu::AddButton(std::string text, GLint x, GLint y, GLint width, GLint height, MenuItem::Align align, GLint menuID, std::function<void()> onClick)
 {
 	items.push_back(new Button(menuSystem, text, x, y, width, height, align, menuID, onClick, position));
+	return items[items.size() - 1];
+}
+
+// Add a slider
+MenuItem* Menu::AddSlider(std::string text, Vec2 position, GLint width, GLfloat min, GLfloat max, GLint menuID, std::function<void()> onRelease)
+{
+	items.push_back(new Slider(menuSystem, text, position, width, min, max, menuID, onRelease, this->position));
 	return items[items.size() - 1];
 }

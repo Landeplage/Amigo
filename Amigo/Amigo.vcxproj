@@ -103,6 +103,7 @@
     <ClCompile Include="MenuSystem.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="RenderTarget.cpp" />
+    <ClCompile Include="Slider.cpp" />
     <ClCompile Include="Sprite.cpp" />
     <ClCompile Include="TinyThread\tinythread.cpp" />
   </ItemGroup>
@@ -117,6 +118,7 @@
     <ClInclude Include="Menu.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="RenderTarget.h" />
+    <ClInclude Include="Slider.h" />
     <ClInclude Include="State.h" />
     <ClInclude Include="Helper.h" />
     <ClInclude Include="Input.h" />

@@ -1,6 +1,5 @@
 #pragma once
 #include "MenuItem.h"
-#include "Sprite.h"
 #include "Font.h"
 
 class MenuSystem;
@@ -17,7 +16,6 @@ public:
 	void SetTitle(std::string title);
 
 private:
-	Sprite* sprite;
 	Font* font;
 	std::string title;
 	MenuSystem* menuSystem;

@@ -106,13 +106,13 @@ void MenuSystem::Update(GLdouble time)
 void MenuSystem::Draw()
 {
 	// Draw debug-text
-	std::string str = toString(blend1) + " x " + toString(blend2);
+	std::string str = toString(blend1) + " x " + toString(cursorOffset);
 	fontBold->Draw((Context::getWindowWidth() - fontBold->GetWidth(str)) / 2, 10, str);
 
 	// Little debug-box of text
-	str = "This string and box are drawn directly.";
+	/*str = "This string and box are drawn directly.";
 	sprUI->Draw(0, 0, 0.0f, 200, fontRegular->GetHeight(str, 200, 18), 0.0f, 0.0f, 0.0f, 0.5f, 49, 10, 1, 1);
-	fontRegular->DrawLinebreak(0, 0, str, 200, 18);
+	fontRegular->DrawLinebreak(0, 0, str, 200, 18);*/
 
 	// Debugging rendertarget blending
 	GLint funcArray[15];
@@ -146,7 +146,7 @@ void MenuSystem::Draw()
 			blend2 = 0;
 	}
 
-	glBlendFuncSeparate(funcArray[blend1], funcArray[blend2], GL_ONE, GL_ZERO);
+	glBlendFunc(GL_ONE, GL_ZERO);
 
 	// Render the menus to their rendertargets
 	for(int i = 0; i < menus.size(); i ++)
@@ -204,8 +204,11 @@ void MenuSystem::Draw()
 	}
 
 	// Draw cursor
-	Vec2 mouse = Input::getMousePos();
-	sprCursor->Draw(mouse.x, mouse.y, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, cursorOffset * 32, 0, 32, 32);
+	if (cursorOffset > -1)
+	{
+		Vec2 mouse = Input::getMousePos();
+		sprCursor->Draw(mouse.x, mouse.y, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, cursorOffset * 32, 0, 32, 32);
+	}
 }
 
 // Add a menu
@@ -259,6 +262,12 @@ Font* MenuSystem::GetFontBold()
 	return fontBold;
 }
 
+// Return the regular font
+Font* MenuSystem::GetFontRegular()
+{
+	return fontRegular;
+}
+
 // Return the UI-sprite
 Sprite* MenuSystem::GetSpriteUI()
 {
@@ -277,7 +286,7 @@ bool MenuSystem::GetOverlayShow()
 	return overlayShow;
 }
 
-// Set cursor offset
+// Set cursor offset. -1 means invisible cursor
 void MenuSystem::SetCursor(GLint cursorOffset)
 {
 	this->cursorOffset = cursorOffset;

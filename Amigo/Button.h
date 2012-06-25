@@ -1,6 +1,5 @@
 #pragma once
 #include "MenuItem.h"
-#include "Sprite.h"
 #include "Font.h"
 #include <functional>
 #include "Vec2.h"
@@ -21,15 +20,16 @@ public:
 	void SetOnClick(std::function<void()> onClick);
 	void SetMenuOffset(GLint xOffset, GLint yOffset);
 
+	bool GetHasBeenClicked();
+
 protected:
 	virtual void onClick();
 
-	Sprite* sprite;
 	Font* font;
 	std::string text;
 	GLint state; // determines if button is pressed or highlighted
 	std::function<void()> function;
 	MenuSystem* menuSystem;
-	bool hasBeenClicked;
 	Vec2 textOffset, menuOffset;
+	bool hasBeenClicked;
 };

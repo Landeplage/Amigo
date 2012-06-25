@@ -29,6 +29,7 @@ public:
 
 	GLfloat GetRot();
 	Font* GetFontBold();
+	Font* GetFontRegular();
 	Sprite* GetSpriteUI();
 	GLfloat GetOverlaySlide();
 	bool GetOverlayShow();

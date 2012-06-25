@@ -93,6 +93,9 @@
     <ClCompile Include="MenuItem.cpp">
       <Filter>Source files\Menu</Filter>
     </ClCompile>
+    <ClCompile Include="Slider.cpp">
+      <Filter>Source files\Menu</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MenuState.h">
@@ -154,6 +157,9 @@
     </ClInclude>
     <ClInclude Include="Vec2.h">
       <Filter>Header files\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Slider.h">
+      <Filter>Header files\Menu</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

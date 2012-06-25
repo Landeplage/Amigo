@@ -1,6 +1,7 @@
 #pragma once
 #include <GL\glew.h>
 #include "Vec2.h"
+#include "Sprite.h"
 
 class MenuItem
 {
@@ -27,6 +28,9 @@ public:
 	void SetPosition(GLint x, GLint y);
 
 	bool active, visible;
-	int x, y, menuID;
-	Vec2 size;
+	int menuID;
+
+protected:
+	Vec2 size, position, menuOffset;
+	Sprite *sprite;
 };

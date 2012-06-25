@@ -5,10 +5,8 @@ Box::Box(MenuSystem* menuSystem, std::string title, GLint x, GLint y, GLint w, G
 {
 	this->menuSystem = menuSystem;
 	this->title = title;
-	this->x = x;
-	this->y = y;
-	this->size.x = w;
-	this->size.y = h;
+	this->position = Vec2(x, y);
+	this->size = Vec2(w, h);
 	this->menuID = menuID;
 
 	this->font = menuSystem->GetFontBold();
@@ -27,7 +25,9 @@ void Box::Update(GLdouble time)
 
 void Box::Draw()
 {
-	int w, h;
+	int x, y, w, h;
+	x = position.x;
+	y = position.y;
 	w = size.x;
 	h = size.y;
 
