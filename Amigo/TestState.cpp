@@ -36,8 +36,14 @@ void TestState::Update(GLdouble time)
 	// Enable the rendertarget
 	renderTargetTest->Begin();
 
+	// Set blend mode
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	// Render test-sprite to rendertarget
 	sprTest.Draw(0, 0);
+
+	// Reset blend mode
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// Disable the rendertarget
 	renderTargetTest->End();
