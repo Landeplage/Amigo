@@ -93,6 +93,20 @@ void Slider::Draw()
 	button->Draw();
 }
 
+// Set the value of the slider
+void Slider::SetValue(GLfloat value)
+{
+	// Clamp value-parameter and assign to variable
+	if (value > max) value = max;
+	if (value < min) value = min;
+	this->value = value;
+
+	// Move the slider-button to the correct position
+	GLint newX;
+	newX = ((this->value - min) / (max - min)) * (size.x - button->GetSize().x);
+	button->SetPosition(position.x + newX, button->GetPosition().y);
+}
+
 // Return the current value
 GLfloat Slider::GetValue()
 {

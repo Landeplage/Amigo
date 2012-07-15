@@ -8,6 +8,8 @@
 #include "Font.h"
 #include <string>
 
+#include "Slider.h"
+
 enum MENU
 {
 	MENU_MAIN,
@@ -100,7 +102,10 @@ bool MenuState::Load()
 
 	// Settings
 	menuMain->AddBox("Settings", centerX - 150, 250, 300, 250, MENU_SETTINGS);
-	menuMain->AddSlider("Testing", Vec2(centerX - 140, 260), 280, 21.0f, 100.0f, MENU_SETTINGS, [](){});
+
+	Slider *slider;
+	slider = (Slider*)menuMain->AddSlider("Slider", Vec2(centerX - 140, 260), 280, 21.0f, 100.0f, MENU_SETTINGS, [](){});
+	slider->SetValue(0.0f);
 
 	menuMain->AddButton("Back", centerX - 75, 515, 150, 35, MenuItem::Align::CENTER, MENU_SETTINGS, [=]()
 		{

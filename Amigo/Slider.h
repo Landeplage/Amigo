@@ -3,6 +3,7 @@
 #include "Button.h"
 #include "Font.h"
 #include "Vec2.h"
+#include <functional>
 
 class MenuSystem;
 
@@ -15,6 +16,7 @@ public:
 	void Draw();
 	void Unload();
 
+	void SetValue(GLfloat value);
 	GLfloat GetValue();
 
 private:

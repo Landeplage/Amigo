@@ -69,7 +69,7 @@ void GameEngine::Load()
 void GameEngine::GameLoop()
 {
 	// Set framerate cap
-	GLint framerate = 9999;
+	GLint framerate = 999;
 	GLdouble lastFrameTime = 0, currentFrameTime = 0, fpsLastUpdate = 0;
 	gameRunning = true;
 

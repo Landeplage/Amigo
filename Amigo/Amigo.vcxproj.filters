@@ -34,6 +34,9 @@
     <Filter Include="Source files\Menu">
       <UniqueIdentifier>{8511e42b-7a5a-4c23-904b-8c9f1e7714c8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source files\Objects">
+      <UniqueIdentifier>{91cb33cb-1c0a-440f-9d63-27cf9361e6e4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="IntroState.cpp">
@@ -81,9 +84,6 @@
     <ClCompile Include="GameState.cpp">
       <Filter>Source files\States</Filter>
     </ClCompile>
-    <ClCompile Include="Player.cpp">
-      <Filter>Source files</Filter>
-    </ClCompile>
     <ClCompile Include="Menu.cpp">
       <Filter>Source files\Menu</Filter>
     </ClCompile>
@@ -95,6 +95,12 @@
     </ClCompile>
     <ClCompile Include="Slider.cpp">
       <Filter>Source files\Menu</Filter>
+    </ClCompile>
+    <ClCompile Include="TestState.cpp">
+      <Filter>Source files\States</Filter>
+    </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>Source files\Objects</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -160,6 +166,9 @@
     </ClInclude>
     <ClInclude Include="Slider.h">
       <Filter>Header files\Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="TestState.h">
+      <Filter>Header files\States</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

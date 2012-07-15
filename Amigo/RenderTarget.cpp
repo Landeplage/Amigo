@@ -9,8 +9,6 @@ RenderTarget::Viewport RenderTarget::viewport;
 
 RenderTarget::RenderTarget(GLint width, GLint height, GLint texCount)
 {
-	rot = 0;
-
 	size.x = width;
 	size.y = height;
 	this->texCount = texCount;
@@ -84,20 +82,6 @@ void RenderTarget::Begin()
             glDrawBuffers(texCount, buffers);
             delete[] buffers;
     }
-	/*
-	if (texCount > 1)
-	{
-		GLenum* buffers = new GLenum[texCount];
-		for (GLuint i = 0; i < texCount; i++)
-		{
-			buffers[i] = GL_COLOR_ATTACHMENT0 + i;
-		}
-		glDrawBuffers(texCount, buffers);
-		delete[] buffers;
-	}*/
-
-	// Set blend-mode
-	//glDisable(GL_BLEND);
 
 	// Clear the buffer
 	glClearColor(0.0, 0.0, 0.0, 0.0);
@@ -106,9 +90,6 @@ void RenderTarget::Begin()
 
 void RenderTarget::End()
 {
-	// Reset blend-mode
-	//glEnable(GL_BLEND);
-
 	// Reset framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -128,7 +109,6 @@ void RenderTarget::Draw(GLint x, GLint y, GLfloat alpha)
 
 void RenderTarget::Draw(GLint x, GLint y, GLfloat rotation, GLfloat scaleX, GLfloat scaleY, GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha, GLint xx, GLint yy, GLint w, GLint h)
 {
-	// Draw the framebuffer-texture
 	// Bind texture
 	glBindTexture(GL_TEXTURE_2D, texRT[0]);
 	
@@ -157,10 +137,6 @@ void RenderTarget::Draw(GLint x, GLint y, GLfloat rotation, GLfloat scaleX, GLfl
 	glTexCoord2d(coX2, coY2); glVertex2d(w * scaleX,	0);
 	glTexCoord2d(coX2, coY1); glVertex2d(w * scaleX,	h * scaleY);
 	glTexCoord2d(coX1, coY1); glVertex2d(0,				h * scaleY);
-	//glTexCoord2d(coX1, coY2); glVertex2d(ldirX(5, rot * 2), ldirY(5, rot * 3));
-	//glTexCoord2d(coX2, coY2); glVertex2d(w * scaleX + ldirX(5, rot),	ldirX(5, rot * 4));
-	//glTexCoord2d(coX2, coY1); glVertex2d(w * scaleX + ldirY(5, rot * 4),	h * scaleY + ldirX(5, rot));
-	//glTexCoord2d(coX1, coY1); glVertex2d(ldirX(-5, rot * 3),				h * scaleY + ldirX(-5, rot * 2));
 	glEnd();
 
 	// Return to default blend-function
@@ -168,8 +144,6 @@ void RenderTarget::Draw(GLint x, GLint y, GLfloat rotation, GLfloat scaleX, GLfl
 
 	// Pop the matrix
 	glPopMatrix();
-
-	rot += 0.5f;
 }
 
 // Get size of rendertarget

@@ -1,5 +1,5 @@
 #include "GameEngine.h"
-#include "MenuState.h"
+#include "TestState.h"
 
 int main(int argc, char* argv[])
 {
@@ -11,7 +11,7 @@ int main(int argc, char* argv[])
 	}
 
 	// Go to first state
-	GameEngine::ChangeState(new MenuState(), false);
+	GameEngine::ChangeState(new TestState(), false);
 
 	// Run game
 	GameEngine::GameLoop();

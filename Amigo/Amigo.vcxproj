@@ -105,6 +105,7 @@
     <ClCompile Include="RenderTarget.cpp" />
     <ClCompile Include="Slider.cpp" />
     <ClCompile Include="Sprite.cpp" />
+    <ClCompile Include="TestState.cpp" />
     <ClCompile Include="TinyThread\tinythread.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -126,6 +127,7 @@
     <ClInclude Include="MenuItem.h" />
     <ClInclude Include="MenuState.h" />
     <ClInclude Include="MenuSystem.h" />
+    <ClInclude Include="TestState.h" />
     <ClInclude Include="Vec2.h" />
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="Context.h" />
