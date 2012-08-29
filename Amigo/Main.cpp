@@ -11,7 +11,7 @@ int main(int argc, char* argv[])
 	}
 
 	// Go to first state
-	GameEngine::ChangeState(new MenuState(), false);
+	GameEngine::ChangeState(new MenuState());
 
 	// Run game
 	GameEngine::GameLoop();

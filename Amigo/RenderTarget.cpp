@@ -21,7 +21,7 @@ RenderTarget::RenderTarget(GLint width, GLint height)
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBufferRT);
 	
 	// Setup texture
-	texRT = new GLuint[0];
+	texRT = new GLuint[1];
 	glGenTextures(1, texRT);
 	glBindTexture(GL_TEXTURE_2D, texRT[0]);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
@@ -38,7 +38,7 @@ RenderTarget::RenderTarget(GLint width, GLint height)
 RenderTarget::~RenderTarget()
 {
 	printf("- Deleting rendertarget...");
-	//delete[] texRT;
+	delete[] texRT;
 	printf("Done.\n");
 }
 

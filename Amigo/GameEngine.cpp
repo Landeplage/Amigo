@@ -12,9 +12,11 @@
 static State *currentState;
 
 bool GameEngine::isLoading;
+bool GameEngine::initLoad;
 bool GameEngine::gameRunning;
 Sprite GameEngine::sprLoading;
 GLfloat GameEngine::loadingRot;
+State *GameEngine::newState;
 
 bool GameEngine::Initialize(int argc, char* argv[])
 {
@@ -46,6 +48,8 @@ bool GameEngine::Initialize(int argc, char* argv[])
 
 	// Init various variables
 	loadingRot = 0;
+	isLoading = false;
+	initLoad = false;
 
 	// Load stuff
 	Load();
@@ -83,7 +87,18 @@ void GameEngine::GameLoop()
 		}
 		else
 		{
+			// Check if loading has been initiated and go to new state
+			if (initLoad)
+			{
+				isLoading = true;
+				GoToState(newState);
+				initLoad = false;
+			}
+
+			// Update
 			Update((currentFrameTime - lastFrameTime) * 1000);
+			
+			// Draw
 			Draw();
 
 			// update fps-counter
@@ -137,8 +152,23 @@ void GameEngine::Draw()
 	Context::Draw();
 }
 
-// Switch game-state
+// Queue new state
 void GameEngine::ChangeState(State *state)
+{
+	initLoad = true;
+	newState = state;
+}
+
+// Queue new state (with an option to hide loading)
+void GameEngine::ChangeState(State *state, bool showLoading)
+{
+	ChangeState(state);
+	//isLoading = showLoading;
+	//currentState->Load();
+}
+
+// Go to new state
+void GameEngine::GoToState(State *state)
 {
 	if (currentState)
 	{
@@ -146,15 +176,6 @@ void GameEngine::ChangeState(State *state)
 	}
 	currentState = state;
 	currentState->Init();
-	isLoading = true;
-}
-
-// Switch state, and choose whether or not the loading-screen appears
-void GameEngine::ChangeState(State *state, bool showLoading)
-{
-	ChangeState(state);
-	isLoading = showLoading;
-	currentState->Load();
 }
 
 // End the game-loop
@@ -169,3 +190,4 @@ void GameEngine::Cleanup()
 	currentState->~State();
 	Context::Cleanup();
 }
+

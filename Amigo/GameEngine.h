@@ -17,8 +17,10 @@ public:
 	static void Cleanup();
 private:
 	static void Load();
+	static void GoToState(State *state);
 
 	static Sprite sprLoading;
-	static bool isLoading, gameRunning;
+	static bool isLoading, initLoad, gameRunning;
 	static GLfloat loadingRot;
+	static State *newState;
 };
