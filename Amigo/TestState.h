@@ -13,6 +13,7 @@ public:
 	virtual void Draw();
 
 private:
-	Sprite sprBackground, sprTest;
+	Sprite sprBackground, sprTest, sprCursor;
 	RenderTarget *renderTargetTest;
+	GLint blend1, blend2;
 };

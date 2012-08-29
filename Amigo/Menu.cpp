@@ -2,6 +2,7 @@
 #include "Box.h"
 #include "Button.h"
 #include "Slider.h"
+#include "SliderRange.h"
 #include "MenuSystem.h"
 
 Menu::Menu(GLint x, GLint y, GLint width, GLint height, MenuSystem* menuSystem)
@@ -16,7 +17,7 @@ Menu::Menu(GLint x, GLint y, GLint width, GLint height, MenuSystem* menuSystem)
 	sprite = menuSystem->GetSpriteUI();
 	fontBold = menuSystem->GetFontBold();
 
-	renderTarget = new RenderTarget(width, height, 1);
+	renderTarget = new RenderTarget(width, height);
 
 	menuCurrent = 0;
 	menuGoTo = 0;
@@ -82,7 +83,7 @@ void Menu::Update(GLdouble time)
 	}
 
 	// Slide to target
-	printf("Time = %i\n", (GLint)(time));
+	//printf("Time = %i\n", (GLint)(time));
 	GLint slideLoop = (GLint)(time);
 	do
 	{
@@ -91,6 +92,9 @@ void Menu::Update(GLdouble time)
 		slideLoop --;
 	}
 	while (slideLoop > 0);
+
+	// Render items to rendertarget
+	Render();
 }
 
 // Draw the rendertarget texture
@@ -118,6 +122,7 @@ void Menu::Draw()
 	// Scale
 	tmpScale = 1.0f + (slide * scale);
 
+	// Draw the rendertarget
 	renderTarget->Draw(
 		(int)(position.x + (moveX * slide) - ((tmpScale - 1) * width) / 2 + tmpShutterX),
 		(int)(position.y + (moveY * slide) - ((tmpScale - 1) * height) / 2),
@@ -150,6 +155,8 @@ void Menu::Render()
 
 	// Draw any stuff on top
 	onDraw();
+
+	this->sprite->Draw(0, 0);
 
 	// End rendertarget
 	renderTarget->End();
@@ -210,8 +217,15 @@ MenuItem* Menu::AddButton(std::string text, GLint x, GLint y, GLint width, GLint
 }
 
 // Add a slider
-MenuItem* Menu::AddSlider(std::string text, Vec2 position, GLint width, GLfloat min, GLfloat max, GLint menuID, std::function<void()> onRelease)
+MenuItem* Menu::AddSlider(std::string text, Vec2 position, GLint width, GLfloat min, GLfloat max, GLfloat step, GLint menuID, std::function<void()> onRelease)
 {
-	items.push_back(new Slider(menuSystem, text, position, width, min, max, menuID, onRelease, this->position));
+	items.push_back(new Slider(menuSystem, text, position, width, min, max, step, menuID, onRelease, this->position));
+	return items[items.size() - 1];
+}
+
+// Add a range-slider
+MenuItem* Menu::AddSliderRange(std::string text, Vec2 position, GLint width, GLfloat min, GLfloat max, GLfloat step, GLint menuID, std::function<void()> onRelease)
+{
+	items.push_back(new SliderRange(menuSystem, text, position, width, min, max, step, menuID, onRelease, this->position));
 	return items[items.size() - 1];
 }

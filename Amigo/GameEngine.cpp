@@ -109,12 +109,7 @@ void GameEngine::Update(GLdouble time)
 	Input::Update(time);
 	Context::Update(time);
 
-	// Rotation effect-variable
-	loadingRot++;
-	if (loadingRot >= 360)
-		loadingRot -= 360;
-
-	// Update current game-state
+	// Handle current game-state
 	if (!isLoading)
 	{
 		currentState->Update(time);
@@ -122,6 +117,11 @@ void GameEngine::Update(GLdouble time)
 	else
 	{
 		isLoading = !(currentState->Load());
+		
+		// Rotation effect-variable
+		loadingRot++;
+		if (loadingRot >= 360)
+			loadingRot -= 360;
 	}
 }
 

@@ -11,6 +11,9 @@ bool Input::mouseRightCurrent;
 bool Input::mouseRightPrevious;
 bool Input::mouseRightPressed;
 bool Input::mouseRightReleased;
+GLint Input::mouseWheelDiff;
+GLint Input::mouseWheelPrevious;
+GLint Input::mouseWheelIncrement;
 
 void Input::Update(GLdouble time)
 {
@@ -65,6 +68,22 @@ void Input::Update(GLdouble time)
 	}
 
 	mouseRightPrevious = mouseRightCurrent;
+
+	// Update mouse-wheel variables
+	GLint mouseWheelCurrent = glfwGetMouseWheel();
+	mouseWheelDiff = mouseWheelCurrent - mouseWheelPrevious;
+	mouseWheelIncrement = 0;
+
+	if (mouseWheelCurrent > mouseWheelPrevious)
+	{
+		mouseWheelIncrement = 1;
+	}
+	if (mouseWheelCurrent < mouseWheelPrevious)
+	{
+		mouseWheelIncrement = -1;
+	}
+
+	mouseWheelPrevious = mouseWheelCurrent;
 }
 
 Vec2 Input::getMousePos()
@@ -100,6 +119,16 @@ bool Input::getMouseRightPressed()
 bool Input::getMouseRightReleased()
 {
 	return(mouseRightReleased);
+}
+
+GLint Input::getMouseWheel()
+{
+	return(mouseWheelDiff);
+}
+
+GLint Input::getMouseWheelIncrement()
+{
+	return(mouseWheelIncrement);
 }
 
 void Input::setMousePos(Vec2 position)

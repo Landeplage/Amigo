@@ -20,8 +20,8 @@ MenuSystem::MenuSystem(Sprite* sprCursor, Sprite* sprUI, Font* fontBold, Font* f
 	overlaySlide = -1;
 	overlaySlideTarget = -1;
 	overlaySlideSpeed = 0;
-	overlayRenderTarget = new RenderTarget(420, Context::getWindowHeight(), 1);
-	menuRenderTarget = new RenderTarget(Context::getWindowWidth(), Context::getWindowHeight(), 1);
+	overlayRenderTarget = new RenderTarget(420, Context::getWindowHeight());
+	menuRenderTarget = new RenderTarget(Context::getWindowWidth(), Context::getWindowHeight());
 	onButton1 = [](){};
 	onButton2 = [](){};
 
@@ -60,6 +60,11 @@ MenuSystem::~MenuSystem()
 
 void MenuSystem::Update(GLdouble time)
 {
+	// Pulsing variable for various effects
+	rot += time * 0.01f;
+	if (rot >= 360)
+		rot -= 360;
+
 	// Reset cursor offset
 	cursorOffset = 0;
 
@@ -69,7 +74,7 @@ void MenuSystem::Update(GLdouble time)
 		menus[i]->Update(time);
 	}
 
-	// Handle menus
+	// Handle overlay-menus
 	if (abs(overlaySlide) < 0.1f && overlayShow)
 	{
 		// Update overlay items
@@ -79,12 +84,7 @@ void MenuSystem::Update(GLdouble time)
 		}
 	}
 
-	// Pulsing variable for various effects
-	rot += time * 0.01f;
-	if (rot >= 360)
-		rot -= 360;
-
-	// Slide variable for the overlay
+	// Slide-variable for the overlay
 	overlaySlideSpeed = Wobble(overlaySlide, overlaySlideTarget, overlaySlideSpeed, 0.1f, 0.1f, time);
 	overlaySlide += overlaySlideSpeed * time;
 	if (!overlayShow && overlaySlide > 1)
@@ -106,62 +106,11 @@ void MenuSystem::Update(GLdouble time)
 void MenuSystem::Draw()
 {
 	// Draw debug-text
-	std::string str = toString(blend1) + " x " + toString(cursorOffset);
+	std::string str = toString(Input::getMouseWheel()) + " x " + toString(cursorOffset);
 	fontBold->Draw((Context::getWindowWidth() - fontBold->GetWidth(str)) / 2, 10, str);
-
-	// Little debug-box of text
-	/*str = "This string and box are drawn directly.";
-	sprUI->Draw(0, 0, 0.0f, 200, fontRegular->GetHeight(str, 200, 18), 0.0f, 0.0f, 0.0f, 0.5f, 49, 10, 1, 1);
-	fontRegular->DrawLinebreak(0, 0, str, 200, 18);*/
-
-	// Debugging rendertarget blending
-	GLint funcArray[15];
-	funcArray[0] = GL_ZERO;
-	funcArray[1] = GL_ONE;
-	funcArray[2] = GL_SRC_COLOR;
-	funcArray[3] = GL_ONE_MINUS_SRC_COLOR;
-	funcArray[4] = GL_DST_COLOR;
-	funcArray[5] = GL_ONE_MINUS_DST_COLOR;
-	funcArray[6] = GL_SRC_ALPHA;
-	funcArray[7] = GL_ONE_MINUS_SRC_ALPHA;
-	funcArray[8] = GL_DST_ALPHA;
-	funcArray[9] = GL_ONE_MINUS_DST_ALPHA;
-	funcArray[10] = GL_CONSTANT_COLOR;
-	funcArray[11] = GL_ONE_MINUS_CONSTANT_COLOR;
-	funcArray[12] = GL_CONSTANT_ALPHA;
-	funcArray[13] = GL_ONE_MINUS_CONSTANT_ALPHA;
-	funcArray[14] = GL_SRC_ALPHA_SATURATE;
-
-	if (Input::getMouseLeftPressed())
-	{
-		blend1 ++;
-		if (blend1 > 14)
-			blend1 = 0;
-	}
-
-	if (Input::getMouseRightPressed())
-	{
-		blend2 ++;
-		if (blend2 > 14)
-			blend2 = 0;
-	}
-
-	glBlendFunc(GL_ONE, GL_ZERO);
-
-	// Render the menus to their rendertargets
-	for(int i = 0; i < menus.size(); i ++)
-	{
-		menus[i]->Render();
-	}
 
 	// Begin menu-rendertarget
 	menuRenderTarget->Begin();
-	/*
-	// Draw debug-stuff
-	str = "This string and box are drawn via one framebuffer.";
-	sprUI->Draw(0, 35, 0.0f, 200, fontRegular->GetHeight(str, 200, 18), 0.0f, 0.0f, 0.0f, 0.5f, 49, 10, 1, 1);
-	fontRegular->DrawLinebreak(0, 35, str, 200, 18);
-	*/
 
 	// Draw menus
 	for(int i = 0; i < menus.size(); i ++)
@@ -172,15 +121,23 @@ void MenuSystem::Draw()
 	// End menu-rendertarget
 	menuRenderTarget->End();
 
+	// Set blend mode
+	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 	// Draw menu-rendertarget
 	GLfloat mod = (abs(overlaySlide) * 0.5f) + 0.5f;
 	menuRenderTarget->Draw(0, 0, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, mod, 0, 0, menuRenderTarget->GetSize().x, menuRenderTarget->GetSize().y);
+	// Reset blend mode
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// Draw overlay for messages/questions
 	if (abs(overlaySlide + 1) > 0)
 	{
+		// Set blend mode
+		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 		// Black transparent fullscreen box
 		sprUI->Draw(0, 0, 0.0f, Context::getWindowWidth(), Context::getWindowHeight(), 0.0f, 0.0f, 0.0f, 0.35f * (1 - abs(overlaySlide)), 49, 10, 1, 1);
+		// Reset blend mode
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		// Rendertarget begin
 		overlayRenderTarget->Begin();
@@ -197,10 +154,16 @@ void MenuSystem::Draw()
 		// Rendertarget end
 		overlayRenderTarget->End();
 
+		// Set blend mode
+		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+	
 		// Draw rendertarget
 		GLfloat overlayScale = (abs(overlaySlide) + 1) * 0.2f + 0.8f;
 		overlayRenderTarget->Draw((Context::getWindowWidth() - overlayRenderTarget->GetSize().x * overlayScale) / 2,
 			-(overlayRenderTarget->GetSize().y * (overlayScale - 1)) / 2, 0.0f, overlayScale, overlayScale, 1.0f, 1.0f, 1.0f, 1 - abs(overlaySlide), 0, 0, overlayRenderTarget->GetSize().x, overlayRenderTarget->GetSize().y);
+		
+		// Reset blend mode
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
 
 	// Draw cursor

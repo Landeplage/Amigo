@@ -48,16 +48,17 @@ int Context::Initialize(int argv, char* argc[])
 	shaderManager.InitializeStockShaders();
 
 	// Set some OpenGL properties
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glShadeModel(GL_SMOOTH);
-	glAlphaFunc(GL_GREATER, 0.0f);
+	//glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD); // Set blend-equation
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // Set blend-function
+	glShadeModel(GL_FLAT);
+	glAlphaFunc(GL_GREATER, 0.0f); // Skip fully transparent pixels
 
 	// Enables/disables
 	glEnable(GL_ALPHA_TEST);
 	glEnable(GL_BLEND);
-	glDisable(GL_DEPTH_TEST);
-	glDisable(GL_DITHER);
-	glDisable(GL_LIGHTING);
+	//glDisable(GL_DEPTH_TEST);
+	//glDisable(GL_DITHER);
+	//glDisable(GL_LIGHTING);
 
 	// Set clear-color
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);

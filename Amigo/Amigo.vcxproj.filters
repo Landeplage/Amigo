@@ -102,6 +102,9 @@
     <ClCompile Include="Player.cpp">
       <Filter>Source files\Objects</Filter>
     </ClCompile>
+    <ClCompile Include="SliderRange.cpp">
+      <Filter>Source files\Menu</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MenuState.h">
@@ -169,6 +172,9 @@
     </ClInclude>
     <ClInclude Include="TestState.h">
       <Filter>Header files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="SliderRange.h">
+      <Filter>Header files\Menu</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -104,6 +104,7 @@
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="RenderTarget.cpp" />
     <ClCompile Include="Slider.cpp" />
+    <ClCompile Include="SliderRange.cpp" />
     <ClCompile Include="Sprite.cpp" />
     <ClCompile Include="TestState.cpp" />
     <ClCompile Include="TinyThread\tinythread.cpp" />
@@ -120,6 +121,7 @@
     <ClInclude Include="Player.h" />
     <ClInclude Include="RenderTarget.h" />
     <ClInclude Include="Slider.h" />
+    <ClInclude Include="SliderRange.h" />
     <ClInclude Include="State.h" />
     <ClInclude Include="Helper.h" />
     <ClInclude Include="Input.h" />

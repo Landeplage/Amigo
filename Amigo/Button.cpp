@@ -142,7 +142,6 @@ void Button::Draw()
 	if (state > 0)
 	{
 		float glowAlpha = 0.25f + ldirX(0.1f, rot * 50);
-		//glBlendFunc(GL_SRC_ALPHA, GL_ONE); // Additive blending
 		sprite->Draw(x - 12, y - 12, 0.0f, 1.0f, 1.0f, glowAlpha, 0, 35, 15, 15); // Top left
 		sprite->Draw(x + 3, y - 12, 0.0f, w - 6, 1.0f, glowAlpha, 15, 35, 1, 15); // Top
 		sprite->Draw(x + w - 3 + 15, y - 12, 90.0f, 1.0f, 1.0f, glowAlpha, 0, 35, 15, 15); // Top right
@@ -151,7 +150,6 @@ void Button::Draw()
 		sprite->Draw(x + w - 3, y + h + 12, 180.0f, w - 6, 1.0f, glowAlpha, 15, 35, 1, 15); // Bottom
 		sprite->Draw(x - 12, y + h + 12, 270.0f, 1.0f, 1.0f, glowAlpha, 0, 35, 15, 15); // Bottom left
 		sprite->Draw(x - 12, y + h - 3, 270.0f, h - 6, 1.0f, glowAlpha, 15, 35, 1, 15); // Left
-		//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // Reset to normal blending
 	}
 }
 

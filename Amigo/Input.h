@@ -10,6 +10,8 @@ public:
 	static bool getMouseRight();
 	static bool getMouseRightPressed();
 	static bool getMouseRightReleased();
+	static GLint getMouseWheel();
+	static GLint getMouseWheelIncrement();
 	static Vec2 getMousePos();
 	static void setMousePos(Vec2 position);
 
@@ -19,5 +21,6 @@ public:
 private:
 	static bool mouseLeftCurrent, mouseLeftPrevious, mouseLeftPressed, mouseLeftReleased;
 	static bool mouseRightCurrent, mouseRightPrevious, mouseRightPressed, mouseRightReleased;
+	static GLint mouseWheelDiff, mouseWheelPrevious, mouseWheelIncrement;
 	static Vec2 mouse;
 };

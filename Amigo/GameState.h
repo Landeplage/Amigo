@@ -1,6 +1,7 @@
 #include "State.h"
 #include "Sprite.h"
 #include "Player.h"
+#include "Font.h"
 
 class GameState : public State
 {
@@ -13,6 +14,7 @@ public:
 	virtual void Draw();
 
 private:
-	Sprite sprBackground, sprGround, sprPlayer;
+	Sprite sprBackground, sprGround, sprPlayer, sprTest;
+	Font font;
 	Player player;
 };

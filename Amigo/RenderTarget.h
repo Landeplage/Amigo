@@ -6,7 +6,7 @@ class RenderTarget
 {
 public:
 	RenderTarget();
-	RenderTarget(GLint width, GLint height, GLint texCount);
+	RenderTarget(GLint width, GLint height);
 	~RenderTarget();
 
 	void Begin();
@@ -22,6 +22,5 @@ private:
 	static Viewport viewport;
 	GLuint frameBufferRT;
 	GLuint* texRT;
-	GLint texCount;
 	Vec2 size, windowSize;
 };

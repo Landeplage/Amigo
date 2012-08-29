@@ -9,6 +9,7 @@
 #include <string>
 
 #include "Slider.h"
+#include "SliderRange.h"
 
 enum MENU
 {
@@ -101,11 +102,20 @@ bool MenuState::Load()
 		}); yy += sep;
 
 	// Settings
-	menuMain->AddBox("Settings", centerX - 150, 250, 300, 250, MENU_SETTINGS);
+	GLint space = 10;
+	Box *settingsBox;
+	settingsBox = (Box*)menuMain->AddBox("Settings", centerX - 150, 250, 300, 250, MENU_SETTINGS);
 
 	Slider *slider;
-	slider = (Slider*)menuMain->AddSlider("Slider", Vec2(centerX - 140, 260), 280, 21.0f, 100.0f, MENU_SETTINGS, [](){});
-	slider->SetValue(0.0f);
+	slider = (Slider*)menuMain->AddSlider("Slider", Vec2(settingsBox->GetPosition().x + space, settingsBox->GetPosition().y + space), settingsBox->GetSize().x - space * 2, 42.0f, 46.0f, 0.1, MENU_SETTINGS, [](){});
+	slider->SetValue(37.0f);
+
+	Slider *sliderRange;
+	sliderRange = (SliderRange*)menuMain->AddSliderRange("Range slider", Vec2(slider->GetPosition().x, slider->GetPosition().y + slider->GetSize().y + space),
+		slider->GetSize().x,
+		10.0f,
+		20.0f, 1, MENU_SETTINGS, [](){});
+	sliderRange->SetValue(0.0f);
 
 	menuMain->AddButton("Back", centerX - 75, 515, 150, 35, MenuItem::Align::CENTER, MENU_SETTINGS, [=]()
 		{
