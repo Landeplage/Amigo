@@ -77,12 +77,9 @@ bool Sprite::LoadImage(char *imagePath)
 	ilBindImage(imageName);
 
 	// Load the .png into memory
-	if (!ilLoadImage((const ILstring) imagePath) || true)
+	if (!ilLoadImage((const ILstring) imagePath))
 	{
-		printf("Hai-> %s\n", imagePath);
-		std::string derpadoo = "check this out: ";
-		derpadoo += imagePath;
-		throw derpadoo;
+		throw "Check this out" + (std::string)imagePath;
 	}
 
 	// Get image-data
