@@ -18,7 +18,7 @@ public:
 	};
 
 	virtual void Update(GLdouble time) = 0;
-	virtual void Draw() = 0;
+	virtual void Draw(GLfloat transition) = 0;
 	virtual void Unload() = 0;
 
 	Vec2 GetSize();
@@ -31,6 +31,6 @@ public:
 	int menuID;
 
 protected:
-	Vec2 size, position, menuOffset;
+	Vec2 size, position;
 	Sprite *sprite;
 };

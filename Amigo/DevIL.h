@@ -4,7 +4,7 @@
 #include <IL\ilu.h> // DevIL
 #include <IL\ilut.h> // DevIL
 
-static class DevIL
+class DevIL
 {
 public:
 	static int Init();

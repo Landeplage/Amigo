@@ -220,7 +220,7 @@ void Font::Draw(int x, int y, std::string str, float rotation, float scaleX, flo
 
 	unsigned int charCode;
 
-	for(int i = 0; i < str.length(); i ++)
+	for(GLuint i = 0; i < str.length(); i ++)
 	{
 		// Push the matrix
 		glPushMatrix();
@@ -229,7 +229,7 @@ void Font::Draw(int x, int y, std::string str, float rotation, float scaleX, flo
 		charCode = (unsigned char)(str[i] - 32);
 
 		// Rotate and translate the quad
-		glTranslatef(x + glyphs[charCode].offsetX, y + glyphs[charCode].offsetY, 0);
+		glTranslatef((GLfloat)(x + glyphs[charCode].offsetX), (GLfloat)(y + glyphs[charCode].offsetY), 0.0f);
 		glRotatef(rotation, 0.0f, 0.0f, 1.0f);
 
 		// Calculate texture coordinates
@@ -286,6 +286,11 @@ void Font::DrawShorten(int x, int y, std::string str, float rotation, float scal
 
 void Font::DrawLinebreak(int x, int y, std::string str, int width, int lineHeight)
 {
+	DrawLinebreak(x, y, str, width, lineHeight, 1.0f, 1.0f, 1.0f, 1.0f);
+}
+
+void Font::DrawLinebreak(int x, int y, std::string str, int width, int lineHeight, float red, float green, float blue, float alpha)
+{
 	int pos = 0, posPrev = 0;
 	while(GetWidth(str.substr(posPrev, str.length() - posPrev)) > width)
 	{
@@ -312,20 +317,20 @@ void Font::DrawLinebreak(int x, int y, std::string str, int width, int lineHeigh
 			str.insert(pos - 1, "-");
 		}
 
-		Draw(x, y, str.substr(posPrev, pos - posPrev));
+		Draw(x, y, str.substr(posPrev, pos - posPrev), 0.0f, 1.0f, 1.0f, red, green, blue, alpha);
 		y += lineHeight;
 
 		posPrev = pos;
 	}
 
 	// Draw the last line
-	Draw(x, y, str.substr(pos, str.length() - pos));
+	Draw(x, y, str.substr(pos, str.length() - pos), 0.0f, 1.0f, 1.0f, red, green, blue, alpha);
 }
 
 int Font::GetWidth(std::string str)
 {
 	int w = 0;
-	for(int i = 0; i < str.length(); i++)
+	for(GLuint i = 0; i < str.length(); i++)
 	{
 		w += glyphs[(int)((unsigned char)(str[i] - 32))].advanceX;
 	}
@@ -336,10 +341,10 @@ int Font::GetWidth(std::string str)
 int Font::GetHeight(std::string str)
 {
 	int h = 0;
-	for(int i = 0; i < str.length(); i++)
+	for(GLuint i = 0; i < str.length(); i++)
 	{
-		if (glyphs[(int)((unsigned char)(str[i] - 32))].advanceY > h)
-			h = glyphs[(int)((unsigned char)(str[i] - 32))].advanceY;
+		if (glyphs[(GLint)((unsigned char)(str[i] - 32))].advanceY > h)
+			h = glyphs[(GLint)((unsigned char)(str[i] - 32))].advanceY;
 	}
 
 	return h;

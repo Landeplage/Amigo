@@ -75,29 +75,36 @@ void GameState::Draw()
 	GLint gridAngle;
 	gridSize = Vec2(15, 15);
 	gridOffset = Vec2(1280 / 2, 0);
-	tileSize = Vec2(sprTest.getWidth(), sprTest.getHeight());
+	tileSize = Vec2((GLfloat)sprTest.getWidth(), (GLfloat)sprTest.getHeight());
 	gridAngle = 45;
 	
 	Vec2 mouse = Input::getMousePos();
-	mouse.x = ldirX(mouse.x, -gridAngle) - ldirY(mouse.y, -gridAngle);
-	mouse.y = ldirY(mouse.x, -gridAngle) + ldirX(mouse.y, -gridAngle);
-	sprTest.Draw(mouse.x, mouse.y);
+	mouse.x = (GLfloat)(ldirX(mouse.x, (GLfloat)(-(gridAngle))) - ldirY(mouse.y, (GLfloat)(-gridAngle)));
+	mouse.y = (GLfloat)(ldirY(mouse.x, (GLfloat)(-gridAngle)) + ldirX(mouse.y, (GLfloat)(-gridAngle)));
+	sprTest.Draw((GLint)mouse.x, (GLint)mouse.y);
 
 	GLint selected;
-	selected = (int)((mouse.x - gridOffset.x) / tileSize.x) + (int)((mouse.y - gridOffset.y) / tileSize.y) * gridSize.x;
+	selected = (GLint)((mouse.x - gridOffset.x) / tileSize.x) + (GLint)((mouse.y - gridOffset.y) / tileSize.y) * (GLint)gridSize.x;
 	font.Draw(10, 10, toString(mouse.x) + " x " + toString(mouse.y));
 
 	GLfloat a;
-	for(int n = 0; n < gridSize.x; n ++)
+	for(GLint n = 0; n < (GLint)gridSize.x; n ++)
 	{
-		for(int i = 0; i < gridSize.y; i ++)
+		for(GLint i = 0; i < (GLint)gridSize.y; i ++)
 		{
 			a = 0.5f;
-			if (selected == i + (n * gridSize.x))
+			if (selected == i + (n * (GLint)gridSize.x))
 				a = 1.0f;
-			sprTest.Draw(ldirX(i * tileSize.y, gridAngle) + ldirX(n * tileSize.x, gridAngle + 90) + gridOffset.x, ldirY(i * tileSize.y, gridAngle) + ldirY(n * tileSize.x, gridAngle + 90) + gridOffset.y, gridAngle, 1.0f, 1.0f, a);
-			font.Draw(ldirX(i * tileSize.y, gridAngle) + ldirX(n * tileSize.x, gridAngle + 90) + gridOffset.x + ldirX(tileSize.x / 2, gridAngle + 45) - font.GetWidth(toString(i + (n * gridSize.x))) / 2,
-				ldirY(i * tileSize.y, gridAngle) + ldirY(n * tileSize.x, gridAngle + 90) + gridOffset.y + ldirY(tileSize.x / 2, gridAngle + 45) - font.GetHeight(toString(i + (n * gridSize.x))) / 4,
+			sprTest.Draw(
+				(GLint)(ldirX(i * tileSize.y, (GLfloat)gridAngle) + ldirX(n * tileSize.x, (GLfloat)(gridAngle + 90)) + gridOffset.x),
+				(GLint)(ldirY(i * tileSize.y, (GLfloat)gridAngle) + ldirY(n * tileSize.x, (GLfloat)gridAngle + 90) + gridOffset.y),
+				(GLfloat)gridAngle,
+				1.0f,
+				1.0f,
+				a);
+			font.Draw(
+				(GLint)(ldirX(i * tileSize.y, (GLfloat)gridAngle) + ldirX(n * tileSize.x, (GLfloat)gridAngle + 90) + gridOffset.x + ldirX(tileSize.x / 2, (GLfloat)(gridAngle + 45)) - font.GetWidth(toString(i + (n * gridSize.x))) / 2),
+				(GLint)(ldirY(i * tileSize.y, (GLfloat)gridAngle) + ldirY(n * tileSize.x, (GLfloat)gridAngle + 90) + gridOffset.y + ldirY(tileSize.x / 2, (GLfloat)(gridAngle + 45)) - font.GetHeight(toString(i + (n * gridSize.x))) / 4),
 				toString(i + (n * gridSize.x)));
 		}
 	}

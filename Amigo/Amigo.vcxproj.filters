@@ -48,9 +48,6 @@
     <ClCompile Include="GameEngine.cpp">
       <Filter>Source files\Engine</Filter>
     </ClCompile>
-    <ClCompile Include="Sprite.cpp">
-      <Filter>Source files\Engine</Filter>
-    </ClCompile>
     <ClCompile Include="Main.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
@@ -96,14 +93,17 @@
     <ClCompile Include="Slider.cpp">
       <Filter>Source files\Menu</Filter>
     </ClCompile>
-    <ClCompile Include="TestState.cpp">
-      <Filter>Source files\States</Filter>
-    </ClCompile>
     <ClCompile Include="Player.cpp">
       <Filter>Source files\Objects</Filter>
     </ClCompile>
     <ClCompile Include="SliderRange.cpp">
       <Filter>Source files\Menu</Filter>
+    </ClCompile>
+    <ClCompile Include="Sprite.cpp">
+      <Filter>Source files\Menu</Filter>
+    </ClCompile>
+    <ClCompile Include="Vec2.cpp">
+      <Filter>Source files\Engine</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -170,11 +170,11 @@
     <ClInclude Include="Slider.h">
       <Filter>Header files\Menu</Filter>
     </ClInclude>
-    <ClInclude Include="TestState.h">
-      <Filter>Header files\States</Filter>
-    </ClInclude>
     <ClInclude Include="SliderRange.h">
       <Filter>Header files\Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="ErrorHandler.h">
+      <Filter>Header files\Engine</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

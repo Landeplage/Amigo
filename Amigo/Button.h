@@ -9,10 +9,10 @@ class MenuSystem;
 class Button : public MenuItem
 {
 public:
-	Button(MenuSystem* menuSystem, std::string text, GLint x, GLint y, GLint w, GLint h, MenuItem::Align align, GLint menuID, std::function<void()> onClick, Vec2 menuOffset);
+	Button(MenuSystem* menuSystem, std::string text, GLint x, GLint y, GLint w, GLint h, MenuItem::Align align, GLint menuID, std::string tooltip, std::function<void()> onClick);
 	
 	virtual void Update(GLdouble time);
-	virtual void Draw();
+	virtual void Draw(GLfloat transition);
 	virtual void Unload();
 
 	void SetText(std::string text, MenuItem::Align align);
@@ -26,7 +26,7 @@ protected:
 	virtual void onClick();
 
 	Font* font;
-	std::string text;
+	std::string text, tooltip;
 	GLint state; // determines if button is pressed or highlighted
 	std::function<void()> function;
 	MenuSystem* menuSystem;

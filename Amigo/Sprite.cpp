@@ -1,6 +1,8 @@
 #include <GLTools.h> // OpenGL Toolkit
 #include <IL\il.h> // DevIL
 #include "Sprite.h"
+#include <string>
+#include "Helper.h"
 
 // Constructor
 Sprite::Sprite()
@@ -16,8 +18,10 @@ Sprite::Sprite()
 Sprite::~Sprite()
 {
 	if (texture > 0)
+	{
 		glDeleteTextures(1, &texture);
-	printf("- Unloaded sprite: %i\n", texture);
+		printf("- Unloaded sprite: %i\n", texture);
+	}
 }
 
 // Get/Set
@@ -55,8 +59,8 @@ void Sprite::setOriginCenter()
 
 void Sprite::setInterpolationMode(GLint mode)
 {
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, mode);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mode);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (GLfloat)mode);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, (GLfloat)mode);
 }
 
 // Load image from file
@@ -73,10 +77,12 @@ bool Sprite::LoadImage(char *imagePath)
 	ilBindImage(imageName);
 
 	// Load the .png into memory
-	if (!ilLoadImage((const ILstring) imagePath))
+	if (!ilLoadImage((const ILstring) imagePath) || true)
 	{
-		printf("Failed to load image! -> %s\n", imagePath);
-		return false;
+		printf("Hai-> %s\n", imagePath);
+		std::string derpadoo = "check this out: ";
+		derpadoo += imagePath;
+		throw derpadoo;
 	}
 
 	// Get image-data
@@ -158,7 +164,7 @@ void Sprite::Draw(GLint x, GLint y, GLfloat rotation, GLfloat scaleX, GLfloat sc
 	glPushMatrix();
 
 	// Rotate and translate the quad
-	glTranslatef(x, y, 0.0f);
+	glTranslatef((GLfloat)x, (GLfloat)y, 0.0f);
 	glRotatef(rotation, 0.0f, 0.0f, 1.0f);
 
 	// Calculate coordinates

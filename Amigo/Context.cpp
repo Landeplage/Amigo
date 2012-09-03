@@ -1,5 +1,6 @@
 #include "Context.h"
 #include "GameEngine.h"
+#include "ErrorHandler.h"
 
 GLShaderManager Context::shaderManager;
 GLint Context::windowWidth;
@@ -10,8 +11,7 @@ int Context::Initialize(int argv, char* argc[])
 	//Init GLFW
 	if (!glfwInit())
 	{
-		printf("Failed to initialize GLFW!");
-		return 1;
+		throw ERROR_GLFW_INIT;
 	}
 	
 	// Set some GLFW properties
@@ -24,13 +24,11 @@ int Context::Initialize(int argv, char* argc[])
 	// Open a GLFW window
 	if (!glfwOpenWindow(windowWidth, windowHeight, 0, 0, 0, 0, 32, 0, GLFW_WINDOW ))
 	{
-		glfwTerminate();
-		printf("Failed to create GLFW window!");
-		return 2;
+		throw ERROR_GLFW_OPEN_WINDOW;
 	}
 
 	// Set some GLFW-window properties
-	glfwSetWindowTitle("Amigo");
+	glfwSetWindowTitle("AmigoUI");
 	glfwSetWindowPos(200, 200);
 	glfwSetWindowRefreshCallback(ChangeSize);
 	glfwSetWindowCloseCallback(CloseWindow);
@@ -40,8 +38,7 @@ int Context::Initialize(int argv, char* argc[])
 	GLenum err = glewInit();
 	if (GLEW_OK != err)
 	{
-		fprintf(stderr, "GLEW Error: %s\n", glewGetErrorString(err));
-		return 3;
+		throw ERROR_GLEW_INIT;
 	}
 
 	// Initialize shaders
@@ -49,7 +46,7 @@ int Context::Initialize(int argv, char* argc[])
 
 	// Set some OpenGL properties
 	//glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD); // Set blend-equation
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // Set blend-function
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // Set blend-function
 	glShadeModel(GL_FLAT);
 	glAlphaFunc(GL_GREATER, 0.0f); // Skip fully transparent pixels
 
@@ -68,7 +65,6 @@ int Context::Initialize(int argv, char* argc[])
 	switch(status)
 	{
 	case GL_FRAMEBUFFER_COMPLETE:
-		printf("Framebuffers are supported.\n");
 		break;
 	default:
 		printf("Whoops! FBOs are not supported on your GPU! #%i\n", status);

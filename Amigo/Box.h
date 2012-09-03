@@ -10,7 +10,7 @@ public:
 	Box(MenuSystem* menuSystem, std::string title, GLint x, GLint y, GLint w, GLint h, GLint menuID);
 
 	void Update(GLdouble time);
-	void Draw();
+	void Draw(GLfloat transition);
 	void Unload();
 
 	void SetTitle(std::string title);

@@ -16,18 +16,18 @@ Player::~Player()
 void Player::Update(GLdouble time)
 {
 	if (Input::GetKey(GLFW_KEY_LEFT))
-		{ position.x -= time * acceleration; }
+		{ position.x -= (GLfloat)(time * acceleration); }
 	if (Input::GetKey(GLFW_KEY_RIGHT))
-		{ position.x += time * acceleration; }
+		{ position.x += (GLfloat)(time * acceleration); }
 	if (Input::GetKey(GLFW_KEY_UP))
-		{ position.y -= time * acceleration; }
+		{ position.y -= (GLfloat)(time * acceleration); }
 	if (Input::GetKey(GLFW_KEY_DOWN))
-		{ position.y += time * acceleration; }
+		{ position.y += (GLfloat)(time * acceleration); }
 }
 
 void Player::Draw()
 {
-	sprite->Draw(position.x, position.y);
+	sprite->Draw((GLint)position.x, (GLint)position.y);
 }
 
 void Player::SetPosition(Vec2 position)

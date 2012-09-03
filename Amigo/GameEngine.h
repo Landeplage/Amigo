@@ -3,7 +3,7 @@
 #include "State.h"
 #include "Sprite.h"
 
-static class GameEngine
+class GameEngine
 {
 public:
 	static void ChangeState(State *state);

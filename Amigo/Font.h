@@ -23,6 +23,7 @@ public:
 	void Draw(int x, int y, std::string str, float rotation, float scaleX, float scaleY, float red, float green, float blue, float alpha);
 	void DrawShorten(int x, int y, std::string str, float rotation, float scaleX, float scaleY, float red, float green, float blue, float alpha, int width);
 	void DrawLinebreak(int x, int y, std::string str, int width, int lineHeight);
+	void DrawLinebreak(int x, int y, std::string str, int width, int lineHeight, float red, float green, float blue, float alpha);
 private:
 	GLuint texture;
 	FT_Face face;

@@ -1,7 +1,7 @@
 #pragma once
 #include "Vec2.h"
 
-static class Input
+class Input
 {
 public:
 	static bool getMouseLeft();

@@ -34,13 +34,16 @@ void Input::Update(GLdouble time)
 	if (mY > windowHeight)
 	{ glfwSetMousePos(mX, windowHeight); mY = windowHeight; }
 
-	mouse.x = mX;
-	mouse.y = mY;
+	mouse.x = (GLfloat)mX;
+	mouse.y = (GLfloat)mY;
 
 	// Get mouse left click
 	mouseLeftPressed = false;
 	mouseLeftReleased = false;
-	mouseLeftCurrent = (bool)glfwGetMouseButton(GLFW_MOUSE_BUTTON_LEFT);
+	if (glfwGetMouseButton(GLFW_MOUSE_BUTTON_LEFT))
+		mouseLeftCurrent = true;
+	else
+		mouseLeftCurrent = false;
 
 	if (mouseLeftCurrent && !mouseLeftPrevious)
 	{
@@ -56,7 +59,10 @@ void Input::Update(GLdouble time)
 	// Get mouse right click
 	mouseRightPressed = false;
 	mouseRightReleased = false;
-	mouseRightCurrent = (bool)glfwGetMouseButton(GLFW_MOUSE_BUTTON_RIGHT);
+	if (glfwGetMouseButton(GLFW_MOUSE_BUTTON_RIGHT))
+		mouseRightCurrent = true;
+	else
+		mouseRightCurrent = false;
 
 	if (mouseRightCurrent && !mouseRightPrevious)
 	{
@@ -133,7 +139,7 @@ GLint Input::getMouseWheelIncrement()
 
 void Input::setMousePos(Vec2 position)
 {
-	glfwSetMousePos(position.x, position.y);
+	glfwSetMousePos((GLint)position.x, (GLint)position.y);
 }
 
 GLint Input::GetKey(GLint key)

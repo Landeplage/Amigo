@@ -11,10 +11,10 @@ RenderTarget::RenderTarget(GLint width, GLint height)
 {
 	printf("+ Adding rendertarget...");
 	// Init variables
-	size.x = width;
-	size.y = height;
-	windowSize.x = Context::getWindowWidth();
-	windowSize.y = Context::getWindowHeight();
+	size.x = (GLfloat)width;
+	size.y = (GLfloat)height;
+	windowSize.x = (GLfloat)Context::getWindowWidth();
+	windowSize.y = (GLfloat)Context::getWindowHeight();
 
 	// Create and initialize framebuffer
 	glGenFramebuffers(1, &frameBufferRT);
@@ -46,7 +46,7 @@ void RenderTarget::Begin()
 {
 	// Setup framebuffer
 	glGetIntegerv(GL_VIEWPORT, viewport.vp);
-	glViewport(0, size.y - windowSize.y, windowSize.x, windowSize.y);
+	glViewport(0, (GLint)(size.y - windowSize.y), (GLint)windowSize.x, (GLint)windowSize.y);
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBufferRT);
 
 	// Clear the buffer
@@ -71,12 +71,12 @@ void RenderTarget::End()
 
 void RenderTarget::Draw(GLint x, GLint y)
 {
-	Draw(x, y, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0, 0, size.x, size.y);
+	Draw(x, y, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0, 0, (GLint)size.x, (GLint)size.y);
 }
 
 void RenderTarget::Draw(GLint x, GLint y, GLfloat alpha)
 {
-	Draw(x, y, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, alpha, 0, 0, size.x, size.y);
+	Draw(x, y, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, alpha, 0, 0, (GLint)size.x, (GLint)size.y);
 }
 
 void RenderTarget::Draw(GLint x, GLint y, GLfloat rotation, GLfloat scaleX, GLfloat scaleY, GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha, GLint xx, GLint yy, GLint w, GLint h)
@@ -88,7 +88,7 @@ void RenderTarget::Draw(GLint x, GLint y, GLfloat rotation, GLfloat scaleX, GLfl
 	glPushMatrix();
 
 	// Rotate and translate the quad
-	glTranslatef(x, y, 0.0f);
+	glTranslatef((GLfloat)x, (GLfloat)y, 0.0f);
 	glRotatef(rotation, 0.0f, 0.0f, 1.0f);
 
 	// Calculate coordinates

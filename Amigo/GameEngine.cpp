@@ -1,5 +1,6 @@
 // Libraries
 #include "GameEngine.h"
+#include "ErrorHandler.h"
 #include "Context.h"
 #include "Input.h"
 #include "DevIL.h"
@@ -20,31 +21,16 @@ State *GameEngine::newState;
 
 bool GameEngine::Initialize(int argc, char* argv[])
 {
-	printf("Initializing game...\n");
+	printf("Initializing game engine...\n");
 
-	int error;
 	// Initialize context
-	error = Context::Initialize(argc, argv);
-	if (error)
-	{
-		printf("Failed to initialize context!\n");
-	}
-
-	printf("Your OpenGL version is %s\n", (const char*)glGetString(GL_VERSION));
+	Context::Initialize(argc, argv);
 
 	// Initialize DevIL
-	error = DevIL::Init();
-	if (error)
-	{
-		printf("Failed to initialize DevIL!\n");
-	}
+	DevIL::Init();
 
 	// Initialize FreeType
-	error = FreeType::Init();
-	if (error)
-	{
-		printf("Failed to initialize FreeType!\n");
-	}
+	FreeType::Init();
 
 	// Init various variables
 	loadingRot = 0;
@@ -54,7 +40,9 @@ bool GameEngine::Initialize(int argc, char* argv[])
 	// Load stuff
 	Load();
 
-	printf("Game initialized!\n");
+	printf("Your OpenGL version is %s\n", (const char*)glGetString(GL_VERSION));
+
+	printf("Game engine initialized.\n");
 
 	return true;
 }

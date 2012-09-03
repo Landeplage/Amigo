@@ -25,12 +25,18 @@ MenuSystem::MenuSystem(Sprite* sprCursor, Sprite* sprUI, Font* fontBold, Font* f
 	onButton1 = [](){};
 	onButton2 = [](){};
 
+	// Tooltip variables
+	tooltipPosition = Vec2(0, 0);
+	tooltipSize = Vec2(0, 0);
+	tooltipString = "?";
+	tooltipTimer = -1.0;
+
 	// Add items to overlay
 	overlayItems.push_back(new Box(this, "", 10, 10, 10, 10, 0));
 	overlayBox = (Box*)overlayItems[overlayItems.size() - 1];
-	overlayItems.push_back(new Button(this, "", 0, 0, 0, 0, MenuItem::Align::CENTER, 0, [](){}, Vec2(0, 0)));
+	overlayItems.push_back(new Button(this, "", 0, 0, 0, 0, MenuItem::CENTER, 0, "", [](){}));
 	overlayButton1 = (Button*)overlayItems[overlayItems.size() - 1];
-	overlayItems.push_back(new Button(this, "", 0, 0, 0, 0, MenuItem::Align::CENTER, 0, [](){}, Vec2(0, 0)));
+	overlayItems.push_back(new Button(this, "", 0, 0, 0, 0, MenuItem::CENTER, 0, "", [](){}));
 	overlayButton2 = (Button*)overlayItems[overlayItems.size() - 1];
 
 	blend1 = 0;
@@ -42,7 +48,7 @@ MenuSystem::~MenuSystem()
 	printf("Deleting MenuSystem...\n");
 
 	// Delete all menus
-	for(int i = 0; i < menus.size(); i ++)
+	for(GLuint i = 0; i < menus.size(); i ++)
 	{
 		menus[i]->~Menu();
 	}
@@ -52,7 +58,7 @@ MenuSystem::~MenuSystem()
 	menuRenderTarget->~RenderTarget();
 
 	// Delete overlay-items
-	for(int i = 0; i < overlayItems.size(); i ++)
+	for(GLuint i = 0; i < overlayItems.size(); i ++)
 	{
 		overlayItems[i]->Unload();
 	}
@@ -61,15 +67,15 @@ MenuSystem::~MenuSystem()
 void MenuSystem::Update(GLdouble time)
 {
 	// Pulsing variable for various effects
-	rot += time * 0.01f;
+	rot += (GLfloat)time * 0.01f;
 	if (rot >= 360)
 		rot -= 360;
 
 	// Reset cursor offset
-	cursorOffset = 0;
+	//cursorOffset = 0;
 
 	// Update all menus
-	for(int i = 0; i < menus.size(); i ++)
+	for(GLuint i = 0; i < menus.size(); i ++)
 	{
 		menus[i]->Update(time);
 	}
@@ -78,7 +84,7 @@ void MenuSystem::Update(GLdouble time)
 	if (abs(overlaySlide) < 0.1f && overlayShow)
 	{
 		// Update overlay items
-		for(int i = 0; i < overlayItems.size(); i ++)
+		for(GLuint i = 0; i < overlayItems.size(); i ++)
 		{
 			overlayItems[i]->Update(time);
 		}
@@ -86,7 +92,7 @@ void MenuSystem::Update(GLdouble time)
 
 	// Slide-variable for the overlay
 	overlaySlideSpeed = Wobble(overlaySlide, overlaySlideTarget, overlaySlideSpeed, 0.1f, 0.1f, time);
-	overlaySlide += overlaySlideSpeed * time;
+	overlaySlide += overlaySlideSpeed * (GLfloat)time;
 	if (!overlayShow && overlaySlide > 1)
 	{
 		overlaySlideSpeed = 0;
@@ -101,23 +107,34 @@ void MenuSystem::Update(GLdouble time)
 			overlaySlideSpeed = 0;
 		}
 	}
+
+	// Tooltip-timer
+	if (tooltipTimer > 0)
+	{
+		tooltipTimer -= time / 1000;
+		if (tooltipTimer <= 0)
+			tooltipTimer = 0;
+	}
 }
 
 void MenuSystem::Draw()
 {
 	// Draw debug-text
-	std::string str = toString(Input::getMouseWheel()) + " x " + toString(cursorOffset);
+	Vec2 testVec;
+	testVec = Vec2(2, 2) + Vec2(2, 2);
+	std::string str = "Vec2(2, 2) + Vec2(2, 2) = [" + toString(testVec.x) + "][" + toString(testVec.y) + "]";
 	fontBold->Draw((Context::getWindowWidth() - fontBold->GetWidth(str)) / 2, 10, str);
 
 	// Begin menu-rendertarget
-	menuRenderTarget->Begin();
+	//menuRenderTarget->Begin();
 
 	// Draw menus
-	for(int i = 0; i < menus.size(); i ++)
+	for(GLuint i = 0; i < menus.size(); i ++)
 	{
 		menus[i]->Draw();
 	}
 
+	/*
 	// End menu-rendertarget
 	menuRenderTarget->End();
 
@@ -125,52 +142,70 @@ void MenuSystem::Draw()
 	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 	// Draw menu-rendertarget
 	GLfloat mod = (abs(overlaySlide) * 0.5f) + 0.5f;
-	menuRenderTarget->Draw(0, 0, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, mod, 0, 0, menuRenderTarget->GetSize().x, menuRenderTarget->GetSize().y);
+	menuRenderTarget->Draw(0, 0, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f // BUG: rendertarget blends incorrectly when drawn with alpha less than 1.0 (try entering "mod" here)
+		, 0, 0, (GLint)menuRenderTarget->GetSize().x, (GLint)menuRenderTarget->GetSize().y);
 	// Reset blend mode
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	*/
 
 	// Draw overlay for messages/questions
 	if (abs(overlaySlide + 1) > 0)
 	{
-		// Set blend mode
-		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 		// Black transparent fullscreen box
-		sprUI->Draw(0, 0, 0.0f, Context::getWindowWidth(), Context::getWindowHeight(), 0.0f, 0.0f, 0.0f, 0.35f * (1 - abs(overlaySlide)), 49, 10, 1, 1);
-		// Reset blend mode
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		sprUI->Draw(0, 0, 0.0f, (GLfloat)Context::getWindowWidth(), (GLfloat)Context::getWindowHeight(), 0.0f, 0.0f, 0.0f, 0.5f * (1 - abs(overlaySlide)), 49, 10, 1, 1);
+		
+		// Set blend mode
+		//glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
 		// Rendertarget begin
-		overlayRenderTarget->Begin();
+		//overlayRenderTarget->Begin();
 
 		// Items of the overlay
-		for(int i = 0; i < overlayItems.size(); i ++)
+		for(GLint i = 0; i < (GLint)overlayItems.size(); i ++)
 		{
-			overlayItems[i]->Draw();
+			overlayItems[i]->Draw(abs(overlaySlide));
 		}
 
 		// Message-text
-		fontRegular->DrawLinebreak(overlayBox->GetPosition().x + 10, overlayBox->GetPosition().y + 10, overlayText, overlayBox->GetSize().x - 20, 18);
+		fontRegular->DrawLinebreak((GLint)overlayBox->GetPosition().x + 10, (GLint)overlayBox->GetPosition().y + 10, overlayText, (GLint)overlayBox->GetSize().x - 20, 18);
 
 		// Rendertarget end
-		overlayRenderTarget->End();
+		//overlayRenderTarget->End();
 
 		// Set blend mode
-		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+		//glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 	
 		// Draw rendertarget
-		GLfloat overlayScale = (abs(overlaySlide) + 1) * 0.2f + 0.8f;
-		overlayRenderTarget->Draw((Context::getWindowWidth() - overlayRenderTarget->GetSize().x * overlayScale) / 2,
-			-(overlayRenderTarget->GetSize().y * (overlayScale - 1)) / 2, 0.0f, overlayScale, overlayScale, 1.0f, 1.0f, 1.0f, 1 - abs(overlaySlide), 0, 0, overlayRenderTarget->GetSize().x, overlayRenderTarget->GetSize().y);
-		
+		/*GLfloat overlayScale = (abs(overlaySlide) + 1) * 0.2f + 0.8f;
+		overlayRenderTarget->Draw(
+			(GLint)((Context::getWindowWidth() - overlayRenderTarget->GetSize().x * overlayScale) / 2),
+			(GLint)(-(overlayRenderTarget->GetSize().y * (overlayScale - 1)) / 2),
+			0.0f,
+			overlayScale,
+			overlayScale,
+			1.0f,
+			1.0f,
+			1.0f,
+			1 - abs(overlaySlide),
+			0,
+			0,
+			(GLint)overlayRenderTarget->GetSize().x,
+			(GLint)overlayRenderTarget->GetSize().y);
+
 		// Reset blend mode
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		*/
 	}
+
+	// Draw tooltip
+	if (tooltipTimer == 0)
+		DrawTooltip();
 
 	// Draw cursor
 	if (cursorOffset > -1)
 	{
 		Vec2 mouse = Input::getMousePos();
-		sprCursor->Draw(mouse.x, mouse.y, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, cursorOffset * 32, 0, 32, 32);
+		sprCursor->Draw((GLint)mouse.x, (GLint)mouse.y, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, cursorOffset * 32, 0, 32, 32);
 	}
 }
 
@@ -184,8 +219,8 @@ Menu* MenuSystem::AddMenu(GLint x, GLint y, GLint width, GLint height)
 // Make a variable wobble to target value
 GLfloat MenuSystem::Wobble(GLfloat currentX, GLfloat targetX, GLfloat currentSpeed, GLfloat force, GLfloat friction, GLdouble time)
 {
-	if (currentX < targetX) { currentSpeed += (targetX - currentX) * force * 0.01; }
-	else if (currentX > targetX) { currentSpeed -= (currentX - targetX) * force * 0.01; }
+	if (currentX < targetX) { currentSpeed += (targetX - currentX) * force * 0.01f; }
+	else if (currentX > targetX) { currentSpeed -= (currentX - targetX) * force * 0.01f; }
     currentSpeed = currentSpeed * (1.0f - friction);
     return currentSpeed;
 }
@@ -268,9 +303,9 @@ void MenuSystem::ShowMessage(std::string title, std::string text, std::function<
 
 	// Setup "Okay"-button
 	overlayButton1->SetSize(200, 35);
-	overlayButton1->SetText("Okay", MenuItem::Align::CENTER);
-	overlayButton1->SetPosition(overlayBox->GetPosition().x + overlayBox->GetSize().x / 2 - 100, overlayBox->GetPosition().y + overlayBox->GetSize().y + 15);
-	overlayButton1->SetMenuOffset((Context::getWindowWidth() - overlayRenderTarget->GetSize().x) / 2, 0);
+	overlayButton1->SetText("Okay", MenuItem::CENTER);
+	overlayButton1->SetPosition((GLint)overlayBox->GetPosition().x + (GLint)overlayBox->GetSize().x / 2 - 100, (GLint)overlayBox->GetPosition().y + (GLint)overlayBox->GetSize().y + 15);
+	//overlayButton1->SetMenuOffset((Context::getWindowWidth() - (GLint)overlayRenderTarget->GetSize().x) / 2, 0);
 	overlayButton1->SetOnClick([=](){ this->OnButton1(); });
 	this->onButton1 = onButton1;
 
@@ -286,17 +321,17 @@ void MenuSystem::ShowQuestion(std::string title, std::string text, std::function
 
 	// Setup "Yes"-button
 	overlayButton1->SetSize(195, 35);
-	overlayButton1->SetText("Yes", MenuItem::Align::CENTER);
-	overlayButton1->SetPosition(overlayBox->GetPosition().x, overlayBox->GetPosition().y + overlayBox->GetSize().y + 15);
-	overlayButton1->SetMenuOffset((Context::getWindowWidth() - overlayRenderTarget->GetSize().x) / 2, 0);
+	overlayButton1->SetText("Yes", MenuItem::CENTER);
+	overlayButton1->SetPosition((GLint)overlayBox->GetPosition().x, (GLint)(overlayBox->GetPosition().y + overlayBox->GetSize().y + 15));
+	//overlayButton1->SetMenuOffset((GLint)((Context::getWindowWidth() - overlayRenderTarget->GetSize().x) / 2), 0);
 	overlayButton1->SetOnClick([=](){ this->OnButton1(); });
 	this->onButton1 = onButton1;
 
 	// Setup "No" button
 	overlayButton2->SetSize(195, 35);
-	overlayButton2->SetText("No", MenuItem::Align::CENTER);
-	overlayButton2->SetPosition(overlayBox->GetPosition().x + overlayBox->GetSize().x - overlayButton2->GetSize().x, overlayBox->GetPosition().y + overlayBox->GetSize().y + 15);
-	overlayButton2->SetMenuOffset((Context::getWindowWidth() - overlayRenderTarget->GetSize().x) / 2, 0);
+	overlayButton2->SetText("No", MenuItem::CENTER);
+	overlayButton2->SetPosition((GLint)(overlayBox->GetPosition().x + overlayBox->GetSize().x - overlayButton2->GetSize().x), (GLint)(overlayBox->GetPosition().y + overlayBox->GetSize().y + 15));
+	//overlayButton2->SetMenuOffset((GLint)((Context::getWindowWidth() - overlayRenderTarget->GetSize().x) / 2), 0);
 	overlayButton2->SetOnClick([=](){ this->OnButton2(); });
 	this->onButton2 = onButton2;
 
@@ -317,7 +352,7 @@ void MenuSystem::OverlayInit(std::string title, std::string text)
 	// Setup box
 	overlayBox->SetTitle(title);
 	overlayBox->SetSize(400, fontRegular->GetHeight(overlayText, 400 - 20, 18) + 20);
-	overlayBox->SetPosition(10, (Context::getWindowHeight() - overlayBox->GetSize().y) / 2);
+	overlayBox->SetPosition((GLint)(Context::getWindowWidth() / 2 - overlayBox->GetSize().x / 2), (GLint)((Context::getWindowHeight() - overlayBox->GetSize().y) / 2));
 }
 
 // Hide the overlay
@@ -340,4 +375,78 @@ void MenuSystem::OnButton2()
 {
 	onButton2();
 	HideOverlay();
+}
+
+// Initiate the tooltip
+void MenuSystem::SetTooltip(Vec2 position, std::string tooltipString)
+{
+	this->tooltipString = tooltipString;
+	tooltipPosition = position;
+
+	// Calculate size of tooltip-box
+	tooltipSize = Vec2((GLfloat)250, (GLfloat)(fontRegular->GetHeight(tooltipString, 250, 17) + 16));
+	if (fontRegular->GetWidth(tooltipString) < 250)
+		tooltipSize.x = (GLfloat)(fontRegular->GetWidth(tooltipString) + 16);
+
+	tooltipTimer = 1.2;
+}
+
+// Hide the tooltip
+void MenuSystem::ResetTooltip()
+{
+	tooltipTimer = -1;
+}
+
+// Draw the tooltip
+void MenuSystem::DrawTooltip()
+{
+	GLint x, y, w, h;
+	x = (GLint)tooltipPosition.x;
+	y = (GLint)tooltipPosition.y;
+	w = (GLint)tooltipSize.x;
+	h = (GLint)tooltipSize.y;
+
+	// Line it up properly
+	x -= (GLint)tooltipSize.x / 2;
+	y -= h + 11;
+
+	// Make sure box stays inside screen boundaries
+	if (x > Context::getWindowWidth() - (GLint)(tooltipSize.x))
+		x = Context::getWindowWidth() - (GLint)(tooltipSize.x);
+	if (x < 0)
+		x = 0;
+	if (y > Context::getWindowHeight() - (GLint)(tooltipSize.y))
+		y = Context::getWindowHeight() - (GLint)(tooltipSize.y);
+	if (y < 0)
+		y = 0;
+
+	// Pointer position (relative)
+	GLint pointerX;
+	pointerX = (GLint)tooltipPosition.x - x - 11;
+	if (pointerX < 4)
+		pointerX = 4;
+	if (pointerX > w - 26)
+		pointerX = w - 26;
+
+	// Transparency
+	GLfloat alpha;
+	alpha = 1.0f;
+
+	// Tooltip-box
+	sprUI->Draw(x - 1, y, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, alpha, 25, 45, 5, 4); // Left top corner
+	sprUI->Draw(x - 1, y + 4, 0.0f, 1.0f, (GLfloat)(h - 8) / 20.0f, 1.0f, 1.0f, 1.0f, alpha, 25, 49, 5, 20); // Left side
+	sprUI->Draw(x - 1, y + h - 4, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, alpha, 25, 69, 5, 7); // Left bottom corner
+	sprUI->Draw(x + w - 4, y + h - 4, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, alpha, 31, 69, 5, 7); // Right bottom corner
+	sprUI->Draw(x + w - 4, y + 4, 0.0f, 1.0f, (GLfloat)(h - 8) / 20.0f, 1.0f, 1.0f, 1.0f, alpha, 31, 49, 5, 20); // Left side
+	sprUI->Draw(x + w - 4, y, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, alpha, 31, 45, 5, 4); // Right top corner
+	sprUI->Draw(x + 4, y, 0.0f, (GLfloat)(w - 8), 1.0f, 1.0f, 1.0f, 1.0f, alpha, 30, 45, 1, 4); // Top
+	sprUI->Draw(x + 4, y + 4, 0.0f, (GLfloat)(w - 8), (GLfloat)(h - 8) / 20.0f, 1.0f, 1.0f, 1.0f, alpha, 30, 49, 1, 20); // Mid
+	sprUI->Draw(x + 4, y + h - 4, 0.0f, (GLfloat)(pointerX - 4), 1.0f, 1.0f, 1.0f, 1.0f, alpha, 30, 69, 1, 7); // Bottom Left
+	sprUI->Draw(x + pointerX + 22, y + h - 4, 0.0f, (GLfloat)(w - pointerX - 22 - 4), 1.0f, 1.0f, 1.0f, 1.0f, alpha, 30, 69, 1, 7); // Bottom Right
+	sprUI->Draw(x + pointerX, y + h - 4, 0.0f, 22, 1.0f, 1.0f, 1.0f, 1.0f, alpha, 30, 69, 1, 3); // Patch above pointer
+	sprUI->Draw(x + pointerX, y + h - 1, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, alpha, 18, 31, 22, 13); // Pointer
+
+	// Tooltip text
+	fontRegular->DrawLinebreak(x + 8, y + 8, tooltipString, w - 10, 17, 1.0f, 1.0f, 1.0f, alpha);
+	fontRegular->DrawLinebreak(x + 8, y + 7, tooltipString, w - 10, 17, (GLfloat)(95 / 255.0f), (GLfloat)(95 / 255.0f), (GLfloat)(95 / 255.0f), alpha);
 }

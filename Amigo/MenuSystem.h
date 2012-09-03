@@ -7,6 +7,7 @@
 #include "Sprite.h"
 #include "Font.h"
 #include "RenderTarget.h"
+#include "Vec2.h"
 #include <vector>
 #include <functional>
 
@@ -25,7 +26,10 @@ public:
 	bool SetFocus(MenuItem* menuItem);
 	void ResetFocus();
 	MenuItem* GetFocus();
+
 	void SetCursor(GLint cursorOffset);
+	void SetTooltip(Vec2 position, std::string tooltipString);
+	void ResetTooltip();
 
 	GLfloat GetRot();
 	Font* GetFontBold();
@@ -43,6 +47,7 @@ public:
 
 private:
 	void HideOverlay();
+	void DrawTooltip();
 
 	std::vector<Menu*> menus;
 	MenuItem* focusedItem;
@@ -60,4 +65,8 @@ private:
 	std::function<void()> onButton1, onButton2;
 	Button *overlayButton1, *overlayButton2;
 	GLint blend1, blend2;
+
+	std::string tooltipString;
+	GLdouble tooltipTimer;
+	Vec2 tooltipPosition, tooltipSize;
 };

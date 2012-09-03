@@ -2,7 +2,7 @@
 #include <GLTools.h>
 #include <GL\glfw.h>
 
-static class Context
+class Context
 {
 public:
 	static GLint getWindowWidth();

@@ -106,13 +106,14 @@
     <ClCompile Include="Slider.cpp" />
     <ClCompile Include="SliderRange.cpp" />
     <ClCompile Include="Sprite.cpp" />
-    <ClCompile Include="TestState.cpp" />
     <ClCompile Include="TinyThread\tinythread.cpp" />
+    <ClCompile Include="Vec2.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Box.h" />
     <ClInclude Include="Button.h" />
     <ClInclude Include="DevIL.h" />
+    <ClInclude Include="ErrorHandler.h" />
     <ClInclude Include="Font.h" />
     <ClInclude Include="FreeType.h" />
     <ClInclude Include="GameEngine.h" />
@@ -129,7 +130,6 @@
     <ClInclude Include="MenuItem.h" />
     <ClInclude Include="MenuState.h" />
     <ClInclude Include="MenuSystem.h" />
-    <ClInclude Include="TestState.h" />
     <ClInclude Include="Vec2.h" />
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="Context.h" />

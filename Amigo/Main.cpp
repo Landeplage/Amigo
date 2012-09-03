@@ -1,20 +1,28 @@
+#include "ErrorHandler.h"
 #include "GameEngine.h"
 #include "MenuState.h"
 
 int main(int argc, char* argv[])
 {
-	// Initialize game
-	if (!GameEngine::Initialize(argc, argv))
+	try
 	{
-		printf("Game failed to initialize!\n");
-		return 0;
+		// Initialize game
+		GameEngine::Initialize(argc, argv);
+
+		// Go to first state
+		GameEngine::ChangeState(new MenuState());
+
+		// Run game
+		GameEngine::GameLoop();
 	}
-
-	// Go to first state
-	GameEngine::ChangeState(new MenuState());
-
-	// Run game
-	GameEngine::GameLoop();
+	catch(int error)
+	{
+		ErrorHandler::Report(error);
+	}
+	catch(std::string error)
+	{
+		ErrorHandler::Report(error);
+	}
 
 	return 0;
 }

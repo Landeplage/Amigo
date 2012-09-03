@@ -16,13 +16,13 @@ public:
 	virtual void Draw();
 
 private:
-	Sprite sprCursor, sprBackground, sprClouds, sprChequer, sprLogo, sprUI;
+	Sprite sprCursor, sprBack1, sprBack2, sprBack3, sprChequer, sprLogo, sprUI, sprUI2;
 	Font FontBold, FontRegular;
 	const char* version;
-	float cloudScroll, checkerScroll;
+	float checkerScroll;
 	int screenW, screenH;
 	bool keyEscPrevious;
 
 	MenuSystem* menuSystem;
-	Menu *menuMain, *menuTiny, *menuTiny2;
+	Menu *menuMain, *menuTiny;
 };

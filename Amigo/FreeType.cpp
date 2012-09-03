@@ -1,4 +1,5 @@
 #include "FreeType.h"
+#include "ErrorHandler.h"
 
 FT_Library FreeType::library;
 
@@ -8,8 +9,7 @@ int FreeType::Init()
 	int freeTypeError = FT_Init_FreeType(&library);
 	if (freeTypeError)
 	{
-		printf("An error occurred during FreeType initialization!\n");
-		return 1;
+		throw ERROR_FREETYPE_INIT;
 	}
 
 	return 0;

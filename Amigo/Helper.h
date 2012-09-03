@@ -8,13 +8,13 @@
 #include <math.h> // Math-helper
 
 // Calculate the vector of a given length and direction
-static GLfloat ldirX(GLfloat length, GLfloat direction)
+static GLdouble ldirX(GLfloat length, GLfloat direction)
 {
 	return (cos(direction * (M_PI / 180.0f)) * length);
 }
 
 // Calculate the vector of a given length and direction
-static GLfloat ldirY(GLfloat length, GLfloat direction)
+static GLdouble ldirY(GLfloat length, GLfloat direction)
 {
 	return (sin(direction * (M_PI / 180.0f)) * length);
 }
@@ -68,7 +68,7 @@ static std::string toString(const char* value)
 }
 
 // This Function Gets The First Power Of 2
-static int getNextPower2(int a)
+static GLint getNextPower2(int a)
 {
     int rval=1;
     // rval<<=1 Is A Prettier Way Of Writing rval*=2;

@@ -11,13 +11,13 @@ class Slider : public MenuItem
 {
 public:
 	Slider();
-	Slider(MenuSystem *menuSystem, std::string text, Vec2 position, GLint width, GLfloat min, GLfloat max, GLfloat step, GLint menuID, std::function<void()> onRelease, Vec2 menuOffset);
+	Slider(MenuSystem *menuSystem, std::string text, Vec2 position, GLint width, GLfloat min, GLfloat max, GLfloat step, GLint menuID, std::function<void()> onRelease);
 
 	void Update(GLdouble time);
-	void Draw();
+	virtual void Draw(GLfloat transition);
 	void Unload();
 
-	void SetValue(GLfloat value);
+	virtual void SetValue(GLfloat value);
 	void SetMin(GLint min);
 	void SetMax(GLint max);
 	GLfloat GetValue();
@@ -26,7 +26,8 @@ protected:
 	void Init();
 	void HandleButton(Button *button, GLdouble time, GLint limitXLeft, GLint limitXRight, GLint maxPos, GLint minPos, GLfloat *value);
 	void CalculateValue(Button *button, GLint maxPos, GLint minPos, GLfloat *value);
-	void SnapButton(Button *button, GLfloat *value, GLint minPos, GLint maxPos);
+	void SnapButton(Button *button, GLfloat *value, GLint limitXLeft, GLint limitXRight, GLint maxPos, GLint minPos);
+	void DrawCommonElements(GLint x, GLint y, GLfloat alpha);
 
 	std::string text;
 	MenuSystem *menuSystem;

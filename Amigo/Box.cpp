@@ -5,8 +5,8 @@ Box::Box(MenuSystem* menuSystem, std::string title, GLint x, GLint y, GLint w, G
 {
 	this->menuSystem = menuSystem;
 	this->title = title;
-	this->position = Vec2(x, y);
-	this->size = Vec2(w, h);
+	this->position = Vec2((GLfloat)x, (GLfloat)y);
+	this->size = Vec2((GLfloat)w, (GLfloat)h);
 	this->menuID = menuID;
 
 	this->font = menuSystem->GetFontBold();
@@ -23,33 +23,36 @@ void Box::Update(GLdouble time)
 	// update
 }
 
-void Box::Draw()
+void Box::Draw(GLfloat transition)
 {
-	int x, y, w, h;
-	x = position.x;
-	y = position.y;
-	w = size.x;
-	h = size.y;
+	GLfloat alpha;
+	alpha = 1 - abs(transition);
 
-	sprite->Draw(x - 10, y - 10, 0.0f, 1.0f, 1.0f, 1.0f, 39, 0, 10, 10); // Top left
-	sprite->Draw(x, y - 10, 0.0f, w, 1.0f, 1.0f, 49, 0, 1, 10); // Top
-	sprite->Draw(x + w, y - 10, 0.0f, 1.0f, 1.0f, 1.0f, 50, 0, 10, 10); // Top right
-	sprite->Draw(x + w, y, 0.0f, 1.0f, h, 1.0f, 50, 10, 10, 1); // Right
-	sprite->Draw(x + w, y + h, 0.0f, 1.0f, 1.0f, 1.0f, 50, 11, 10, 10); // Bottom right
-	sprite->Draw(x, y + h, 0.0f, w, 1.0f, 1.0f, 49, 11, 1, 10); // Bottom
-	sprite->Draw(x - 10, y + h, 0.0f, 1.0f, 1.0f, 1.0f, 39, 11, 10, 10); // Bottom left
-	sprite->Draw(x - 10, y, 0.0f, 1.0f, h, 1.0f, 39, 10, 10, 1); // Left
-	sprite->Draw(x, y, 0.0f, w, h, 0.5f, 49, 10, 1, 1); // Middle
+	GLint x, y, w, h;
+	x = (GLint)(position.x);
+	y = (GLint)position.y;
+	w = (GLint)size.x;
+	h = (GLint)size.y;
+	
+	// Compensate for edges
+	w -= 8;
+	h -= 6;
+
+	// Draw box
+	sprite->Draw(x, y, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, alpha, 0, 31, 6, 7); // Left top corner
+	sprite->Draw(x, y + 7, 0.0f, 1.0f, (GLfloat)(h - 7), 1.0f, 1.0f, 1.0f, alpha, 0, 38, 1, 1); // Left side
+	sprite->Draw(x, y + h, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, alpha, 0, 39, 7, 6); // Left bottom corner
+	sprite->Draw(x + 7, y + h + 5, 0.0f, (GLfloat)(w - 6), 1.0f, 1.0f, 1.0f, 1.0f, alpha, 0, 38, 1, 1); // Bottom
+	sprite->Draw(x + w + 8, y + h, 0.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, alpha, 0, 39, 7, 6); // Right bottom corner
+	sprite->Draw(x + w + 7, y + 7, 0.0f, 1.0f, (GLfloat)(h - 7), 1.0f, 1.0f, 1.0f, alpha, 0, 38, 1, 1); // Right side
+	sprite->Draw(x + w + 8, y, 0.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, alpha, 0, 31, 6, 7); // Right top corner
+	sprite->Draw(x + 6, y, 0.0f, (GLfloat)(w - 3), 1.0f, 1.0f, 1.0f, 1.0f, alpha, 6, 31, 1, 2); // Top
 
 	// Draw title over box
 	if (title != "")
 	{
-		sprite->Draw(x, y - 40, 0.0f, 1.0f, 1.0f, 1.0f, 28, 0, 5, 36); // Left
-		sprite->Draw(x + 5, y - 40, 0.0f, w - 10, 1.0f, 1.0f, 33, 0, 1, 36); // Middle
-		sprite->Draw(x + w - 5, y - 40, 0.0f, 1.0f, 1.0f, 1.0f, 34, 0, 5, 36); // Right
-
-		font->DrawShorten(x + 10, y - 32, title, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.25f, w - 20);
-		font->DrawShorten(x + 10, y - 31, title, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, w - 20);
+		font->DrawShorten(x + 5, y - 17, title, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, alpha * 0.5f, w - 10);
+		font->DrawShorten(x + 5, y - 18, title, 0.0f, 1.0f, 1.0f, (GLfloat)(116.0f / 255.0f), (GLfloat)(85.0f / 255.0f), (GLfloat)(38.0f / 255.0f), alpha, w - 10);
 	}
 }
 

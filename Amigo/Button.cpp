@@ -5,17 +5,17 @@
 #include "Input.h"
 #include "MenuSystem.h"
 
-Button::Button(MenuSystem* menuSystem, std::string text, GLint x, GLint y, GLint w, GLint h, MenuItem::Align align, GLint menuID, std::function<void()> onClick, Vec2 menuOffset)
+Button::Button(MenuSystem* menuSystem, std::string text, GLint x, GLint y, GLint w, GLint h, MenuItem::Align align, GLint menuID, std::string tooltip, std::function<void()> onClick)
 {
 	this->menuSystem = menuSystem;
 	this->text = text;
-	this->position = Vec2(x, y);
-	this->size = Vec2(w, h);
+	this->tooltip = tooltip;
+	this->position = Vec2((GLfloat)x, (GLfloat)y);
+	this->size = Vec2((GLfloat)w, (GLfloat)h);
 	this->menuID = menuID;
 	this->function = onClick;
-	this->menuOffset = menuOffset;
 
-	this->font = menuSystem->GetFontBold();
+	this->font = menuSystem->GetFontRegular();
 	this->sprite = menuSystem->GetSpriteUI();
 
 	state = 0;
@@ -49,20 +49,23 @@ void Button::Update(GLdouble time)
 		mouse.y -= menuOffset.y;
 
 		// Check if mouse is over button
-		if (IsInside(mouse, position.x, position.y, position.x + size.x, position.y + size.y))
+		if (IsInside(mouse, (GLint)position.x, (GLint)position.y, (GLint)(position.x + size.x), (GLint)(position.y + size.y)))
 		{
 			// One-off event when mouse enters button
 			if (state == 0 && focus == NULL)
 			{
 				// Set focus
 				menuSystem->SetFocus(this);
+				// Set tooltip
+				if (tooltip != "")
+					menuSystem->SetTooltip(Vec2(position.x + size.x / 2, position.y + 6), tooltip);
 			}
+
+			// Set cursor
+			menuSystem->SetCursor(1);
 
 			// Set to hover-state
 			state = 1;
-
-			// Change cursor
-			menuSystem->SetCursor(1);
 
 			// Button pressed
 			if (Input::getMouseLeft() && focus == this)
@@ -71,13 +74,18 @@ void Button::Update(GLdouble time)
 
 				// Clicked
 				if (Input::getMouseLeftPressed())
+				{
 					hasBeenClicked = true;
+					menuSystem->ResetTooltip();
+				}
 			}
 
 			// Button released
 			if (Input::getMouseLeftReleased())
 			{
 				state = 0;
+				// Reset cursor
+				menuSystem->SetCursor(0);
 				onClick();
 			}
 		}
@@ -87,70 +95,59 @@ void Button::Update(GLdouble time)
 			if (focus == this)
 			{
 				if (Input::getMouseLeft())
-					state = 1;
+					state = 2;
 				else
 				{
 					menuSystem->ResetFocus();
+					menuSystem->ResetTooltip();
+					// Reset cursor
+					menuSystem->SetCursor(0);
 				}
 			}
 		}
 	}
 }
 
-void Button::Draw()
+void Button::Draw(GLfloat transition)
 {
 	if (!visible)
 		return;
 
-	float rot;
+	GLfloat rot, alpha;
 	rot = menuSystem->GetRot();
+	alpha = 1 - abs(transition);
 
-	int x, y, w, h, hh, xOff;
-	x = position.x;
-	y = position.y;
-	w = size.x;
-	h = size.y;
+	GLint x, y, w, h, hh, xOff;
+	x = (GLint)(position.x);
+	y = (GLint)position.y;
+	w = (GLint)size.x;
+	h = (GLint)size.y;
 	hh = 17;
-	xOff = state * 7;
+	xOff = state * 11;
 	if (!active)
-		xOff = 21;
+		xOff = 33;
 
-	if (h > 35)
-	{
-		sprite->Draw(x + w - 3, y + 17, 0.0f, 1.0f, h - 35, 1.0f, 4 + xOff, 17, 3, 1); // Right
-		sprite->Draw(x, y + 17, 0.0f, 1.0f, h - 35, 1.0f, xOff, 17, 3, 1); // Left
-		sprite->Draw(x + 3, y + 17, 0.0f, w - 6, h - 35, 1.0f, 3 + xOff, 17, 1, 1); // Middle
-	}
-	else
-	{
-		hh = h / 2;
-	}
-	sprite->Draw(x, y, 0.0f, 1.0f, 1.0f, 1.0f, xOff, 0, 3, hh); // Top left
-	sprite->Draw(x + 3, y, 0.0f, w - 6, 1.0f, 1.0f, 3 + xOff, 0, 1, hh); // Top
-	sprite->Draw(x + w - 3, y, 0.0f, 1.0f, 1.0f, 1.0f, 4 + xOff, 0, 3, hh); // Top right
-	sprite->Draw(x + w - 3, y + h - 35 + (-hh + 34), 0.0f, 1.0f, 1.0f, 1.0f, 4 + xOff, 18 - hh + 16, 3, hh + 1); // Bottom right
-	sprite->Draw(x + 3, y + h - 35 + (-hh + 34), 0.0f, w - 6, 1.0f, 1.0f, 3 + xOff, 18 - hh + 16, 1, hh + 1); // Bottom
-	sprite->Draw(x, y + h - 35 + (-hh + 34), 0.0f, 1.0f, 1.0f, 1.0f, xOff, 18 - hh + 16, 3, hh + 1); // Bottom left
+	// Compensate x, w and h for edges and shadow of the button texture
+	x -= 1;
+	w -= 3;
+	h -= 4;
+
+	//			x			y			rot			xscale				yscale						red			green		blue		alpha		xx				yy		ww		hh
+	sprite->Draw(x + 3,		y + 5,		0.0f,		(GLfloat)(w - 1),	(GLfloat)(h - 5) / 19.0f,	1.0f,		1.0f,		1.0f,		alpha,		5 + xOff,		4,		1,		19);	// Middle
+	sprite->Draw(x,			y,			0.0f,		1.0f,				1.0f,						1.0f,		1.0f,		1.0f,		alpha,		0 + xOff,		0,		5,		5);		// Left top corner
+	sprite->Draw(x,			y + 5,		0.0f,		1.0f,				(GLfloat)(h - 5) / 19.0f,	1.0f,		1.0f,		1.0f,		alpha,		0 + xOff,		5,		3,		19);		// Left side
+	sprite->Draw(x,			y + h,		0.0f,		1.0f,				1.0f,						1.0f,		1.0f,		1.0f,		alpha,		0 + xOff,		24,		5,		7);		// Left bottom corner
+	sprite->Draw(x + 5,		y + h,		0.0f,		(GLfloat)(w - 5),	1.0f,						1.0f,		1.0f,		1.0f,		alpha,		5 + xOff,		24,		1,		7);		// Bottom
+	sprite->Draw(x + w,		y + h,		0.0f,		1.0f,				1.0f,						1.0f,		1.0f,		1.0f,		alpha,		6 + xOff,		24,		5,		7);		// Right bottom corner
+	sprite->Draw(x + w + 2,	y + 5,		0.0f,		1.0f,				(GLfloat)(h - 5) / 19.0f,	1.0f,		1.0f,		1.0f,		alpha,		8 + xOff,		5,		3,		19);		// Right side
+	sprite->Draw(x + w,		y,			0.0f,		1.0f,				1.0f,						1.0f,		1.0f,		1.0f,		alpha,		6 + xOff,		0,		5,		5);		// Right top corner
+	sprite->Draw(x + 5,		y,			0.0f,		(GLfloat)(w - 5),	1.0f,						1.0f,		1.0f,		1.0f,		alpha,		5 + xOff,		0,		1,		5);		// Top
 
 	// Draw the button-text
-	int bOff = 0;
-	if (xOff == 14) bOff = 2;
-	font->Draw(x + textOffset.x, y + bOff + h / 2 - 10 - 1, text, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.25f);
-	font->Draw(x + textOffset.x, y + bOff + h / 2 - 10, text, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
-
-	// Glow around button
-	if (state > 0)
-	{
-		float glowAlpha = 0.25f + ldirX(0.1f, rot * 50);
-		sprite->Draw(x - 12, y - 12, 0.0f, 1.0f, 1.0f, glowAlpha, 0, 35, 15, 15); // Top left
-		sprite->Draw(x + 3, y - 12, 0.0f, w - 6, 1.0f, glowAlpha, 15, 35, 1, 15); // Top
-		sprite->Draw(x + w - 3 + 15, y - 12, 90.0f, 1.0f, 1.0f, glowAlpha, 0, 35, 15, 15); // Top right
-		sprite->Draw(x + w - 3 + 15, y + 3, 90.0f, h - 6, 1.0f, glowAlpha, 15, 35, 1, 15); // Right
-		sprite->Draw(x + w - 3 + 15, y + h + 12, 180.0f, 1.0f, 1.0f, glowAlpha, 0, 35, 15, 15); // Bottom right
-		sprite->Draw(x + w - 3, y + h + 12, 180.0f, w - 6, 1.0f, glowAlpha, 15, 35, 1, 15); // Bottom
-		sprite->Draw(x - 12, y + h + 12, 270.0f, 1.0f, 1.0f, glowAlpha, 0, 35, 15, 15); // Bottom left
-		sprite->Draw(x - 12, y + h - 3, 270.0f, h - 6, 1.0f, glowAlpha, 15, 35, 1, 15); // Left
-	}
+	GLint bOff = 0;
+	if (state == 2) bOff = 2;
+	font->Draw((GLint)(x + textOffset.x), (GLint)(y + bOff + h / 2 - 4), text, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, alpha);
+	font->Draw((GLint)(x + textOffset.x), (GLint)(y + bOff + h / 2 - 5), text, 0.0f, 1.0f, 1.0f, (GLfloat)(139.0f / 255.0f), (GLfloat)(98.0f / 255.0f), (GLfloat)(38.0f / 255.0f), alpha);
 }
 
 void Button::onClick()
@@ -168,9 +165,9 @@ void Button::SetTextAlignment(MenuItem::Align align)
 {
 	switch(align)
 	{
-		case Align::LEFT: textOffset.x = 5; break;
-		case Align::CENTER: textOffset.x = (size.x - font->GetWidth(text)) / 2; break;
-		case Align::RIGHT: textOffset.x = size.x - font->GetWidth(text) - 5; break;
+		case LEFT: textOffset.x = 5; break;
+		case CENTER: textOffset.x = (size.x - font->GetWidth(text)) / 2; break;
+		case RIGHT: textOffset.x = size.x - font->GetWidth(text) - 5; break;
 	}
 }
 
@@ -181,8 +178,8 @@ void Button::SetOnClick(std::function<void()> onClick)
 
 void Button::SetMenuOffset(GLint xOffset, GLint yOffset)
 {
-	menuOffset.x = xOffset;
-	menuOffset.y = yOffset;
+	menuOffset.x = (GLfloat)xOffset;
+	menuOffset.y = (GLfloat)yOffset;
 }
 
 bool Button::GetHasBeenClicked()

@@ -11,6 +11,8 @@
 #include "Slider.h"
 #include "SliderRange.h"
 
+#include "Helper.h"
+
 enum MENU
 {
 	MENU_MAIN,
@@ -32,7 +34,6 @@ void MenuState::Init()
 
 	screenW = Context::getWindowWidth();
 	screenH = Context::getWindowHeight();
-	cloudScroll = 0;
 	checkerScroll = 0;
 	keyEscPrevious = false;
 }
@@ -40,26 +41,29 @@ void MenuState::Init()
 bool MenuState::Load()
 {
 	// Load sprites
-	if (!sprBackground.LoadImage("res\\tx\\back\\back_sky.png")) return false;
-	if (!sprChequer.LoadImage("res\\tx\\back\\back_chequer2.png")) return false;
-	if (!sprClouds.LoadImage("res\\tx\\back\\back_clouds.png")) return false;
+	if (!sprBack1.LoadImage("res\\tx\\ui\\menu_back1.png")) return false; // top
+	if (!sprBack2.LoadImage("res\\tx\\ui\\menu_back2.png")) return false; // middle
+	if (!sprBack3.LoadImage("res\\tx\\ui\\menu_back3.png")) return false; // bottom
+	if (!sprChequer.LoadImage("res\\tx\\back\\back_chequer3.png")) return false;
 	if (!sprCursor.LoadImage("res\\tx\\ui\\cursor.png")) return false;
 	sprCursor.setOrigin(3, 1);
 	if (!sprLogo.LoadImage("res\\tx\\ui\\gamelogo.png")) return false;
 	sprLogo.setOriginCenter();
-	if (!sprUI.LoadImage("res\\tx\\ui\\ui.png")) return false;
+	if (!sprUI.LoadImage("res\\tx\\ui\\ui2.png")) return false;
 	sprUI.setInterpolationMode(GL_NEAREST);
+	if (!sprUI2.LoadImage("res\\tx\\ui\\ui2.png")) return false;
+	sprUI2.setInterpolationMode(GL_NEAREST);
 
 	// Load fonts
-	FontRegular.LoadFont("res\\font\\robotob.ttf", 16);
-	FontBold.LoadFont("res\\font\\robotob.ttf", 24);
+	FontRegular.LoadFont("res\\font\\futura_regular.ttf", 14);
+	FontBold.LoadFont("res\\font\\futura_heavy.ttf", 14);
 
 	// Initialize menu system
 	menuSystem = new MenuSystem(&sprCursor, &sprUI, &FontBold, &FontRegular);
 	
 	// Add the main menu
 	menuMain = menuSystem->AddMenu(0, 0, 1280, 720);
-	menuMain->SetTransition(200, 0, 0.0f, false);
+	menuMain->SetTransition(25, 0, 0.0f, false);
 
 	// Some helper variables
 	int centerX, centerY, yy, sep;
@@ -70,26 +74,37 @@ bool MenuState::Load()
 
 	// Main Menu
 	yy = 400;
-	menuMain->AddButton("Play", centerX - 100, yy, 200, 35, MenuItem::Align::CENTER, MENU_MAIN, [=]()
+	menuMain->AddButton("Play", centerX - 51, yy, 102, 28, MenuItem::CENTER, MENU_MAIN,
+		"Start the game. If only this textbox didn't have all this text in it. It would be much, much smaller. Tiny, compared to this monstrosity of a textbox. LOLS",
+		[=]()
 		{
 			GameEngine::ChangeState(new GameState());
 		}); yy += sep;
-	menuMain->AddButton("Settings", centerX - 100, yy, 200, 35, MenuItem::Align::CENTER, MENU_MAIN, [=]()
+	menuMain->AddButton("Settings", centerX - 51, yy, 102, 28, MenuItem::CENTER, MENU_MAIN,
+		"Set your preferences.",
+		[=]()
 		{
 			menuMain->GoTo(MENU_SETTINGS);
 		}); yy += sep;
-	menuMain->AddButton("Map Editor", centerX - 100, yy, 200, 35, MenuItem::Align::CENTER, MENU_MAIN, [=]()
+	menuMain->AddButton("Map Editor", centerX - 51, yy, 102, 28, MenuItem::CENTER, MENU_MAIN,
+		"Create maps and share them online.",
+		[=]()
 		{
 			menuSystem->ShowMessage("Map Editor", "Dat ain't done yet.");
 		}); yy += sep;
-	menuMain->AddButton("Animator", centerX - 100, yy, 200, 35, MenuItem::Align::CENTER, MENU_MAIN, [=]()
+	menuMain->AddButton("Animator", centerX - 51, yy, 102, 28, MenuItem::CENTER, MENU_MAIN,
+		"Launch the skeletal animation editor.",
+		[=]()
 		{
 			menuSystem->ShowMessage("Animator", "Dat ain't done yet.");
 		}); yy += sep;
-	menuMain->AddButton("Quit", centerX - 100, screenH - 45, 200, 35, MenuItem::Align::CENTER, MENU_MAIN, [=]()
+
+	menuMain->AddButton("Quit", centerX - 51, screenH - 45, 102, 28, MenuItem::CENTER, MENU_MAIN,
+		"Close the game and return to windows.",
+		[=]()
 		{
 			// Show quit-message
-			menuSystem->ShowQuestion("Quit", "Are you really, really, really sure you want to quit? I mean... really?",
+			menuSystem->ShowQuestion("Quit", "Sucka.",
 			[]()
 			{
 				// Yes-button
@@ -107,53 +122,28 @@ bool MenuState::Load()
 	settingsBox = (Box*)menuMain->AddBox("Settings", centerX - 150, 250, 300, 250, MENU_SETTINGS);
 
 	Slider *slider;
-	slider = (Slider*)menuMain->AddSlider("Slider", Vec2(settingsBox->GetPosition().x + space, settingsBox->GetPosition().y + space), settingsBox->GetSize().x - space * 2, 42.0f, 46.0f, 0.1, MENU_SETTINGS, [](){});
-	slider->SetValue(37.0f);
+	slider = (Slider*)menuMain->AddSlider("Slider", Vec2(settingsBox->GetPosition().x + space, settingsBox->GetPosition().y + space), (GLint)(settingsBox->GetSize().x - space * 2), 1.0f, 100.0f, 1.0f, MENU_SETTINGS, [](){});
+	//slider->SetValue(0.0f);
 
 	Slider *sliderRange;
 	sliderRange = (SliderRange*)menuMain->AddSliderRange("Range slider", Vec2(slider->GetPosition().x, slider->GetPosition().y + slider->GetSize().y + space),
-		slider->GetSize().x,
+		(GLint)slider->GetSize().x,
 		10.0f,
 		20.0f, 1, MENU_SETTINGS, [](){});
 	sliderRange->SetValue(0.0f);
 
-	menuMain->AddButton("Back", centerX - 75, 515, 150, 35, MenuItem::Align::CENTER, MENU_SETTINGS, [=]()
+	menuMain->AddButton("Back", centerX - 75, 515, 150, 35, MenuItem::CENTER, MENU_SETTINGS, "Go back to the main menu.", [=]()
 		{
 			menuMain->GoTo(MENU_MAIN);
 		});
 
-	// On draw-event for menuMain
+	// On draw-event for Main Menu
 	menuMain->OnDraw([&]()
 	{
 		// Logo
 		GLfloat rot = menuSystem->GetRot();
 		if (menuMain->GetMenuCurrent() == MENU_MAIN)
-			sprLogo.Draw(Context::getWindowWidth() / 2 + ldirX(30, rot * 2), 230 + ldirY(10, rot), ldirX(4, rot * 5), 1.0f, 1.0f, 1.0f);
-
-		// Little debug-box of text
-		std::string str = "This string and box are drawn via two framebuffers.";
-		sprUI.Draw(0, 70, 0.0f, 200, FontRegular.GetHeight(str, 200, 18), 0.0f, 0.0f, 0.0f, 0.5f, 49, 10, 1, 1);
-		FontRegular.DrawLinebreak(0, 70, str, 200, 18);
-	});
-
-	// Add a little menu
-	menuTiny = menuSystem->AddMenu(10, screenH - 190, 300, 180);
-	menuTiny->SetTransition(0, 0, 0.0f, true);
-
-	menuTiny->AddBox("Info", 10, 40, 280, 130, 0);
-	menuTiny->AddButton("<", 20, 50, 50, 35, MenuItem::Align::CENTER, 0, [=](){ menuTiny->GoTo(1); });
-	menuTiny->AddButton(">", 230, 50, 50, 35, MenuItem::Align::CENTER, 0, [=](){ menuTiny->GoTo(1); });
-	
-	menuTiny->AddBox("More info", 10, 40, 280, 130, 1);
-	menuTiny->AddButton("<", 20, 50, 50, 35, MenuItem::Align::CENTER, 1, [=](){ menuTiny->GoTo(0); });
-	menuTiny->AddButton(">", 230, 50, 50, 35, MenuItem::Align::CENTER, 1, [=](){ menuTiny->GoTo(0); });
-
-	menuTiny->OnDraw([&]()
-	{
-		if (menuTiny->GetMenuCurrent() == 0)
-			FontRegular.DrawLinebreak(20, 90, "Hello, this is just some text to show how this little box looks with a lot of text in it.", 240, 18);
-		if (menuTiny->GetMenuCurrent() == 1)
-			FontRegular.DrawLinebreak(20, 90, "Oh hey, this is some more text to show how different text looks. Did you see the transition effect?", 240, 18);
+			sprLogo.Draw((GLint)(Context::getWindowWidth() / 2 + ldirX(30, rot * 2)), (GLint)(230 + ldirY(10, rot)), (GLfloat)(ldirX(4, rot * 5)), 0.8f, 0.8f, 1 - abs(menuMain->GetSlide()));
 	});
 
 	return true;
@@ -170,17 +160,12 @@ void MenuState::Update(GLdouble time)
 		GameEngine::StopGame();
 		keyEscPrevious = true;
 	}
-
-	// Cloud background scrolling
-	cloudScroll += time;
-	if (cloudScroll > 1280)
-		cloudScroll -= 1280;
 	
 	// Checkered background scrolling
 	GLfloat slide = menuMain->GetSlide();
-	checkerScroll += time * 0.1f + abs(slide * 2.5f);
-	if (checkerScroll > 200)
-		checkerScroll -= 200;
+	checkerScroll += (GLfloat)time * 0.02f + abs(slide * 1.0f);
+	if (checkerScroll > 100)
+		checkerScroll -= 100;
 
 	// Update menu-system (do last, or deal with checking
 	// whether or not variables have been deleted from here
@@ -192,25 +177,38 @@ void MenuState::Draw()
 {
 	GLfloat rot = menuSystem->GetRot();
 
-	// Landscape background
-	sprBackground.Draw(0, 0, 0.0f, Context::getWindowWidth(), 1.0f, 1.0f);
-
-	// Clouds
-	sprClouds.Draw(cloudScroll, 0);
-	sprClouds.Draw(cloudScroll - 1280, 0);
+	// Draw top and bottom background
+	sprBack1.Draw(0, 0);
+	sprBack3.Draw(0, 652);
 
 	// Chequered background
-	float bW, bH;
-	bW = 200;
-	bH = 200;
-	for(int i = 0; i < (Context::getWindowWidth() / bW) + 2; i ++)
+	GLfloat bW, bH;
+	bW = 100;
+	bH = 100;
+	for(GLint i = 0; i < (Context::getWindowWidth() / bW) + 2; i ++)
 	{
-		for(int n = 0; n < (Context::getWindowHeight() / bH) + 2; n ++)
+		for(GLint n = 0; n < (Context::getWindowHeight() / bH) + 2; n ++)
 		{
-			sprChequer.Draw((int)(i * bW + ldirX(30, rot * 4)) - (bW * 1) + checkerScroll - 200, (int)(n * bH + ldirY(100, rot * 3)) - (bH * 1), 0.0f, 1.0f, 1.0f, 0.25f);
+			sprChequer.Draw((GLint)(i * bW + ldirX(30, rot * 2) - (bW * 1) + checkerScroll - 100), (GLint)(n * bH + ldirY(100, rot * 3) - (bH * 1)), 0.0f, 1.0f, 1.0f, 0.035f);
 		}
 	}
 
+	// Draw the middle part of the background
+	sprBack2.Draw(0, 85);
+
 	// Draw menu-system
 	menuSystem->Draw();
+
+	// Testing drawing new UI
+	GLint x, y, w, h;
+	x = 200;
+	y = 200;
+	w = 200;
+	h = 100;
+
+	// Draw something here
+	sprUI2.Draw(105, 100 + 78 / 2 - 5, 0.0f, 8.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 8, 31, 1, 10); // Tødler på scroller-knapp
+	
+	// Rectangle
+	//sprUI2.Draw(x, y, 0.0f, (GLfloat)w, (GLfloat)h, 1.0f, 1.0f, 1.0f, 0.7f, 5, 5, 1, 1);
 }
