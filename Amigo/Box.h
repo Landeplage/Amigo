@@ -14,6 +14,7 @@ public:
 	void Unload();
 
 	void SetTitle(std::string title);
+	std::string GetTitle();
 
 private:
 	Font* font;

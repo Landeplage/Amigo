@@ -1,13 +1,14 @@
 #include <GLTools.h> // OpenGL Toolkit
-#include <IL\il.h> // DevIL
 #include "Sprite.h"
 #include <string>
 #include "Helper.h"
+#include <IL\ilu.h>
 
 // Constructor
 Sprite::Sprite()
 {
 	texture = 0;
+	imageName = 0;
 	originX = 0;
 	originY = 0;
 	width = 0;
@@ -20,11 +21,20 @@ Sprite::~Sprite()
 	if (texture > 0)
 	{
 		glDeleteTextures(1, &texture);
-		printf("- Unloaded sprite: %i\n", texture);
 	}
+	if (imageName > 0)
+	{
+		ilDeleteImages(1, &imageName);
+	}
+	printf("- Unloaded sprite: %i\n", texture);
 }
 
 // Get/Set
+ILuint Sprite::getImageName()
+{
+	return imageName;
+}
+
 GLuint Sprite::getTexture()
 {
 	return texture;
@@ -63,23 +73,30 @@ void Sprite::setInterpolationMode(GLint mode)
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, (GLfloat)mode);
 }
 
-// Load image from file
-bool Sprite::LoadImage(char *imagePath)
+ILuint Sprite::CreateImage()
 {
-	// Init image variables
-	ILuint imageName;
-	ILubyte *imageData;
-
 	// Generate an image-name
 	ilGenImages(1, &imageName);
 
 	// Bind the image-name
 	ilBindImage(imageName);
 
-	// Load the .png into memory
+	return imageName;
+}
+
+// Load image from file
+bool Sprite::LoadImage(const char *imagePath)
+{
+	// Init image variables
+	ILubyte *imageData;
+
+	// Create an image
+	CreateImage();
+
+	// Load the image file into memory
 	if (!ilLoadImage((const ILstring) imagePath))
 	{
-		throw "Check this out" + (std::string)imagePath;
+		throw "Could not load image: " + (std::string)imagePath;
 	}
 
 	// Get image-data
@@ -129,6 +146,29 @@ bool Sprite::LoadImage(char *imagePath)
 	printf("Format: %i\n", format);
 	*/
 
+	/*
+	// Print out the first few pixels
+	int n = 0;
+	// RGB
+	if (format == IL_RGB)
+	{
+		for(int i = 0; i < 5; i ++)
+		{
+			printf("Pixel %i = \t%i \t%i \t%i\n", i, (int)imageData[n], (int)imageData[n + 1], (int)imageData[n + 2]);
+			n += 3;
+		};
+	}
+	// RGBA
+	if (format == IL_RGBA)
+	{
+		for(int i = 0; i < 5; i ++)
+		{
+			printf("Pixel %i = \t%i \t%i \t%i \t%i\n", i, (int)imageData[n], (int)imageData[n + 1], (int)imageData[n + 2], (int)imageData[n + 3]);
+			n += 4;
+		};
+	}
+	*/
+
 	return true;
 }
 
@@ -142,17 +182,17 @@ void Sprite::Draw(GLint x, GLint y, GLfloat rotation, GLfloat scaleX, GLfloat sc
 	Draw(x, y, rotation, scaleX, scaleY, alpha, 0, 0, width, height);
 }
 
-void Sprite::Draw(GLint x, GLint y, GLfloat rotation, GLfloat scaleX, GLfloat scaleY, GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha)
+void Sprite::Draw(GLint x, GLint y, GLfloat rotation, GLfloat scaleX, GLfloat scaleY, Color color, GLfloat alpha)
 {
-	Draw(x, y, rotation, scaleX, scaleY, red, green, blue, alpha, 0, 0, width, height);
+	Draw(x, y, rotation, scaleX, scaleY, color, alpha, 0, 0, width, height);
 }
 
 void Sprite::Draw(GLint x, GLint y, GLfloat rotation, GLfloat scaleX, GLfloat scaleY, GLfloat alpha, GLint xx, GLint yy, GLint w, GLint h)
 {
-	Draw(x, y, rotation, scaleX, scaleY, 1.0f, 1.0f, 1.0f, alpha, xx, yy, w, h);
+	Draw(x, y, rotation, scaleX, scaleY, Color(255, 255, 255), alpha, xx, yy, w, h);
 }
 
-void Sprite::Draw(GLint x, GLint y, GLfloat rotation, GLfloat scaleX, GLfloat scaleY, GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha, GLint xx, GLint yy, GLint w, GLint h)
+void Sprite::Draw(GLint x, GLint y, GLfloat rotation, GLfloat scaleX, GLfloat scaleY, Color color, GLfloat alpha, GLint xx, GLint yy, GLint w, GLint h)
 {
 	// Bind texture
 	glBindTexture(GL_TEXTURE_2D, texture);
@@ -173,11 +213,11 @@ void Sprite::Draw(GLint x, GLint y, GLfloat rotation, GLfloat scaleX, GLfloat sc
 
 	// Draw the textured quad
 	glBegin(GL_QUADS);
-	glColor4f(red, green, blue, alpha);
-	glTexCoord2d(coX1, coY1); glVertex2d(-originX * scaleX,			-originY * scaleY);
+	glColor4ub(color.r, color.g, color.b, (unsigned char)(Clamp(alpha, 0.0f, 1.0f) * 255));
+	glTexCoord2d(coX1, coY1); glVertex2d(-originX * scaleX,		-originY * scaleY);
 	glTexCoord2d(coX2, coY1); glVertex2d((w - originX) * scaleX,	-originY * scaleY);
 	glTexCoord2d(coX2, coY2); glVertex2d((w - originX) * scaleX,	(h - originY) * scaleY);
-	glTexCoord2d(coX1, coY2); glVertex2d(-originX * scaleX,			(h - originY) * scaleY);
+	glTexCoord2d(coX1, coY2); glVertex2d(-originX * scaleX,		(h - originY) * scaleY);
 	glEnd();
 
 	// Pop the matrix

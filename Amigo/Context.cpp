@@ -1,17 +1,16 @@
 #include "Context.h"
 #include "GameEngine.h"
-#include "ErrorHandler.h"
 
 GLShaderManager Context::shaderManager;
 GLint Context::windowWidth;
 GLint Context::windowHeight;
 
-int Context::Initialize(int argv, char* argc[])
+int Context::Initialize()
 {
 	//Init GLFW
 	if (!glfwInit())
 	{
-		throw ERROR_GLFW_INIT;
+		throw "Failed to initialize GLFW.";
 	}
 	
 	// Set some GLFW properties
@@ -24,7 +23,7 @@ int Context::Initialize(int argv, char* argc[])
 	// Open a GLFW window
 	if (!glfwOpenWindow(windowWidth, windowHeight, 0, 0, 0, 0, 32, 0, GLFW_WINDOW ))
 	{
-		throw ERROR_GLFW_OPEN_WINDOW;
+		throw "Failed to open GLFW window.";
 	}
 
 	// Set some GLFW-window properties
@@ -38,7 +37,7 @@ int Context::Initialize(int argv, char* argc[])
 	GLenum err = glewInit();
 	if (GLEW_OK != err)
 	{
-		throw ERROR_GLEW_INIT;
+		throw "Failed to initialie GLEW.";
 	}
 
 	// Initialize shaders
@@ -67,7 +66,7 @@ int Context::Initialize(int argv, char* argc[])
 	case GL_FRAMEBUFFER_COMPLETE:
 		break;
 	default:
-		printf("Whoops! FBOs are not supported on your GPU! #%i\n", status);
+		throw "Framebuffers seem to be unsupported on this GPU.";
 		break;
 	}
 

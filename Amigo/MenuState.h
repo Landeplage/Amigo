@@ -16,8 +16,8 @@ public:
 	virtual void Draw();
 
 private:
-	Sprite sprCursor, sprBack1, sprBack2, sprBack3, sprChequer, sprLogo, sprUI, sprUI2;
-	Font FontBold, FontRegular;
+	Sprite sprCursor, sprBack1, sprBack2, sprBack3, sprChequer, sprLogo, sprLogoSmall, sprUI;
+	Font FontBold, FontRegular, fontBig;
 	const char* version;
 	float checkerScroll;
 	int screenW, screenH;

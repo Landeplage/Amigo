@@ -8,9 +8,10 @@ class GameEngine
 public:
 	static void ChangeState(State *state);
 	static void ChangeState(State *state, bool showLoading);
+	static void Start();
 	static void StopGame();
 	
-	static bool Initialize(int argc, char* argv[]);
+	static bool Initialize();
 	static void GameLoop();
 	static void Update(GLdouble time);
 	static void Draw();

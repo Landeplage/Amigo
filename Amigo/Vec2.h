@@ -13,4 +13,5 @@ public:
 	GLfloat x, y;
 
 	Vec2 operator+(const Vec2 operand);
+	Vec2 operator-(const Vec2 operand);
 };

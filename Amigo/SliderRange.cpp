@@ -54,7 +54,7 @@ void SliderRange::Update(GLdouble time)
 	HandleButton(button2, time, (GLint)(button->GetPosition().x + button->GetSize().x), (GLint)(position.x + size.x - button2->GetSize().x), (GLint)(size.x - button->GetSize().x), (GLint)(button->GetSize().x), &value2);
 
 	// Set valuestring
-	valueString = toString(value) + " - " + toString(value2);
+	valueString = toString(value) + " to " + toString(value2);
 }
 
 void SliderRange::Draw(GLfloat transition)
@@ -78,13 +78,14 @@ void SliderRange::Draw(GLfloat transition)
 		y,
 		0.0f,
 		(GLfloat)(button2->GetPosition().x - (button->GetPosition().x + button->GetSize().x)),
-		1.0f, 1.0f, 1.0f, 1.0f, alpha, 17, 31, 1, 7); // Fill
+		1.0f, alpha, 17, 31, 1, 7); // Fill
 
 	// Draw buttons
-	//button->Draw(transition);
-	//button2->Draw(transition);
-	sprite->Draw((GLint)(button->GetPosition().x - 1), (GLint)(button->GetPosition().y), 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, alpha, 0, 45, 25, 26); // Scroller-button
-	sprite->Draw((GLint)(button2->GetPosition().x - 1), (GLint)(button2->GetPosition().y), 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, alpha, 0, 45, 25, 26); // Scroller-button
+	button->Draw(transition);
+	button2->Draw(transition);
+
+	//sprite->Draw((GLint)(button->GetPosition().x - 1), (GLint)(button->GetPosition().y), 0.0f, 1.0f, 1.0f, alpha, 0, 45, 25, 26); // Scroller-button
+	//sprite->Draw((GLint)(button2->GetPosition().x - 1), (GLint)(button2->GetPosition().y), 0.0f, 1.0f, 1.0f, alpha, 0, 45, 25, 26); // Scroller-button
 }
 
 // Set the value of the slider

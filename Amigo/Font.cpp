@@ -43,20 +43,20 @@ void Font::LoadFont(const char* path, int size)
 
 	if (error == FT_Err_Unknown_File_Format)
 	{
-		printf("FreeType error: Font exists, but the format is unsupported!\n");
+		throw "Font exists, but the format is unsupported: " + (std::string)path;
 	}
 	else if (error)
 	{
-		printf("FreeType error: Font could not be loaded!%s\n", path);
+		throw "Font could not be loaded: " + (std::string)path;
 	}
-
-	printf("+ Font: %s\n", path);
 
 	error = FT_Set_Pixel_Sizes(face, 0, size);
 	if (error)
 	{
-		printf("FreeType error: Could not set character size! %s\n", path);
+		throw "Could not set font's character size!" + (std::string)path;
 	}
+
+	printf("+ Font: %s\n", path);
 
 	// Print the numnber of glyphs in the font
 	printf("\tGlyphs: %i\n", face->num_glyphs);
@@ -213,19 +213,20 @@ void Font::LoadFont(const char* path, int size)
 	printf("Done :: %i\n", texture);
 }
 
-void Font::Draw(int x, int y, std::string str, float rotation, float scaleX, float scaleY, float red, float green, float blue, float alpha)
+void Font::Draw(int x, int y, std::string str, float rotation, float scaleX, float scaleY, Color color, float alpha)
 {
 	// Bind the spritefont texture
 	glBindTexture(GL_TEXTURE_2D, texture);
 
 	unsigned int charCode;
+	long double coX1, coY1, coX2, coY2;
 
 	for(GLuint i = 0; i < str.length(); i ++)
 	{
 		// Push the matrix
 		glPushMatrix();
 
-		// Get character-code (and subtract by 32, to match the glyph-arrays)
+		// Get character-code (and offset by 32, to match the glyph-arrays)
 		charCode = (unsigned char)(str[i] - 32);
 
 		// Rotate and translate the quad
@@ -233,7 +234,6 @@ void Font::Draw(int x, int y, std::string str, float rotation, float scaleX, flo
 		glRotatef(rotation, 0.0f, 0.0f, 1.0f);
 
 		// Calculate texture coordinates
-		long double coX1, coY1, coX2, coY2;
 		coX1 = (long double)glyphs[charCode].texX / texW;
 		coY1 = (long double)glyphs[charCode].texY / texH;
 		coX2 = coX1 + (long double)glyphs[charCode].texW / texW;
@@ -241,10 +241,9 @@ void Font::Draw(int x, int y, std::string str, float rotation, float scaleX, flo
 
 		// Draw the glyph texture
 		glBegin(GL_QUADS);
-		glColor4f(red, green, blue, alpha);
+		glColor4ub(color.r, color.g, color.b, (unsigned char)(Clamp(alpha, 0.0f, 1.0f) * 255));
 		glTexCoord2d(coX1, coY1); glVertex2d(0, 0);
 		glTexCoord2d(coX2, coY1); glVertex2d(glyphs[charCode].texW, 0);
-		glColor4f(red * 0.95f, green * 0.95f, blue * 0.95f, alpha);
 		glTexCoord2d(coX2, coY2); glVertex2d(glyphs[charCode].texW, glyphs[charCode].texH);
 		glTexCoord2d(coX1, coY2); glVertex2d(0, glyphs[charCode].texH);
 		glEnd();
@@ -259,10 +258,10 @@ void Font::Draw(int x, int y, std::string str, float rotation, float scaleX, flo
 
 void Font::Draw(int x, int y, std::string str)
 {
-	Draw(x, y, str, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+	Draw(x, y, str, 0.0f, 1.0f, 1.0f, Color(255, 255, 255), 1.0f);
 }
 
-void Font::DrawShorten(int x, int y, std::string str, float rotation, float scaleX, float scaleY, float red, float green, float blue, float alpha, int width)
+void Font::DrawShorten(int x, int y, std::string str, float rotation, float scaleX, float scaleY, Color color, float alpha, int width)
 {
 	int pos = 1;
 	if (GetWidth(str) > width)
@@ -281,15 +280,15 @@ void Font::DrawShorten(int x, int y, std::string str, float rotation, float scal
 		}
 		str = str.substr(0, str.length() - pos) + "...";
 	}
-	Draw(x, y, str, rotation, scaleX, scaleY, red, green, blue, alpha);
+	Draw(x, y, str, rotation, scaleX, scaleY, color, alpha);
 }
 
 void Font::DrawLinebreak(int x, int y, std::string str, int width, int lineHeight)
 {
-	DrawLinebreak(x, y, str, width, lineHeight, 1.0f, 1.0f, 1.0f, 1.0f);
+	DrawLinebreak(x, y, str, width, lineHeight, Color(255, 255, 255), 1.0f);
 }
 
-void Font::DrawLinebreak(int x, int y, std::string str, int width, int lineHeight, float red, float green, float blue, float alpha)
+void Font::DrawLinebreak(int x, int y, std::string str, int width, int lineHeight, Color color, float alpha)
 {
 	int pos = 0, posPrev = 0;
 	while(GetWidth(str.substr(posPrev, str.length() - posPrev)) > width)
@@ -317,16 +316,17 @@ void Font::DrawLinebreak(int x, int y, std::string str, int width, int lineHeigh
 			str.insert(pos - 1, "-");
 		}
 
-		Draw(x, y, str.substr(posPrev, pos - posPrev), 0.0f, 1.0f, 1.0f, red, green, blue, alpha);
+		Draw(x, y, str.substr(posPrev, pos - posPrev), 0.0f, 1.0f, 1.0f, color, alpha);
 		y += lineHeight;
 
 		posPrev = pos;
 	}
 
 	// Draw the last line
-	Draw(x, y, str.substr(pos, str.length() - pos), 0.0f, 1.0f, 1.0f, red, green, blue, alpha);
+	Draw(x, y, str.substr(pos, str.length() - pos), 0.0f, 1.0f, 1.0f, color, alpha);
 }
 
+// Get width of a single-line string
 int Font::GetWidth(std::string str)
 {
 	int w = 0;
@@ -334,6 +334,47 @@ int Font::GetWidth(std::string str)
 	{
 		w += glyphs[(int)((unsigned char)(str[i] - 32))].advanceX;
 	}
+
+	return w;
+}
+
+// Get width of a multi-line string
+int Font::GetWidth(std::string str, GLint width)
+{
+	int w = 0, pos = 0, posPrev = 0;
+	while(GetWidth(str.substr(posPrev, str.length() - posPrev)) > width)
+	{
+		while(GetWidth(str.substr(posPrev, pos - posPrev)) < width) // find the first line
+		{
+			pos ++;
+		}
+
+		if (pos == 0) break;
+
+		if (str.substr(posPrev, pos - posPrev).find_first_of(" ", 0) != string::npos) // if the line contains a space
+		{
+			while(str.substr(pos - 1, 1) != " ") // find last occurring space
+			{ pos --; }
+		}
+		else if (str.substr(posPrev, pos - posPrev).find_first_of("-", 0) != string::npos) // if the line contains a dash
+		{
+			while(str.substr(pos - 1, 1) != "-") // find last occurring dash
+			{ pos --; }
+		}
+		else if (pos - posPrev > 2) // insert a dash at the end of the line (check if there are more than two characters in the line to avoid infinite loop)
+		{
+			pos--;
+			str.insert(pos - 1, "-");
+		}
+
+		if (GetWidth(str.substr(posPrev, pos - posPrev)) > w)
+			w = GetWidth(str.substr(posPrev, pos - posPrev));
+
+		posPrev = pos;
+	}
+
+	if (GetWidth(str.substr(pos, str.length() - pos)) > w)
+			w = GetWidth(str.substr(pos, str.length() - pos));
 
 	return w;
 }

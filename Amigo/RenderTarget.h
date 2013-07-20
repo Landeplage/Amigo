@@ -1,6 +1,7 @@
 #pragma once
 #include <GL\glew.h>
 #include "Vec2.h"
+#include "Color.h"
 
 class RenderTarget
 {
@@ -13,7 +14,8 @@ public:
 	void End();
 	void Draw(GLint x, GLint y);
 	void Draw(GLint x, GLint y, GLfloat alpha);
-	void Draw(GLint x, GLint y, GLfloat rotation, GLfloat scaleX, GLfloat scaleY, GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha, GLint xx, GLint yy, GLint w, GLint h);
+	void Draw(GLint x, GLint y, GLfloat rotation, GLfloat scaleX, GLfloat scaleY, GLfloat alpha, GLint xx, GLint yy, GLint w, GLint h);
+	void Draw(GLint x, GLint y, GLfloat rotation, GLfloat scaleX, GLfloat scaleY, Color color, GLfloat alpha, GLint xx, GLint yy, GLint w, GLint h);
 
 	Vec2 GetSize();
 private:

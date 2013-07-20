@@ -8,7 +8,7 @@ public:
 	static GLint getWindowWidth();
 	static GLint getWindowHeight();
 	
-	static int Initialize(int argc, char* argv[]);
+	static int Initialize();
 	static void Update(GLdouble time);
 	static void Draw();
 	static void Cleanup();

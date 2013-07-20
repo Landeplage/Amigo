@@ -10,6 +10,8 @@
 #include "Sprite.h"
 #include "Helper.h"
 
+#include "MenuState.h"
+
 static State *currentState;
 
 bool GameEngine::isLoading;
@@ -19,12 +21,24 @@ Sprite GameEngine::sprLoading;
 GLfloat GameEngine::loadingRot;
 State *GameEngine::newState;
 
-bool GameEngine::Initialize(int argc, char* argv[])
+void GameEngine::Start()
+{
+	// Initialize game engine
+	Initialize();
+
+	// Go to first state
+	ChangeState(new MenuState());
+
+	// Run game
+	GameLoop();
+}
+
+bool GameEngine::Initialize()
 {
 	printf("Initializing game engine...\n");
 
 	// Initialize context
-	Context::Initialize(argc, argv);
+	Context::Initialize();
 
 	// Initialize DevIL
 	DevIL::Init();
@@ -37,7 +51,7 @@ bool GameEngine::Initialize(int argc, char* argv[])
 	isLoading = false;
 	initLoad = false;
 
-	// Load stuff
+	// Load game-engine stuff
 	Load();
 
 	printf("Your OpenGL version is %s\n", (const char*)glGetString(GL_VERSION));
@@ -61,7 +75,7 @@ void GameEngine::Load()
 void GameEngine::GameLoop()
 {
 	// Set framerate cap
-	GLint framerate = 999;
+	GLdouble framerate = 150.0;
 	GLdouble lastFrameTime = 0, currentFrameTime = 0, fpsLastUpdate = 0;
 	gameRunning = true;
 
@@ -69,9 +83,9 @@ void GameEngine::GameLoop()
 	while(gameRunning)
 	{
 		currentFrameTime = glfwGetTime();
-		if ((currentFrameTime - lastFrameTime) * 1000 < 1000 / framerate)
+		if ((currentFrameTime - lastFrameTime) * 1000.0 < 1000.0 / framerate)
 		{
-			//glfwSleep(0.001);
+			glfwSleep(0.0001);
 		}
 		else
 		{
@@ -84,17 +98,17 @@ void GameEngine::GameLoop()
 			}
 
 			// Update
-			Update((currentFrameTime - lastFrameTime) * 1000);
+			Update((currentFrameTime - lastFrameTime) * 1000.0);
 			
 			// Draw
 			Draw();
 
 			// update fps-counter
 			GLdouble time = currentFrameTime;
-			if (time - fpsLastUpdate >= 1)
+			if (time - fpsLastUpdate >= 1.0)
 			{
-				GLdouble fps = (currentFrameTime * 1000 - lastFrameTime * 1000);
-				glfwSetWindowTitle(toString((GLint)(1000 / fps + 0.5)).c_str());
+				GLdouble fps = ((currentFrameTime - lastFrameTime) * 1000.0);
+				glfwSetWindowTitle(toString((int)((1000.0 / fps) * 100.0) / 100.0).c_str());
 				fpsLastUpdate = time;
 			}
 
@@ -103,7 +117,7 @@ void GameEngine::GameLoop()
 	}
 
 	// Cleanup game if loop stops
-	GameEngine::Cleanup();
+	Cleanup();
 }
 
 // Update the engine
@@ -119,8 +133,9 @@ void GameEngine::Update(GLdouble time)
 	}
 	else
 	{
-		isLoading = !(currentState->Load());
-		
+		currentState->Load();
+		isLoading = false;
+
 		// Rotation effect-variable
 		loadingRot++;
 		if (loadingRot >= 360)

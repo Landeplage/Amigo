@@ -3,6 +3,7 @@
 #include "GameEngine.h"
 #include "MenuState.h"
 #include "Helper.h"
+#include <math.h>
 #include <GL\glfw.h>
 
 GameState::GameState() { }
@@ -23,6 +24,17 @@ void GameState::Init()
 	// Set blend-mode
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+	// Init curve-variables
+	t = 0.0f;
+
+	// Make a little test-curve
+	AddVector(Vec2(400, 300));
+	AddVector(Vec2(900, 170));
+	AddVector(Vec2(750, 570));
+
+	// Init debug variable
+	mouseIsInsideSpline = false;
+
 	printf("Done:::\n\n");
 }
 
@@ -31,14 +43,18 @@ bool GameState::Load()
 	printf("GameState Load...\n");
 
 	// Load background-image
-	if (!sprBackground.LoadImage("res//tx//back//back_1.png")) return false;
+	sprBackground.LoadImage("res//tx//back//back_1.png");
 	// Load player-sprite
-	if (!sprGround.LoadImage("res//tx//env//ground_graphic.png")) return false;
+	sprGround.LoadImage("res//tx//env//ground_graphic.png");
 	// Load player-sprite
-	if (!sprPlayer.LoadImage("res//hamster.png")) return false;
+	sprPlayer.LoadImage("res//hamster.png");
 	// Load test-sprite
-	if (!sprTest.LoadImage("res//tile2.png")) return false;
+	sprTest.LoadImage("res//tile2.png");
 	//sprTest.setOriginCenter();
+
+	// Load curve-sprites
+	sprPoint.LoadImage("res//ellipse.png");
+	//sprPoint.setOriginCenter();
 
 	// Load debug-font
 	font.LoadFont("res\\font\\robotob.ttf", 16);
@@ -57,6 +73,24 @@ void GameState::Update(GLdouble time)
 
 	// Update player
 	player.Update(time);
+
+	// Interpolation amount
+	t += (float)(time * 0.0005);
+	if (t >= splinePoints.size())
+		t = 0.0f;
+
+	// Add vectors to spline when mouse is pressed
+	if (Input::getMouseLeftPressed())
+	{
+		last = AddVector(Input::getMousePos());
+	}
+	if (Input::getMouseLeft())
+	{
+		*last = Input::getMousePos() - splinePoints[splinePoints.size() - 1];
+	}
+
+	// Check if mouse is inside the spline
+	mouseIsInsideSpline = isInsideSpline(Input::getMousePos());
 }
 
 void GameState::Draw()
@@ -70,42 +104,92 @@ void GameState::Draw()
 	// Draw player
 	player.Draw();
 
-	// Draw a bunch of tiles
-	Vec2 gridSize, gridOffset, tileSize;
-	GLint gridAngle;
-	gridSize = Vec2(15, 15);
-	gridOffset = Vec2(1280 / 2, 0);
-	tileSize = Vec2((GLfloat)sprTest.getWidth(), (GLfloat)sprTest.getHeight());
-	gridAngle = 45;
-	
-	Vec2 mouse = Input::getMousePos();
-	mouse.x = (GLfloat)(ldirX(mouse.x, (GLfloat)(-(gridAngle))) - ldirY(mouse.y, (GLfloat)(-gridAngle)));
-	mouse.y = (GLfloat)(ldirY(mouse.x, (GLfloat)(-gridAngle)) + ldirX(mouse.y, (GLfloat)(-gridAngle)));
-	sprTest.Draw((GLint)mouse.x, (GLint)mouse.y);
-
-	GLint selected;
-	selected = (GLint)((mouse.x - gridOffset.x) / tileSize.x) + (GLint)((mouse.y - gridOffset.y) / tileSize.y) * (GLint)gridSize.x;
-	font.Draw(10, 10, toString(mouse.x) + " x " + toString(mouse.y));
-
-	GLfloat a;
-	for(GLint n = 0; n < (GLint)gridSize.x; n ++)
+	// Draw points along the catmull-rom path
+	if (splinePoints.size() > 1)
 	{
-		for(GLint i = 0; i < (GLint)gridSize.y; i ++)
+		float dir, len;
+		Vec2 h, hprev;
+		h = GetCatmullrom(&splinePoints, &splineVelocities, 0.0f);
+		hprev = h;
+
+		for(float i = 0.0f; i < splinePoints.size(); i += 0.02f)
 		{
-			a = 0.5f;
-			if (selected == i + (n * (GLint)gridSize.x))
-				a = 1.0f;
-			sprTest.Draw(
-				(GLint)(ldirX(i * tileSize.y, (GLfloat)gridAngle) + ldirX(n * tileSize.x, (GLfloat)(gridAngle + 90)) + gridOffset.x),
-				(GLint)(ldirY(i * tileSize.y, (GLfloat)gridAngle) + ldirY(n * tileSize.x, (GLfloat)gridAngle + 90) + gridOffset.y),
-				(GLfloat)gridAngle,
-				1.0f,
-				1.0f,
-				a);
-			font.Draw(
-				(GLint)(ldirX(i * tileSize.y, (GLfloat)gridAngle) + ldirX(n * tileSize.x, (GLfloat)gridAngle + 90) + gridOffset.x + ldirX(tileSize.x / 2, (GLfloat)(gridAngle + 45)) - font.GetWidth(toString(i + (n * gridSize.x))) / 2),
-				(GLint)(ldirY(i * tileSize.y, (GLfloat)gridAngle) + ldirY(n * tileSize.x, (GLfloat)gridAngle + 90) + gridOffset.y + ldirY(tileSize.x / 2, (GLfloat)(gridAngle + 45)) - font.GetHeight(toString(i + (n * gridSize.x))) / 4),
-				toString(i + (n * gridSize.x)));
+			h = GetCatmullrom(&splinePoints, &splineVelocities, i);
+
+			dir = Vec2Dir(hprev, h);
+			len = Vec2Len(hprev, h);
+			sprPoint.Draw((int)(h.x - 1), (int)(h.y - 1), 0.0f, 3, 3, 1.0f, 10, 10, 1, 1);
+
+			hprev = h;
 		}
 	}
+
+	// Draw spline-points and velocities
+	if (splinePoints.size() > 0)
+	{
+		for(unsigned int i = 0; i < splinePoints.size(); i ++)
+		{
+			sprPoint.Draw((int)splinePoints[i].x - 15, (int)splinePoints[i].y - 15);
+			font.Draw((int)splinePoints[i].x - 7, (int)splinePoints[i].y - 7, toString((int)i));
+			sprPoint.Draw((int)splinePoints[i].x, (int)splinePoints[i].y,
+				Vec2Dir(splinePoints[i] + splineVelocities[i], splinePoints[i]),
+				Vec2Len(splinePoints[i] + splineVelocities[i], splinePoints[i]),
+				1.0f, 0.5f, 10, 10, 1, 1);
+		}
+	}
+
+	// Draw a point between every point in the spine
+	/*if (splinePoints.size() > 1)
+	{
+		Vec2 h;
+		float tTemp;
+		tTemp = t;
+		while(tTemp >= 1.0f)
+			tTemp -= 1.0f;
+		for(int n = 0; n < splinePoints.size(); n ++)
+		{
+			h = GetCatmullrom(&splinePoints, &splineVelocities, tTemp + n);
+			sprPoint.Draw((int)(h.x - 15), (int)(h.y - 15));
+		}
+	}*/
+
+	// Draw a single point that goes through all points of the spine
+	if (splinePoints.size() > 1)
+	{
+		Vec2 h; 
+		h = GetCatmullrom(&splinePoints, &splineVelocities, t);
+		sprPoint.Draw((int)(h.x - 15), (int)(h.y - 15), 0.0f, 1.0f, 1.0f, Color(255, 128, 128), 1.0f);
+	}
+
+	// Draw a point the eases in/out
+	float tTemp;
+	tTemp = fmod(t, 1.0f) * 2.0f;
+	if (tTemp > 1.0f)
+		tTemp = 2.0f - tTemp;
+	Vec2 v = Vec2(200 * EaseQuadInOut(tTemp), 100.0f);
+	sprPoint.Draw(20 + (int)(v.x - 15), (int)(v.y - 15));
+
+	// Draw a point at the mouse position
+	Vec2 mouse = Input::getMousePos();
+	sprPoint.Draw(mouse.x, mouse.y, 0.0f, 1.0f, 1.0f, (float)mouseIsInsideSpline);
+
+	// Debug text
+	font.Draw(10, 10, toString(t));
+}
+
+Vec2* GameState::AddVector(Vec2 position)
+{
+	splinePoints.push_back(position);
+	splineVelocities.push_back(Vec2());
+	return &splineVelocities[splinePoints.size() - 1];
+}
+
+bool GameState::isInsideSpline(Vec2 position)
+{
+	for(int i = 0; i < splinePoints.size(); i ++)
+	{
+
+	}
+
+	return false;
 }

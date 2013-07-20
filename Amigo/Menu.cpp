@@ -6,7 +6,7 @@
 #include "MenuSystem.h"
 #include "Helper.h"
 
-Menu::Menu(GLint x, GLint y, GLint width, GLint height, MenuSystem* menuSystem)
+Menu::Menu(GLint x, GLint y, GLint width, GLint height, MenuSystem* menuSystem, GLint defaultMenuID)
 {
 	printf("-> Menu created.\n");
 
@@ -20,13 +20,17 @@ Menu::Menu(GLint x, GLint y, GLint width, GLint height, MenuSystem* menuSystem)
 
 	renderTarget = new RenderTarget(width, height);
 
-	menuCurrent = 0;
-	menuGoTo = 0;
+	menuCurrent = defaultMenuID;
+	menuGoTo = menuCurrent;
 	slide = 0;
 	slideTarget = 0;
-	slideSpeed = 0;
 	SetTransition(0, 0, 0.0f, false);
 	onDraw = [](){};
+
+	for(int i = 0; i < MENU_HISTORY_LENGTH; i ++)
+	{
+		history[i] = -1;
+	}
 }
 
 Menu::~Menu()
@@ -50,8 +54,8 @@ void Menu::Update(GLdouble time)
 	{
 		// Update all items of the menu
 		if (active
-			&& (GLint)(slide * 10) == 0
-			&& (abs(menuSystem->GetOverlaySlide()) > 0.9f && !menuSystem->GetOverlayShow()))
+			&& slide == 0.0f
+			&& (menuSystem->GetOverlaySlide() == -1.0f && !menuSystem->GetOverlayShow()))
 		{
 			MenuItem* focus = menuSystem->GetFocus();
 			for(GLuint i = 0; i < items.size(); i ++)
@@ -65,10 +69,9 @@ void Menu::Update(GLdouble time)
 		}
 
 		// Make the slide settle down
-		if (slideTarget == 0 && slide > -0.05f)
+		if (slideTarget == 0 && slide > -0.0001f)
 		{
 			slide = 0;
-			slideSpeed = 0;
 		}
 	}
 	else // handle menu-switching
@@ -76,42 +79,30 @@ void Menu::Update(GLdouble time)
 		// Slide out
 		if (slide > 1.0f)
 		{
+			if (history[0] == menuGoTo)
+				GoBackInHistory();
+			else
+				AddHistory(menuCurrent);
 			menuCurrent = menuGoTo;
 			slide = -1.0f;
 			slideTarget = 0;
-			slideSpeed = 0;
 		}
 	}
 
 	// Slide to target
-	//printf("Time = %i\n", (GLint)(time));
-	/*GLint slideLoop = (GLint)(time);
-	do
-	{
-		slideSpeed = menuSystem->Wobble(slide, slideTarget, slideSpeed, 0.02f, 0.02f, time);
-		slide += slideSpeed;
-		slideLoop --;
-	}
-	while (slideLoop > 0);*/
+	//if (slide < slideTarget)
+	//	slide += (GLfloat)(abs(slide - slideTarget) * (time / 100.0f));
 
-	//if (slide > slideTarget)
-	//	slide -= (GLfloat)(abs(slideTarget - slide) * (time / 120.0f));
-
-	// Slide to target
 	if (slide < slideTarget)
-		slide += (GLfloat)(abs(slide - slideTarget) * (time / 150.0f));
+		slide += (GLfloat)time / 200.0f;
 
 	// Render items to rendertarget
-	//Render();
+	Render();
 }
 
 // Draw the rendertarget texture
 void Menu::Draw()
 {
-	// Debug
-	std::string str = toString(slide) + " -> " + toString(slideTarget);
-	fontBold->Draw(10, 10, str);
-
 	// Draw rendertarget
 	GLfloat tmpScale, tmpShutterX, tmpShutterW;
 	
@@ -127,30 +118,26 @@ void Menu::Draw()
 
 	// Scale
 	tmpScale = 1.0f + (slide * scale);
-	/*
+	
 	// Draw the rendertarget
+	int n = 1;
+	if (menuCurrent != menuGoTo)
+		n = -1;
 	renderTarget->Draw(
-		(GLint)(position.x + (moveX * slide) - ((tmpScale - 1) * width) / 2 + tmpShutterX),
+		(GLint)(position.x + (moveX * slide) - ((tmpScale - 1) * width) / 2 + tmpShutterX - EaseQuadIn(abs(slide)) * 1000 * n),
 		(GLint)(position.y + (moveY * slide) - ((tmpScale - 1) * height) / 2),
-		0.0f, tmpScale, tmpScale, 1.0f, 1.0f, 1.0f, alpha, (GLint)tmpShutterX, 0, (GLint)tmpShutterW, height);
-		*/
+		0.0f, tmpScale, tmpScale, 1 - abs(slide), (GLint)tmpShutterX, 0, (GLint)tmpShutterW, height);
 
-	// Draw all items of the menu
-	MenuItem* focus = menuSystem->GetFocus();
-	for(GLuint i = 0; i < items.size(); i ++)
+	for(int i = 1; i < abs(slide * slide * slide) * 10; i ++)
 	{
-		if (items[i] != focus && items[i]->menuID == menuCurrent)
-			items[i]->Draw(slide);
-	}
-
-	// Draw the focused item last
-	for(GLuint i = 0; i < items.size(); i ++)
-	{
-		if (items[i] == focus)
-		{
-			focus->Draw(slide);
-			break;
-		}
+		renderTarget->Draw(
+		(GLint)(position.x + (moveX * slide) - ((tmpScale - 1) * width) / 2 + tmpShutterX - EaseQuadIn(abs(slide)) * 1000 * n + i * abs(slide) * 30),
+		(GLint)(position.y + (moveY * slide) - ((tmpScale - 1) * height) / 2),
+		0.0f, tmpScale, tmpScale, (1 - abs(slide) / (10 - i)) * 0.2f, (GLint)tmpShutterX, 0, (GLint)tmpShutterW, height);
+		renderTarget->Draw(
+		(GLint)(position.x + (moveX * slide) - ((tmpScale - 1) * width) / 2 + tmpShutterX - EaseQuadIn(abs(slide)) * 1000 * n - i * abs(slide) * 30),
+		(GLint)(position.y + (moveY * slide) - ((tmpScale - 1) * height) / 2),
+		0.0f, tmpScale, tmpScale, (1 - abs(slide) / (10 - i)) * 0.2f, (GLint)tmpShutterX, 0, (GLint)tmpShutterW, height);
 	}
 
 	// Draw any stuff on top
@@ -161,16 +148,40 @@ void Menu::Draw()
 void Menu::Render()
 {
 	// Begin rendertarget
-	//renderTarget->Begin();
+	renderTarget->Begin();
+
+	// Draw all items of the menu
+	MenuItem* focus = menuSystem->GetFocus();
+	for(GLuint i = 0; i < items.size(); i ++)
+	{
+		if (items[i] != focus && items[i]->menuID == menuCurrent)
+			items[i]->Draw(0.0f);
+	}
+
+	// Draw the focused item last
+	for(GLuint i = 0; i < items.size(); i ++)
+	{
+		if (items[i] == focus)
+		{
+			focus->Draw(0.0f);
+			break;
+		}
+	}
 
 	// End rendertarget
-	//renderTarget->End();
+	renderTarget->End();
 }
 
 // Get the current menu ID
 GLint Menu::GetMenuCurrent()
 {
 	return menuCurrent;
+}
+
+// Get the menu ID the menu is going to
+GLint Menu::GetMenuGoTo()
+{
+	return menuGoTo;
 }
 
 // Get the slide-animation variable
@@ -204,7 +215,39 @@ void Menu::GoTo(int menuID)
 {
 	menuGoTo = menuID;
 	menuSystem->ResetFocus();
-	slideTarget = 1.5f;
+	slideTarget = 1.0f;
+}
+
+// Go to the previous submenu
+void Menu::GoToPrevious()
+{
+	GoTo(history[0]);
+}
+
+// Get the menuID history of this menu
+GLint Menu::GetHistory(GLint id)
+{
+	return history[id];
+}
+
+// Add to the history array
+void Menu::AddHistory(GLint menuID)
+{
+	for(int i = MENU_HISTORY_LENGTH; i > 0; i --)
+	{
+		history[i] = history[i - 1];
+	}
+	history[0] = menuID;
+}
+
+// Go back one item in the history
+void Menu::GoBackInHistory()
+{
+	for(int i = 0; i < MENU_HISTORY_LENGTH; i ++)
+	{
+		history[i] = history[i + 1];
+	}
+	history[MENU_HISTORY_LENGTH] = -1;
 }
 
 // Add a box

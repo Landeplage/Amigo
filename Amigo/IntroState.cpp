@@ -25,7 +25,7 @@ bool IntroState::Load()
 {
 	if (timerWait == 200)
 	{
-		if (!sprLogo.LoadImage("res\\tx\\devlogo.png")) { return false; }
+		sprLogo.LoadImage("res\\tx\\devlogo.png");
 		sprLogo.setOriginCenter();
 	}
 

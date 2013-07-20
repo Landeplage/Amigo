@@ -132,22 +132,22 @@ void Button::Draw(GLfloat transition)
 	w -= 3;
 	h -= 4;
 
-	//			x			y			rot			xscale				yscale						red			green		blue		alpha		xx				yy		ww		hh
-	sprite->Draw(x + 3,		y + 5,		0.0f,		(GLfloat)(w - 1),	(GLfloat)(h - 5) / 19.0f,	1.0f,		1.0f,		1.0f,		alpha,		5 + xOff,		4,		1,		19);	// Middle
-	sprite->Draw(x,			y,			0.0f,		1.0f,				1.0f,						1.0f,		1.0f,		1.0f,		alpha,		0 + xOff,		0,		5,		5);		// Left top corner
-	sprite->Draw(x,			y + 5,		0.0f,		1.0f,				(GLfloat)(h - 5) / 19.0f,	1.0f,		1.0f,		1.0f,		alpha,		0 + xOff,		5,		3,		19);		// Left side
-	sprite->Draw(x,			y + h,		0.0f,		1.0f,				1.0f,						1.0f,		1.0f,		1.0f,		alpha,		0 + xOff,		24,		5,		7);		// Left bottom corner
-	sprite->Draw(x + 5,		y + h,		0.0f,		(GLfloat)(w - 5),	1.0f,						1.0f,		1.0f,		1.0f,		alpha,		5 + xOff,		24,		1,		7);		// Bottom
-	sprite->Draw(x + w,		y + h,		0.0f,		1.0f,				1.0f,						1.0f,		1.0f,		1.0f,		alpha,		6 + xOff,		24,		5,		7);		// Right bottom corner
-	sprite->Draw(x + w + 2,	y + 5,		0.0f,		1.0f,				(GLfloat)(h - 5) / 19.0f,	1.0f,		1.0f,		1.0f,		alpha,		8 + xOff,		5,		3,		19);		// Right side
-	sprite->Draw(x + w,		y,			0.0f,		1.0f,				1.0f,						1.0f,		1.0f,		1.0f,		alpha,		6 + xOff,		0,		5,		5);		// Right top corner
-	sprite->Draw(x + 5,		y,			0.0f,		(GLfloat)(w - 5),	1.0f,						1.0f,		1.0f,		1.0f,		alpha,		5 + xOff,		0,		1,		5);		// Top
+	//			 x			y			rot			xscale				yscale						alpha		xx				yy		ww		hh
+	sprite->Draw(x + 3,		y + 5,		0.0f,		(GLfloat)(w - 1),	(GLfloat)(h - 5) / 19.0f,	alpha,		5 + xOff,		4,		1,		19);	// Middle
+	sprite->Draw(x,			y,			0.0f,		1.0f,				1.0f,						alpha,		0 + xOff,		0,		5,		5);		// Left top corner
+	sprite->Draw(x,			y + 5,		0.0f,		1.0f,				(GLfloat)(h - 5) / 19.0f,	alpha,		0 + xOff,		5,		3,		19);	// Left side
+	sprite->Draw(x,			y + h,		0.0f,		1.0f,				1.0f,						alpha,		0 + xOff,		24,		5,		7);		// Left bottom corner
+	sprite->Draw(x + 5,		y + h,		0.0f,		(GLfloat)(w - 5),	1.0f,						alpha,		5 + xOff,		24,		1,		7);		// Bottom
+	sprite->Draw(x + w,		y + h,		0.0f,		1.0f,				1.0f,						alpha,		6 + xOff,		24,		5,		7);		// Right bottom corner
+	sprite->Draw(x + w + 2,	y + 5,		0.0f,		1.0f,				(GLfloat)(h - 5) / 19.0f,	alpha,		8 + xOff,		5,		3,		19);	// Right side
+	sprite->Draw(x + w,		y,			0.0f,		1.0f,				1.0f,						alpha,		6 + xOff,		0,		5,		5);		// Right top corner
+	sprite->Draw(x + 5,		y,			0.0f,		(GLfloat)(w - 5),	1.0f,						alpha,		5 + xOff,		0,		1,		5);		// Top
 
 	// Draw the button-text
 	GLint bOff = 0;
 	if (state == 2) bOff = 2;
-	font->Draw((GLint)(x + textOffset.x), (GLint)(y + bOff + h / 2 - 4), text, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, alpha);
-	font->Draw((GLint)(x + textOffset.x), (GLint)(y + bOff + h / 2 - 5), text, 0.0f, 1.0f, 1.0f, (GLfloat)(139.0f / 255.0f), (GLfloat)(98.0f / 255.0f), (GLfloat)(38.0f / 255.0f), alpha);
+	font->Draw((GLint)(x + textOffset.x), (GLint)(y + bOff + h / 2 - 4), text, 0.0f, 1.0f, 1.0f, Color(255, 255, 255), alpha);
+	font->Draw((GLint)(x + textOffset.x), (GLint)(y + bOff + h / 2 - 5), text, 0.0f, 1.0f, 1.0f, Color(139, 98, 38), alpha);
 }
 
 void Button::onClick()

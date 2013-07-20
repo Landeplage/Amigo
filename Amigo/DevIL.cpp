@@ -1,5 +1,4 @@
 #include "DevIL.h"
-#include "ErrorHandler.h"
 
 int DevIL::Init()
 {
@@ -12,7 +11,7 @@ int DevIL::Init()
 		|| iluGetInteger(ILU_VERSION_NUM) < ILU_VERSION
 		|| ilutGetInteger(ILUT_VERSION_NUM) < ILUT_VERSION)
 	{
-		throw ERROR_DEVIL_OUTDATED;
+		throw "Failed to initialize DevIL; library files are outdated.";
 	}
 
 	return 0;

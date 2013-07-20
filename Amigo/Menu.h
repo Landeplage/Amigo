@@ -8,12 +8,14 @@
 #include <functional>
 #include "RenderTarget.h"
 
+#define MENU_HISTORY_LENGTH 10
+
 class MenuSystem; // forward-declaring MenuSystem to avoid including it
 
 class Menu
 {
 public:
-	Menu(GLint x, GLint y, GLint width, GLint height, MenuSystem* menuSystem);
+	Menu(GLint x, GLint y, GLint width, GLint height, MenuSystem* menuSystem, GLint defaultMenuID);
 	~Menu();
 
 	MenuItem* AddBox(std::string title, GLint x, GLint y, GLint width, GLint height, GLint menuID);
@@ -25,10 +27,13 @@ public:
 	void Draw();
 	void Render();
 	void GoTo(int menuID);
+	void GoToPrevious();
 
 	GLint GetMenuCurrent();
+	GLint GetMenuGoTo();
 	GLfloat GetSlide();
 	Vec2 GetPosition();
+	GLint GetHistory(GLint id);
 
 	void SetTransition(GLint moveX, GLint moveY, GLfloat scale, bool fancyEffect);
 	void OnDraw(std::function<void()> onDraw);
@@ -37,6 +42,10 @@ private:
 	// Rendertarget stuff
 	RenderTarget* renderTarget;
 	
+	// Functions
+	void AddHistory(GLint menuID);
+	void GoBackInHistory();
+
 	// Properties
 	std::function<void()> onDraw;
 	bool active, fancyEffect;
@@ -45,6 +54,7 @@ private:
 	std::vector<MenuItem*> items;
 	Sprite* sprite;
 	Font* fontBold;
-	GLfloat slide, slideTarget, slideSpeed, scale;
+	GLfloat slide, slideTarget, scale;
 	GLint menuCurrent, menuGoTo, width, height, moveX, moveY;
+	GLint history[MENU_HISTORY_LENGTH];
 };

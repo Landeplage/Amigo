@@ -37,6 +37,9 @@
     <Filter Include="Source files\Objects">
       <UniqueIdentifier>{91cb33cb-1c0a-440f-9d63-27cf9361e6e4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source files\Menu\Elements">
+      <UniqueIdentifier>{3624649d-7cee-44a0-9878-312d33fc92f7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="IntroState.cpp">
@@ -69,14 +72,8 @@
     <ClCompile Include="MenuSystem.cpp">
       <Filter>Source files\Menu</Filter>
     </ClCompile>
-    <ClCompile Include="Button.cpp">
-      <Filter>Source files\Menu</Filter>
-    </ClCompile>
     <ClCompile Include="Input.cpp">
       <Filter>Source files\Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="Box.cpp">
-      <Filter>Source files\Menu</Filter>
     </ClCompile>
     <ClCompile Include="GameState.cpp">
       <Filter>Source files\States</Filter>
@@ -90,19 +87,28 @@
     <ClCompile Include="MenuItem.cpp">
       <Filter>Source files\Menu</Filter>
     </ClCompile>
-    <ClCompile Include="Slider.cpp">
-      <Filter>Source files\Menu</Filter>
-    </ClCompile>
     <ClCompile Include="Player.cpp">
       <Filter>Source files\Objects</Filter>
     </ClCompile>
+    <ClCompile Include="Vec2.cpp">
+      <Filter>Source files\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Box.cpp">
+      <Filter>Source files\Menu\Elements</Filter>
+    </ClCompile>
+    <ClCompile Include="Button.cpp">
+      <Filter>Source files\Menu\Elements</Filter>
+    </ClCompile>
+    <ClCompile Include="Slider.cpp">
+      <Filter>Source files\Menu\Elements</Filter>
+    </ClCompile>
     <ClCompile Include="SliderRange.cpp">
-      <Filter>Source files\Menu</Filter>
+      <Filter>Source files\Menu\Elements</Filter>
     </ClCompile>
     <ClCompile Include="Sprite.cpp">
-      <Filter>Source files\Menu</Filter>
+      <Filter>Source files\Engine</Filter>
     </ClCompile>
-    <ClCompile Include="Vec2.cpp">
+    <ClCompile Include="Color.cpp">
       <Filter>Source files\Engine</Filter>
     </ClCompile>
   </ItemGroup>
@@ -174,6 +180,9 @@
       <Filter>Header files\Menu</Filter>
     </ClInclude>
     <ClInclude Include="ErrorHandler.h">
+      <Filter>Header files\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Color.h">
       <Filter>Header files\Engine</Filter>
     </ClInclude>
   </ItemGroup>

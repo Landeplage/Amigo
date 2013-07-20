@@ -88,6 +88,7 @@
   <ItemGroup>
     <ClCompile Include="Box.cpp" />
     <ClCompile Include="Button.cpp" />
+    <ClCompile Include="Color.cpp" />
     <ClCompile Include="Context.cpp" />
     <ClCompile Include="DevIL.cpp" />
     <ClCompile Include="Font.cpp" />
@@ -112,6 +113,7 @@
   <ItemGroup>
     <ClInclude Include="Box.h" />
     <ClInclude Include="Button.h" />
+    <ClInclude Include="Color.h" />
     <ClInclude Include="DevIL.h" />
     <ClInclude Include="ErrorHandler.h" />
     <ClInclude Include="Font.h" />

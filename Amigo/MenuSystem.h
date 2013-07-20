@@ -6,7 +6,6 @@
 #include "Button.h"
 #include "Sprite.h"
 #include "Font.h"
-#include "RenderTarget.h"
 #include "Vec2.h"
 #include <vector>
 #include <functional>
@@ -17,12 +16,11 @@ public:
 	MenuSystem(Sprite* sprCursor, Sprite* sprUI, Font* fontBold, Font* fontRegular);
 	~MenuSystem();
 
-	Menu* AddMenu(GLint x, GLint y, GLint width, GLint height);
+	Menu* AddMenu(GLint x, GLint y, GLint width, GLint height, GLint defaultMenuID);
 
 	void Update(GLdouble time);
 	void Draw();
 	
-	GLfloat Wobble(GLfloat currentX, GLfloat targetX, GLfloat currentSpeed, GLfloat force, GLfloat friction, GLdouble time);
 	bool SetFocus(MenuItem* menuItem);
 	void ResetFocus();
 	MenuItem* GetFocus();
@@ -42,29 +40,27 @@ public:
 	void ShowMessage(std::string title, std::string text);
 	void ShowMessage(std::string title, std::string text, std::function<void()> onButton1);
 	void ShowQuestion(std::string title, std::string question, std::function<void()> onButton1, std::function<void()> onButton2);
-	void OnButton1();
-	void OnButton2();
 
 private:
 	void HideOverlay();
 	void DrawTooltip();
+	void OnOverlayButton1();
+	void OnOverlayButton2();
 
 	std::vector<Menu*> menus;
 	MenuItem* focusedItem;
 
 	Sprite *sprUI, *sprCursor;
 	Font *fontBold, *fontRegular;
-	GLfloat rot, overlaySlide, overlaySlideSpeed, overlaySlideTarget;
+	GLfloat rot, overlaySlide;
 	GLint cursorOffset;
 
-	RenderTarget *menuRenderTarget, *overlayRenderTarget;
 	bool overlayShow;
 	std::string overlayText;
 	std::vector<MenuItem*> overlayItems;
 	Box *overlayBox;
-	std::function<void()> onButton1, onButton2;
+	std::function<void()> onOverlayButton1, onOverlayButton2;
 	Button *overlayButton1, *overlayButton2;
-	GLint blend1, blend2;
 
 	std::string tooltipString;
 	GLdouble tooltipTimer;

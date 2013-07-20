@@ -96,24 +96,24 @@ void Slider::Draw(GLfloat transition)
 	DrawCommonElements(x, y, alpha);
 
 	// Draw filled part of slider-back
-	sprite->Draw(x - 1, y, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, alpha, 14, 31, 3, 7); // Fill (left)
-	sprite->Draw(x + 2, y, 0.0f, (GLfloat)(button->GetPosition().x - position.x - 2), 1.0f, 1.0f, 1.0f, 1.0f, alpha, 17, 31, 1, 7); // Fill (mid)
+	sprite->Draw(x - 1, y, 0.0f, 1.0f, 1.0f, alpha, 14, 31, 3, 7); // Fill (left)
+	sprite->Draw(x + 2, y, 0.0f, (GLfloat)(button->GetPosition().x - position.x - 2), 1.0f, alpha, 17, 31, 1, 7); // Fill (mid)
 
 	// Draw the button
-	//button->Draw(transition);
-	sprite->Draw((GLint)(button->GetPosition().x - 1), (GLint)(button->GetPosition().y), 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, alpha, 0, 45, 25, 26); // Scroller-button
+	button->Draw(transition);
+	//sprite->Draw((GLint)(button->GetPosition().x - 1), (GLint)(button->GetPosition().y), 0.0f, 1.0f, 1.0f, alpha, 0, 45, 25, 26); // Scroller-button
 }
 
 void Slider::DrawCommonElements(GLint x, GLint y, GLfloat alpha)
 {
 	// Draw slider-back
-	sprite->Draw(x, y, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, alpha, 9, 31, 2, 5); // Slider-back (left)
-	sprite->Draw(x + 2, y, 0.0f, (GLfloat)(size.x - 4), 1.0f, 1.0f, 1.0f, 1.0f, alpha, 11, 31, 1, 5); // Slider-back (left)
-	sprite->Draw(x + (GLint)size.x - 2, y, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, alpha, 12, 31, 2, 5); // Slider-back (right)
+	sprite->Draw(x, y, 0.0f, 1.0f, 1.0f, alpha, 9, 31, 2, 5); // Slider-back (left)
+	sprite->Draw(x + 2, y, 0.0f, (GLfloat)(size.x - 4), 1.0f, alpha, 11, 31, 1, 5); // Slider-back (left)
+	sprite->Draw(x + (GLint)size.x - 2, y, 0.0f, 1.0f, 1.0f, alpha, 12, 31, 2, 5); // Slider-back (right)
 
 	// Draw slider-info text
-	font->Draw(x, (GLint)position.y, text, 0.0f, 1.0f, 1.0f, (GLfloat)(139.0f / 255.0f), (GLfloat)(98.0f / 255.0f), (GLfloat)(38.0f / 255.0f), alpha);
-	font->Draw((GLint)(x + size.x - font->GetWidth(valueString)), (GLint)position.y, valueString, 0.0f, 1.0f, 1.0f, (GLfloat)(139.0f / 255.0f), (GLfloat)(98.0f / 255.0f), (GLfloat)(38.0f / 255.0f), alpha);
+	font->Draw(x, (GLint)position.y, text, 0.0f, 1.0f, 1.0f, Color(139, 98, 38), alpha);
+	font->Draw((GLint)(x + size.x - font->GetWidth(valueString)), (GLint)position.y, valueString, 0.0f, 1.0f, 1.0f, Color(139, 98, 38), alpha);
 }
 
 // Set the value of the slider

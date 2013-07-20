@@ -2,8 +2,7 @@
 #include "Context.h"
 #include <math.h>
 #include <stdio.h>
-
-#include "Helper.h" // remove this
+#include "Helper.h"
 
 RenderTarget::Viewport RenderTarget::viewport;
 
@@ -71,15 +70,20 @@ void RenderTarget::End()
 
 void RenderTarget::Draw(GLint x, GLint y)
 {
-	Draw(x, y, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0, 0, (GLint)size.x, (GLint)size.y);
+	Draw(x, y, 0.0f, 1.0f, 1.0f, 1.0f, 0, 0, (GLint)size.x, (GLint)size.y);
 }
 
 void RenderTarget::Draw(GLint x, GLint y, GLfloat alpha)
 {
-	Draw(x, y, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, alpha, 0, 0, (GLint)size.x, (GLint)size.y);
+	Draw(x, y, 0.0f, 1.0f, 1.0f, alpha, 0, 0, (GLint)size.x, (GLint)size.y);
 }
 
-void RenderTarget::Draw(GLint x, GLint y, GLfloat rotation, GLfloat scaleX, GLfloat scaleY, GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha, GLint xx, GLint yy, GLint w, GLint h)
+void RenderTarget::Draw(GLint x, GLint y, GLfloat rotation, GLfloat scaleX, GLfloat scaleY, GLfloat alpha, GLint xx, GLint yy, GLint w, GLint h)
+{
+	Draw(x, y, rotation, scaleX, scaleY, Color(255, 255, 255), alpha, xx, yy, w, h);
+}
+
+void RenderTarget::Draw(GLint x, GLint y, GLfloat rotation, GLfloat scaleX, GLfloat scaleY, Color color, GLfloat alpha, GLint xx, GLint yy, GLint w, GLint h)
 {
 	// Bind texture
 	glBindTexture(GL_TEXTURE_2D, texRT[0]);
@@ -100,8 +104,7 @@ void RenderTarget::Draw(GLint x, GLint y, GLfloat rotation, GLfloat scaleX, GLfl
 
 	// Draw the textured quad
 	glBegin(GL_QUADS);
-	glColor4f(red, green, blue, alpha);
-	
+	glColor4ub(color.r, color.g, color.b, (unsigned char)(Clamp(alpha, 0.0f, 1.0f) * 255));
 	glTexCoord2d(coX1, coY2); glVertex2d(0,				0);
 	glTexCoord2d(coX2, coY2); glVertex2d(w * scaleX,	0);
 	glTexCoord2d(coX2, coY1); glVertex2d(w * scaleX,	h * scaleY);
