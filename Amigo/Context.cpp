@@ -106,7 +106,7 @@ void Context::ChangeSize()
 int Context::CloseWindow()
 {
 	glfwCloseWindow();
-	GameEngine::StopGame();
+	GameEngine::GetInstance()->StopGame();
 
 	return 0;
 }

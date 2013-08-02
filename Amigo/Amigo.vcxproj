@@ -97,6 +97,7 @@
     <ClCompile Include="GameState.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="IntroState.cpp" />
+    <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Menu.cpp" />
     <ClCompile Include="MenuItem.cpp" />
@@ -107,6 +108,7 @@
     <ClCompile Include="Slider.cpp" />
     <ClCompile Include="SliderRange.cpp" />
     <ClCompile Include="Sprite.cpp" />
+    <ClCompile Include="StateManager.cpp" />
     <ClCompile Include="TinyThread\tinythread.cpp" />
     <ClCompile Include="Vec2.cpp" />
   </ItemGroup>
@@ -120,6 +122,7 @@
     <ClInclude Include="FreeType.h" />
     <ClInclude Include="GameEngine.h" />
     <ClInclude Include="GameState.h" />
+    <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="Menu.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="RenderTarget.h" />
@@ -132,6 +135,7 @@
     <ClInclude Include="MenuItem.h" />
     <ClInclude Include="MenuState.h" />
     <ClInclude Include="MenuSystem.h" />
+    <ClInclude Include="StateManager.h" />
     <ClInclude Include="Vec2.h" />
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="Context.h" />

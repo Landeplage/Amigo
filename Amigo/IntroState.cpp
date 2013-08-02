@@ -21,11 +21,11 @@ void IntroState::Init()
 	printf("\n::: Introstate Init :::\n\n");
 }
 
-bool IntroState::Load()
+bool IntroState::AddResources()
 {
 	if (timerWait == 200)
 	{
-		sprLogo.LoadImage("res\\tx\\devlogo.png");
+		sprLogo.LoadTexture("res\\tx\\devlogo.png");
 		sprLogo.setOriginCenter();
 	}
 
@@ -44,7 +44,7 @@ void IntroState::Update(GLdouble time)
 	if (timerWait > 0)
 		timerWait --;
 	else
-		GameEngine::ChangeState(new MenuState());
+		GameEngine::GetInstance()->ChangeState(new MenuState());
 }
 
 void IntroState::Draw()

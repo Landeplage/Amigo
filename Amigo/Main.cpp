@@ -5,7 +5,7 @@ int main(int argc, char* argv[])
 {
 	try
 	{
-		GameEngine::Start();
+		GameEngine::GetInstance()->Start();
 	}
 	catch(std::string error)
 	{

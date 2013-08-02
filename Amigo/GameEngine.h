@@ -6,22 +6,24 @@
 class GameEngine
 {
 public:
-	static void ChangeState(State *state);
-	static void ChangeState(State *state, bool showLoading);
-	static void Start();
-	static void StopGame();
-	
-	static bool Initialize();
-	static void GameLoop();
-	static void Update(GLdouble time);
-	static void Draw();
-	static void Cleanup();
-private:
-	static void Load();
-	static void GoToState(State *state);
+	GameEngine();
 
-	static Sprite sprLoading;
-	static bool isLoading, initLoad, gameRunning;
-	static GLfloat loadingRot;
-	static State *newState;
+	static GameEngine *instance;
+	static GameEngine *GetInstance();
+
+	void Start();
+	bool Initialize();
+	void Load();
+	void GameLoop();
+	void StopGame();
+
+	void ChangeState(State *state);
+
+private:
+	void Update(GLdouble time);
+	void Draw();
+	void Cleanup();
+
+	bool gameRunning;
+	bool hasLoaded;
 };

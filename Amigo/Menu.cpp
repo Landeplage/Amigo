@@ -8,7 +8,7 @@
 
 Menu::Menu(GLint x, GLint y, GLint width, GLint height, MenuSystem* menuSystem, GLint defaultMenuID)
 {
-	printf("-> Menu created.\n");
+	printf("-> Creating menu...\n");
 
 	this->menuSystem = menuSystem;
 	this->position.x = (GLfloat)x;
@@ -24,7 +24,7 @@ Menu::Menu(GLint x, GLint y, GLint width, GLint height, MenuSystem* menuSystem, 
 	menuGoTo = menuCurrent;
 	slide = 0;
 	slideTarget = 0;
-	SetTransition(0, 0, 0.0f, false);
+	SetTransition(0, 0, 0.0f);
 	onDraw = [](){};
 
 	for(int i = 0; i < MENU_HISTORY_LENGTH; i ++)
@@ -35,7 +35,7 @@ Menu::Menu(GLint x, GLint y, GLint width, GLint height, MenuSystem* menuSystem, 
 
 Menu::~Menu()
 {
-	printf("Deleting menu...\n");
+	printf("Destroying menu...\n");
 	
 	//Unload rendertarget
 	renderTarget->~RenderTarget();
@@ -104,17 +104,7 @@ void Menu::Update(GLdouble time)
 void Menu::Draw()
 {
 	// Draw rendertarget
-	GLfloat tmpScale, tmpShutterX, tmpShutterW;
-	
-	// Shutter-effect (a.k.a. fancy effect)
-	tmpShutterX = 0;
-	tmpShutterW = (GLfloat)width;
-
-	if (fancyEffect)
-	{
-		tmpShutterX = (abs(slide) * (width / 2));
-		tmpShutterW = width * (-abs(slide) + 1);
-	}
+	GLfloat tmpScale;
 
 	// Scale
 	tmpScale = 1.0f + (slide * scale);
@@ -123,25 +113,24 @@ void Menu::Draw()
 	int n = 1;
 	if (menuCurrent != menuGoTo)
 		n = -1;
+	GLfloat rtSlide = EaseQuadIn(abs(slide)) * 1000 * n;
+
 	renderTarget->Draw(
-		(GLint)(position.x + (moveX * slide) - ((tmpScale - 1) * width) / 2 + tmpShutterX - EaseQuadIn(abs(slide)) * 1000 * n),
+		(GLint)(position.x + (moveX * slide) - ((tmpScale - 1) * width) / 2 - rtSlide),
 		(GLint)(position.y + (moveY * slide) - ((tmpScale - 1) * height) / 2),
-		0.0f, tmpScale, tmpScale, 1 - abs(slide), (GLint)tmpShutterX, 0, (GLint)tmpShutterW, height);
+		0.0f, tmpScale, tmpScale, 1 - abs(slide), 0, 0, width, height);
 
 	for(int i = 1; i < abs(slide * slide * slide) * 10; i ++)
 	{
 		renderTarget->Draw(
-		(GLint)(position.x + (moveX * slide) - ((tmpScale - 1) * width) / 2 + tmpShutterX - EaseQuadIn(abs(slide)) * 1000 * n + i * abs(slide) * 30),
+		(GLint)(position.x + (moveX * slide) - ((tmpScale - 1) * width) / 2 - rtSlide + i * abs(slide) * 30),
 		(GLint)(position.y + (moveY * slide) - ((tmpScale - 1) * height) / 2),
-		0.0f, tmpScale, tmpScale, (1 - abs(slide) / (10 - i)) * 0.2f, (GLint)tmpShutterX, 0, (GLint)tmpShutterW, height);
+		0.0f, tmpScale, tmpScale, (1 - abs(slide) / (10 - i)) * 0.2f, 0, 0, width, height);
 		renderTarget->Draw(
-		(GLint)(position.x + (moveX * slide) - ((tmpScale - 1) * width) / 2 + tmpShutterX - EaseQuadIn(abs(slide)) * 1000 * n - i * abs(slide) * 30),
+		(GLint)(position.x + (moveX * slide) - ((tmpScale - 1) * width) / 2 - rtSlide - i * abs(slide) * 30),
 		(GLint)(position.y + (moveY * slide) - ((tmpScale - 1) * height) / 2),
-		0.0f, tmpScale, tmpScale, (1 - abs(slide) / (10 - i)) * 0.2f, (GLint)tmpShutterX, 0, (GLint)tmpShutterW, height);
+		0.0f, tmpScale, tmpScale, (1 - abs(slide) / (10 - i)) * 0.2f, 0, 0, width, height);
 	}
-
-	// Draw any stuff on top
-	onDraw();
 }
 
 // Render the items onto the rendertarget
@@ -167,6 +156,9 @@ void Menu::Render()
 			break;
 		}
 	}
+
+	// Draw any stuff on top
+	onDraw();
 
 	// End rendertarget
 	renderTarget->End();
@@ -197,12 +189,11 @@ Vec2 Menu::GetPosition()
 }
 
 // Set the attributes of transitions
-void Menu::SetTransition(GLint moveX, GLint moveY, GLfloat scale, bool fancyEffect)
+void Menu::SetTransition(GLint moveX, GLint moveY, GLfloat scale)
 {
 	this->moveX = moveX;
 	this->moveY = moveY;
 	this->scale = scale;
-	this->fancyEffect = fancyEffect;
 }
 
 void Menu::OnDraw(std::function<void()> onDraw)

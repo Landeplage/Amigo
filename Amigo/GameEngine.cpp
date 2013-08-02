@@ -6,28 +6,31 @@
 #include "DevIL.h"
 #include "FreeType.h"
 
-#include "State.h"
+#include "StateManager.h"
+#include "ResourceManager.h"
+
 #include "Sprite.h"
 #include "Helper.h"
 
 #include "MenuState.h"
 
-static State *currentState;
+GameEngine *GameEngine::instance = 0;
 
-bool GameEngine::isLoading;
-bool GameEngine::initLoad;
-bool GameEngine::gameRunning;
-Sprite GameEngine::sprLoading;
-GLfloat GameEngine::loadingRot;
-State *GameEngine::newState;
+GameEngine::GameEngine()
+{
+	hasLoaded = false;
+}
 
 void GameEngine::Start()
 {
 	// Initialize game engine
 	Initialize();
 
-	// Go to first state
-	ChangeState(new MenuState());
+	// Load game engine
+	Load();
+
+	// Go to initial state
+	StateManager::GetInstance()->QueueState(new MenuState());
 
 	// Run game
 	GameLoop();
@@ -46,14 +49,6 @@ bool GameEngine::Initialize()
 	// Initialize FreeType
 	FreeType::Init();
 
-	// Init various variables
-	loadingRot = 0;
-	isLoading = false;
-	initLoad = false;
-
-	// Load game-engine stuff
-	Load();
-
 	printf("Your OpenGL version is %s\n", (const char*)glGetString(GL_VERSION));
 
 	printf("Game engine initialized.\n");
@@ -63,11 +58,7 @@ bool GameEngine::Initialize()
 
 void GameEngine::Load()
 {
-	printf("\nLoading globals:\n");
-
-	// Load sprites
-	sprLoading.LoadImage("res\\tx\\ui\\loading.png");
-	sprLoading.setOrigin(sprLoading.getWidth() / 2, sprLoading.getHeight() / 2);
+	printf("\nLoading game engine:\n");
 
 	printf("\n");
 }
@@ -75,7 +66,7 @@ void GameEngine::Load()
 void GameEngine::GameLoop()
 {
 	// Set framerate cap
-	GLdouble framerate = 150.0;
+	GLdouble framerate = 999.0;
 	GLdouble lastFrameTime = 0, currentFrameTime = 0, fpsLastUpdate = 0;
 	gameRunning = true;
 
@@ -89,12 +80,16 @@ void GameEngine::GameLoop()
 		}
 		else
 		{
-			// Check if loading has been initiated and go to new state
-			if (initLoad)
+			// Check if a state has been queued
+			if (StateManager::GetInstance()->StateHasBeenQueued())
 			{
-				isLoading = true;
-				GoToState(newState);
-				initLoad = false;
+				StateManager *sM = StateManager::GetInstance();
+				ResourceManager * rM = ResourceManager::GetInstance();
+				
+				// Change state
+				rM->UnloadAll();
+				sM->ChangeState(sM->GetQueuedState());
+				rM->StartLoading();
 			}
 
 			// Update
@@ -126,31 +121,37 @@ void GameEngine::Update(GLdouble time)
 	Input::Update(time);
 	Context::Update(time);
 
-	// Handle current game-state
-	if (!isLoading)
+	if (ResourceManager::GetInstance()->IsLoading())
 	{
-		currentState->Update(time);
+		ResourceManager::GetInstance()->Update(time);
+		hasLoaded = false;
 	}
 	else
 	{
-		currentState->Load();
-		isLoading = false;
-
-		// Rotation effect-variable
-		loadingRot++;
-		if (loadingRot >= 360)
-			loadingRot -= 360;
+		if (!hasLoaded)
+		{
+			printf("Init...\n");
+			StateManager::GetInstance()->Initialize();
+			hasLoaded = true;
+		}
+		StateManager::GetInstance()->Update(time);
 	}
 }
 
 // Draw the engine
 void GameEngine::Draw()
 {
-	// Draw current game-state
-	if (!isLoading)
-		currentState->Draw();
-	else // or the loading-screen
-		sprLoading.Draw(Context::getWindowWidth() / 2, Context::getWindowHeight() / 2, loadingRot * 8, 1.0f, 1.0f, 1.0f);
+	if (ResourceManager::GetInstance()->IsLoading())
+	{
+		ResourceManager::GetInstance()->Draw();
+	}
+	else
+	{
+		if (hasLoaded)
+		{
+			StateManager::GetInstance()->Draw();
+		}
+	}
 
 	Context::Draw();
 }
@@ -158,27 +159,7 @@ void GameEngine::Draw()
 // Queue new state
 void GameEngine::ChangeState(State *state)
 {
-	initLoad = true;
-	newState = state;
-}
-
-// Queue new state (with an option to hide loading)
-void GameEngine::ChangeState(State *state, bool showLoading)
-{
-	ChangeState(state);
-	//isLoading = showLoading;
-	//currentState->Load();
-}
-
-// Go to new state
-void GameEngine::GoToState(State *state)
-{
-	if (currentState)
-	{
-		delete currentState;
-	}
-	currentState = state;
-	currentState->Init();
+	StateManager::GetInstance()->QueueState(state);
 }
 
 // End the game-loop
@@ -190,7 +171,17 @@ void GameEngine::StopGame()
 // Cleanup the game
 void GameEngine::Cleanup()
 {
-	currentState->~State();
+	StateManager::GetInstance()->Cleanup();
+	ResourceManager::GetInstance()->Cleanup();
 	Context::Cleanup();
 }
 
+// Get singleton instance
+GameEngine* GameEngine::GetInstance()
+{
+	if (!instance)
+	{
+		instance = new GameEngine();
+	}
+	return instance;
+}

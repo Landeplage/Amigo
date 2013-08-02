@@ -7,7 +7,7 @@ public:
 	IntroState();
 	~IntroState();
 	virtual void Init();
-	virtual bool Load();
+	virtual bool AddResources();
 	virtual void Update(GLdouble time);
 	virtual void Draw();
 

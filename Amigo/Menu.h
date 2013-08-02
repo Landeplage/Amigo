@@ -35,7 +35,7 @@ public:
 	Vec2 GetPosition();
 	GLint GetHistory(GLint id);
 
-	void SetTransition(GLint moveX, GLint moveY, GLfloat scale, bool fancyEffect);
+	void SetTransition(GLint moveX, GLint moveY, GLfloat scale);
 	void OnDraw(std::function<void()> onDraw);
 
 private:
@@ -48,7 +48,7 @@ private:
 
 	// Properties
 	std::function<void()> onDraw;
-	bool active, fancyEffect;
+	bool active;
 	Vec2 position;
 	MenuSystem* menuSystem;
 	std::vector<MenuItem*> items;

@@ -1,6 +1,6 @@
 To do:
 - Separate states from GameEngine and make a state manager?
-- 
+- Make a load-manager class to manage loading
 
 Bugs:
 - 

@@ -22,7 +22,7 @@ public:
 	void setInterpolationMode(GLint mode);
 
 	ILuint CreateImage();
-	bool LoadImage(const char *imagePath);
+	bool LoadTexture(const char *imagePath);
 	void Draw(GLint x, GLint y);
 	void Draw(GLint x, GLint y, GLfloat rotation, GLfloat scaleX, GLfloat scaleY, GLfloat alpha);
 	void Draw(GLint x, GLint y, GLfloat rotation, GLfloat scaleX, GLfloat scaleY, GLfloat alpha, GLint x1, GLint y1, GLint x2, GLint y2);

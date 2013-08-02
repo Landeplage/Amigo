@@ -102,6 +102,9 @@ void RenderTarget::Draw(GLint x, GLint y, GLfloat rotation, GLfloat scaleX, GLfl
 	coX2 = (GLdouble)(xx + w) / size.x;
 	coY2 = (GLdouble)(yy + h) / size.y;
 
+	// Set blend mode
+	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+
 	// Draw the textured quad
 	glBegin(GL_QUADS);
 	glColor4ub(color.r, color.g, color.b, (unsigned char)(Clamp(alpha, 0.0f, 1.0f) * 255));
@@ -110,6 +113,9 @@ void RenderTarget::Draw(GLint x, GLint y, GLfloat rotation, GLfloat scaleX, GLfl
 	glTexCoord2d(coX2, coY1); glVertex2d(w * scaleX,	h * scaleY);
 	glTexCoord2d(coX1, coY1); glVertex2d(0,				h * scaleY);
 	glEnd();
+
+	// Reset blend mode
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// Pop the matrix
 	glPopMatrix();

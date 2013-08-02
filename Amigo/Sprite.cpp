@@ -69,6 +69,7 @@ void Sprite::setOriginCenter()
 
 void Sprite::setInterpolationMode(GLint mode)
 {
+	glBindTexture(GL_TEXTURE_2D, texture);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (GLfloat)mode);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, (GLfloat)mode);
 }
@@ -85,7 +86,7 @@ ILuint Sprite::CreateImage()
 }
 
 // Load image from file
-bool Sprite::LoadImage(const char *imagePath)
+bool Sprite::LoadTexture(const char *imagePath)
 {
 	// Init image variables
 	ILubyte *imageData;
