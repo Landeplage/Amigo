@@ -18,19 +18,27 @@ void Box::Unload()
 	// unload any resources
 }
 
+void Box::HandleInput()
+{
+	// handle input
+}
+
 void Box::Update(GLdouble time)
 {
 	// update
 }
 
-void Box::Draw(GLfloat transition)
+void Box::Draw()
 {
+	if (!visible)
+		return;
+
 	GLfloat alpha;
-	alpha = 1 - abs(transition);
+	alpha = 1.0f;
 
 	GLint x, y, w, h;
-	x = (GLint)(position.x);
-	y = (GLint)position.y;
+	x = (GLint)position.x + drawOffset.x;
+	y = (GLint)position.y + drawOffset.y;
 	w = (GLint)size.x;
 	h = (GLint)size.y;
 	
@@ -46,7 +54,7 @@ void Box::Draw(GLfloat transition)
 	sprite->Draw(x + w + 8, y + h, 0.0f, -1.0f, 1.0f, alpha, 0, 39, 7, 6); // Right bottom corner
 	sprite->Draw(x + w + 7, y + 7, 0.0f, 1.0f, (GLfloat)(h - 7), alpha, 0, 38, 1, 1); // Right side
 	sprite->Draw(x + w + 8, y, 0.0f, -1.0f, 1.0f, alpha, 0, 31, 6, 7); // Right top corner
-	sprite->Draw(x + 6, y, 0.0f, (GLfloat)(w - 3), 1.0f, alpha, 6, 31, 1, 2); // Top
+	sprite->Draw(x + 6, y, 0.0f, (GLfloat)(w - 4), 1.0f, alpha, 6, 31, 1, 2); // Top
 
 	// Draw title over box
 	if (title != "")

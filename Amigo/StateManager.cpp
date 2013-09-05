@@ -13,6 +13,11 @@ void StateManager::Initialize()
 	currentState->Init();
 }
 
+void StateManager::HandleInput()
+{
+	currentState->HandleInput();
+}
+
 void StateManager::Update(GLdouble time)
 {
 	currentState->Update(time);

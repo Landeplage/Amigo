@@ -3,6 +3,7 @@
 #include <math.h>
 #include <stdio.h>
 #include "Helper.h"
+#include <GL\glew.h>
 
 RenderTarget::Viewport RenderTarget::viewport;
 
@@ -53,7 +54,11 @@ void RenderTarget::Begin()
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	// Set blend mode
-	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
+	//glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
+
+	//glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE_MINUS_DST_ALPHA, GL_ONE); //philly c
+	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); // slime73
+	//glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA); // Tamschi
 }
 
 void RenderTarget::End()
@@ -103,7 +108,8 @@ void RenderTarget::Draw(GLint x, GLint y, GLfloat rotation, GLfloat scaleX, GLfl
 	coY2 = (GLdouble)(yy + h) / size.y;
 
 	// Set blend mode
-	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+	//glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+	//glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// Draw the textured quad
 	glBegin(GL_QUADS);
@@ -114,15 +120,23 @@ void RenderTarget::Draw(GLint x, GLint y, GLfloat rotation, GLfloat scaleX, GLfl
 	glTexCoord2d(coX1, coY1); glVertex2d(0,				h * scaleY);
 	glEnd();
 
-	// Reset blend mode
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
 	// Pop the matrix
 	glPopMatrix();
+
+	// Reset blend mode
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 // Get size of rendertarget
 Vec2 RenderTarget::GetSize()
 {
 	return size;
+}
+
+// Set size of rendertarget
+void RenderTarget::SetSize(Vec2 size)
+{
+	this->size = size;
+	glBindTexture(GL_TEXTURE_2D, texRT[0]);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 }

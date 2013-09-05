@@ -1,7 +1,10 @@
 #pragma once
 #include <GL\glew.h>
+#include <vector>
 #include "Vec2.h"
 #include "Sprite.h"
+
+class MenuSystem;
 
 class MenuItem
 {
@@ -17,20 +20,28 @@ public:
 		BOTTOM
 	};
 
+	virtual void HandleInput() = 0;
 	virtual void Update(GLdouble time) = 0;
-	virtual void Draw(GLfloat transition) = 0;
+	virtual void Draw() = 0;
 	virtual void Unload() = 0;
 
-	Vec2 GetSize();
 	Vec2 GetPosition();
+	Vec2 GetSize();
+	Vec2 GetOrigin();
+	Vec2 GetDrawOffset();
+	std::vector<MenuItem*> GetChildren();
 
-	void SetSize(GLint width, GLint height);
-	void SetPosition(GLint x, GLint y);
+	virtual void SetPosition(Vec2 position);
+	virtual void SetSize(Vec2 size);
+	virtual void SetOrigin(Vec2 origin);
+	virtual void SetDrawOffset(Vec2 drawOffset);
 
 	bool active, visible;
 	int menuID;
 
 protected:
-	Vec2 size, position;
+	Vec2 size, position, origin, drawOffset;
+	std::vector<MenuItem*> children;
 	Sprite *sprite;
+	MenuSystem *menuSystem;
 };

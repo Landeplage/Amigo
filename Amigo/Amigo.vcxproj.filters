@@ -46,11 +46,23 @@
     <Filter Include="Source files\Engine\Resources">
       <UniqueIdentifier>{1611eaa0-2db8-48e4-895b-42b469925784}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source files\Engine\Libraries">
+      <UniqueIdentifier>{11ba20fa-3bbf-4580-a39f-23beca01586e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header files\Engine\Libraries">
+      <UniqueIdentifier>{9e59737c-5cf6-4442-861a-9bab26e05f7c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header files\Menu\Elements">
+      <UniqueIdentifier>{e8e057f6-ecc2-4ade-8f97-dcae0f5a6cfa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header files\Menu\Elements\Base">
+      <UniqueIdentifier>{a02e5c90-66e7-40db-a248-9ef982e9e7a8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source files\Menu\Elements\Base">
+      <UniqueIdentifier>{627a74d5-7180-492b-be6f-f7c4c210c2c0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="IntroState.cpp">
-      <Filter>Source files\States</Filter>
-    </ClCompile>
     <ClCompile Include="MenuState.cpp">
       <Filter>Source files\States</Filter>
     </ClCompile>
@@ -61,15 +73,6 @@
       <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="Context.cpp">
-      <Filter>Source files\Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="FreeType.cpp">
-      <Filter>Source files\Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="DevIL.cpp">
-      <Filter>Source files\Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="TinyThread\tinythread.cpp">
       <Filter>Source files\Engine</Filter>
     </ClCompile>
     <ClCompile Include="MenuSystem.cpp">
@@ -86,9 +89,6 @@
     </ClCompile>
     <ClCompile Include="RenderTarget.cpp">
       <Filter>Source files\Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="MenuItem.cpp">
-      <Filter>Source files\Menu</Filter>
     </ClCompile>
     <ClCompile Include="Player.cpp">
       <Filter>Source files\Objects</Filter>
@@ -123,12 +123,33 @@
     <ClCompile Include="ResourceManager.cpp">
       <Filter>Source files\Engine</Filter>
     </ClCompile>
+    <ClCompile Include="Vec4.cpp">
+      <Filter>Source files\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="DevIL.cpp">
+      <Filter>Source files\Engine\Libraries</Filter>
+    </ClCompile>
+    <ClCompile Include="FreeType.cpp">
+      <Filter>Source files\Engine\Libraries</Filter>
+    </ClCompile>
+    <ClCompile Include="TinyThread\tinythread.cpp">
+      <Filter>Source files\Engine\Libraries</Filter>
+    </ClCompile>
+    <ClCompile Include="ContentBox.cpp">
+      <Filter>Source files\Menu\Elements</Filter>
+    </ClCompile>
+    <ClCompile Include="MenuItem.cpp">
+      <Filter>Source files\Menu\Elements\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="BlendtestState.cpp">
+      <Filter>Source files\States</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderManager.cpp">
+      <Filter>Source files\Engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MenuState.h">
-      <Filter>Header files\States</Filter>
-    </ClInclude>
-    <ClInclude Include="IntroState.h">
       <Filter>Header files\States</Filter>
     </ClInclude>
     <ClInclude Include="Helper.h">
@@ -140,26 +161,11 @@
     <ClInclude Include="Context.h">
       <Filter>Header files\Engine</Filter>
     </ClInclude>
-    <ClInclude Include="FreeType.h">
-      <Filter>Header files\Engine</Filter>
-    </ClInclude>
-    <ClInclude Include="DevIL.h">
-      <Filter>Header files\Engine</Filter>
-    </ClInclude>
     <ClInclude Include="MenuSystem.h">
-      <Filter>Header files\Menu</Filter>
-    </ClInclude>
-    <ClInclude Include="MenuItem.h">
-      <Filter>Header files\Menu</Filter>
-    </ClInclude>
-    <ClInclude Include="Button.h">
       <Filter>Header files\Menu</Filter>
     </ClInclude>
     <ClInclude Include="Input.h">
       <Filter>Header files\Engine</Filter>
-    </ClInclude>
-    <ClInclude Include="Box.h">
-      <Filter>Header files\Menu</Filter>
     </ClInclude>
     <ClInclude Include="State.h">
       <Filter>Header files\States\Base</Filter>
@@ -179,12 +185,6 @@
     <ClInclude Include="Vec2.h">
       <Filter>Header files\Engine</Filter>
     </ClInclude>
-    <ClInclude Include="Slider.h">
-      <Filter>Header files\Menu</Filter>
-    </ClInclude>
-    <ClInclude Include="SliderRange.h">
-      <Filter>Header files\Menu</Filter>
-    </ClInclude>
     <ClInclude Include="ErrorHandler.h">
       <Filter>Header files\Engine</Filter>
     </ClInclude>
@@ -201,6 +201,39 @@
       <Filter>Header files\Engine\Resources</Filter>
     </ClInclude>
     <ClInclude Include="ResourceManager.h">
+      <Filter>Header files\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Vec4.h">
+      <Filter>Header files\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="DevIL.h">
+      <Filter>Header files\Engine\Libraries</Filter>
+    </ClInclude>
+    <ClInclude Include="FreeType.h">
+      <Filter>Header files\Engine\Libraries</Filter>
+    </ClInclude>
+    <ClInclude Include="Box.h">
+      <Filter>Header files\Menu\Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="Button.h">
+      <Filter>Header files\Menu\Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="Slider.h">
+      <Filter>Header files\Menu\Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="SliderRange.h">
+      <Filter>Header files\Menu\Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="MenuItem.h">
+      <Filter>Header files\Menu\Elements\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="ContentBox.h">
+      <Filter>Header files\Menu\Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="BlendtestState.h">
+      <Filter>Header files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderManager.h">
       <Filter>Header files\Engine</Filter>
     </ClInclude>
   </ItemGroup>

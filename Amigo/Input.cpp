@@ -15,7 +15,7 @@ GLint Input::mouseWheelDiff;
 GLint Input::mouseWheelPrevious;
 GLint Input::mouseWheelIncrement;
 
-void Input::Update(GLdouble time)
+void Input::HandleInput()
 {
 	// Get mouse-position
 	int mX, mY;
@@ -90,6 +90,11 @@ void Input::Update(GLdouble time)
 	}
 
 	mouseWheelPrevious = mouseWheelCurrent;
+}
+
+void Input::Update(GLdouble time)
+{
+	// update
 }
 
 Vec2 Input::getMousePos()

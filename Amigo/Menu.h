@@ -19,10 +19,12 @@ public:
 	~Menu();
 
 	MenuItem* AddBox(std::string title, GLint x, GLint y, GLint width, GLint height, GLint menuID);
+	MenuItem* AddContentbox(std::string title, GLint x, GLint y, GLint width, GLint height, GLint menuID);
 	MenuItem* AddButton(std::string text, GLint x, GLint y, GLint width, GLint height, MenuItem::Align align, GLint menuID, std::string tooltip, std::function<void()> onClick);
 	MenuItem* AddSlider(std::string text, Vec2 position, GLint width, GLfloat min, GLfloat max, GLfloat step, GLint menuID, std::function<void()> onRelease);
 	MenuItem* AddSliderRange(std::string text, Vec2 position, GLint width, GLfloat min, GLfloat max, GLfloat step, GLint menuID, std::function<void()> onRelease);
 
+	void HandleInput();
 	void Update(GLdouble time);
 	void Draw();
 	void Render();

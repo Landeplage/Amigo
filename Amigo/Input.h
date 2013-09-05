@@ -17,6 +17,7 @@ public:
 
 	static GLint GetKey(GLint key);
 
+	static void HandleInput();
 	static void Update(GLdouble time);
 private:
 	static bool mouseLeftCurrent, mouseLeftPrevious, mouseLeftPressed, mouseLeftReleased;

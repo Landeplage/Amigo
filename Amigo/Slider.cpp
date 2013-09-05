@@ -24,7 +24,8 @@ Slider::Slider(MenuSystem *menuSystem, std::string text, Vec2 position, GLint wi
 	this->font = menuSystem->GetFontRegular();
 	this->sprite = menuSystem->GetSpriteUI();
 
-	this->button = new Button(menuSystem, "", (GLint)position.x, (GLint)(position.y + font->GetHeight("Mj")), 1, 1, CENTER, 0, "", onRelease);
+	button = new Button(menuSystem, "", (GLint)position.x, (GLint)(position.y + font->GetHeight("Mj")), 1, 1, CENTER, 0, "", onRelease);
+	children.push_back(button);
 
 	this->value = min;
 	mouseOffset = Vec2(0, 0);
@@ -47,10 +48,7 @@ void Slider::Init()
 		value = max;
 
 	// Set size of button
-	/*GLint bWidth = (GLint)(size.x / (this->max - this->min + 1));
-	if (bWidth < 30) bWidth = 30;
-	button->SetSize(bWidth, 20);*/
-	button->SetSize(23, 23);
+	button->SetSize(Vec2(31, 18));
 
 	// Update height of slider
 	this->size.y = button->GetPosition().y - position.y + button->GetSize().y;
@@ -68,29 +66,41 @@ void Slider::Unload()
 	button->Unload();
 }
 
+void Slider::HandleInput()
+{
+	if (!(active && visible))
+		return;
+
+	// Handle buttons input
+	button->HandleInput();
+
+	// Handle the button's movement along the slider
+	HandleButton(button, (GLint)position.x, (GLint)(position.x + size.x - button->GetSize().x), (GLint)(size.x - button->GetSize().x), 0, &value);
+}
+
 void Slider::Update(GLdouble time)
 {
 	if (!(active && visible))
 		return;
 
-	// Handle the button
-	HandleButton(button, time, (GLint)position.x, (GLint)(position.x + size.x - button->GetSize().x), (GLint)(size.x - button->GetSize().x), 0, &value);
+	// Update button
+	button->Update(time);
 
 	// Set valuestring
 	valueString = toString(value);
 }
 
-void Slider::Draw(GLfloat transition)
+void Slider::Draw()
 {
 	if (!visible)
 		return;
 
 	GLfloat alpha;
-	alpha = 1 - abs(transition);
+	alpha = 1.0f;
 
 	GLint x, y;
-	x = (GLint)(position.x);
-	y = (GLint)(button->GetPosition().y + button->GetSize().y / 2 - 2);
+	x = (GLint)(position.x) + drawOffset.x;
+	y = (GLint)(button->GetPosition().y + button->GetSize().y / 2 - 2) + drawOffset.y;
 
 	// Draw the elements that all children of 'slider' share
 	DrawCommonElements(x, y, alpha);
@@ -100,8 +110,8 @@ void Slider::Draw(GLfloat transition)
 	sprite->Draw(x + 2, y, 0.0f, (GLfloat)(button->GetPosition().x - position.x - 2), 1.0f, alpha, 17, 31, 1, 7); // Fill (mid)
 
 	// Draw the button
-	button->Draw(transition);
-	//sprite->Draw((GLint)(button->GetPosition().x - 1), (GLint)(button->GetPosition().y), 0.0f, 1.0f, 1.0f, alpha, 0, 45, 25, 26); // Scroller-button
+	button->Draw();
+	sprite->Draw((GLint)(button->GetPosition().x + drawOffset.x + 5), (GLint)(button->GetPosition().y + drawOffset.y + 4), 0.0f, 1.0f, 1.0f, alpha, 0, 104, 21, 10); // Scroller-button
 }
 
 void Slider::DrawCommonElements(GLint x, GLint y, GLfloat alpha)
@@ -112,8 +122,12 @@ void Slider::DrawCommonElements(GLint x, GLint y, GLfloat alpha)
 	sprite->Draw(x + (GLint)size.x - 2, y, 0.0f, 1.0f, 1.0f, alpha, 12, 31, 2, 5); // Slider-back (right)
 
 	// Draw slider-info text
-	font->Draw(x, (GLint)position.y, text, 0.0f, 1.0f, 1.0f, Color(139, 98, 38), alpha);
-	font->Draw((GLint)(x + size.x - font->GetWidth(valueString)), (GLint)position.y, valueString, 0.0f, 1.0f, 1.0f, Color(139, 98, 38), alpha);
+	GLuint c = 255 * alpha;
+	font->Draw(x, (GLint)position.y + drawOffset.y + 1, text, 0.0f, 1.0f, 1.0f, Color(c, c, c), alpha);
+	font->Draw((GLint)(x + size.x - font->GetWidth(valueString)), (GLint)position.y + drawOffset.y + 1, valueString, 0.0f, 1.0f, 1.0f, Color(255, 255, 255), alpha);
+
+	font->Draw(x, (GLint)position.y + drawOffset.y, text, 0.0f, 1.0f, 1.0f, Color(139, 98, 38), alpha);
+	font->Draw((GLint)(x + size.x - font->GetWidth(valueString)), (GLint)position.y + drawOffset.y, valueString, 0.0f, 1.0f, 1.0f, Color(139, 98, 38), alpha);
 }
 
 // Set the value of the slider
@@ -147,42 +161,47 @@ GLfloat Slider::GetValue()
 	return value;
 }
 
-// Handle the movement of buttons
-void Slider::HandleButton(Button *button, GLdouble time, GLint limitXLeft, GLint limitXRight, GLint maxPos, GLint minPos, GLfloat *value)
+// Return pointer to sliderbutton
+MenuItem* Slider::GetButton()
 {
-	// Sync and update the button
+	return button;
+}
+
+// Handle the movement of buttons
+void Slider::HandleButton(Button *button, GLint limitXLeft, GLint limitXRight, GLint maxPos, GLint minPos, GLfloat *value)
+{
+	// Sync the button
 	button->active = active;
 	button->visible = visible;
-	button->Update(time);
 
 	// Get the mouse-offset as the button is clicked
-	if (button->GetHasBeenClicked())
+	if (menuSystem->GetFocus() == button && Input::getMouseLeftPressed())
 	{
-		mouseOffset = Vec2((button->GetPosition().x - Input::getMousePos().x), (button->GetPosition().y - Input::getMousePos().y));
+		mouseOffset = button->GetPosition() - Input::getMousePos() - button->GetOrigin();
 	}
 
 	// Get button-input
-	if (menuSystem->GetFocus() == button)
+	if (menuSystem->GetFocus() == button && button->GetState() == 2)
 	{
 		// Button is pressed
 		if (Input::getMouseLeft())
 		{
-			Vec2 mouse = Input::getMousePos();
+			Vec2 mouse = Input::getMousePos() + origin;
 
 			// Move the button
-			button->SetPosition((GLint)(mouse.x + mouseOffset.x), (GLint)(button->GetPosition().y));
+			button->SetPosition(Vec2(mouse.x + mouseOffset.x, button->GetPosition().y));
 
 			// Clamp the button's movement
 			GLint sliderX, buttonX;
 			sliderX = (GLint)position.x;
 			buttonX = (GLint)button->GetPosition().x;
-			if (buttonX < sliderX + minPos) button->SetPosition(sliderX + minPos, (GLint)button->GetPosition().y);
-			if (buttonX > sliderX + maxPos) button->SetPosition(sliderX + maxPos, (GLint)button->GetPosition().y);
-			if (buttonX < limitXLeft) button->SetPosition(limitXLeft, (GLint)button->GetPosition().y);
-			if (buttonX > limitXRight) button->SetPosition(limitXRight, (GLint)button->GetPosition().y);
+			if (buttonX < sliderX + minPos) button->SetPosition(Vec2(sliderX + minPos, button->GetPosition().y));
+			if (buttonX > sliderX + maxPos) button->SetPosition(Vec2(sliderX + maxPos, button->GetPosition().y));
+			if (buttonX < limitXLeft) button->SetPosition(Vec2(limitXLeft, button->GetPosition().y));
+			if (buttonX > limitXRight) button->SetPosition(Vec2(limitXRight, button->GetPosition().y));
 
 			// Set the mouse-position to the button's position
-			Input::setMousePos(Vec2(button->GetPosition().x - mouseOffset.x, button->GetPosition().y - mouseOffset.y));
+			Input::setMousePos(Vec2(Input::getMousePos().x, button->GetPosition().y - origin.y - mouseOffset.y));
 
 			// Calculate the new value of the slider
 			CalculateValue(button, maxPos, minPos, value);
@@ -190,15 +209,6 @@ void Slider::HandleButton(Button *button, GLdouble time, GLint limitXLeft, GLint
 			// Check if step is enabled and move button to correct position
 			SnapButton(button, value, limitXLeft, limitXRight, maxPos, minPos);
 		}
-
-		// Wheel is scrolled (fine-tuning)
-		/*GLint wheelTurn = Input::getMouseWheel();
-		if (wheelTurn != 0)
-		{
-			GLfloat bXPrev = button->GetPosition().x;
-			SetValue(*value + wheelTurn);
-			Input::setMousePos(Vec2(Input::getMousePos().x + button->GetPosition().x - bXPrev, Input::getMousePos().y));
-		}*/
 	}
 }
 
@@ -219,11 +229,40 @@ void Slider::SnapButton(Button *button, GLfloat *value, GLint limitXLeft, GLint 
 	if (step > 0 && (max - min != 0))
 	{
 		*value = (GLint)((*value / step) + 0.5f) * step;
-		button->SetPosition((GLint)(position.x + minPos + ((*value) - min) / (max - min) * (maxPos - minPos)), (GLint)(button->GetPosition().y));
+		button->SetPosition(Vec2(position.x + minPos + ((*value) - min) / (max - min) * (maxPos - minPos), button->GetPosition().y));
 	}
 
+	LimitButton(button, limitXLeft, limitXRight);
+}
+
+void Slider::LimitButton(Button* button, GLint limitXLeft, GLint limitXRight)
+{
 	// Make sure button stays inside area
 	GLint buttonX = (GLint)(button->GetPosition().x);
-	if (buttonX < limitXLeft) button->SetPosition(limitXLeft, (GLint)(button->GetPosition().y));
-	if (buttonX > limitXRight) button->SetPosition(limitXRight, (GLint)(button->GetPosition().y));
+	if (buttonX < limitXLeft) button->SetPosition(Vec2(limitXLeft, button->GetPosition().y));
+	if (buttonX > limitXRight) button->SetPosition(Vec2(limitXRight, button->GetPosition().y));
+}
+
+void Slider::SetSize(Vec2 size)
+{
+	MenuItem::SetSize(size);
+	SnapButton(button, &value, (GLint)position.x, (GLint)(position.x + size.x - button->GetSize().x), (GLint)(size.x - button->GetSize().x), 0);
+}
+
+void Slider::SetPosition(Vec2 position)
+{
+	button->SetPosition(button->GetPosition() + position - this->position);
+	MenuItem::SetPosition(position);
+}
+
+void Slider::SetOrigin(Vec2 origin)
+{
+	MenuItem::SetOrigin(origin);
+	button->SetOrigin(origin);
+}
+
+void Slider::SetDrawOffset(Vec2 drawOffset)
+{
+	MenuItem::SetDrawOffset(drawOffset);
+	button->SetDrawOffset(drawOffset);
 }

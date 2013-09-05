@@ -13,6 +13,7 @@
 #include "Helper.h"
 
 #include "MenuState.h"
+#include "BlendtestState.h"
 
 GameEngine *GameEngine::instance = 0;
 
@@ -33,6 +34,7 @@ void GameEngine::Start()
 	StateManager::GetInstance()->QueueState(new MenuState());
 
 	// Run game
+	printf("Starting game loop...\n");
 	GameLoop();
 }
 
@@ -92,6 +94,9 @@ void GameEngine::GameLoop()
 				rM->StartLoading();
 			}
 
+			// Handle input
+			HandleInput();
+
 			// Update
 			Update((currentFrameTime - lastFrameTime) * 1000.0);
 			
@@ -115,6 +120,16 @@ void GameEngine::GameLoop()
 	Cleanup();
 }
 
+void GameEngine::HandleInput()
+{
+	Input::HandleInput();
+	
+	if (!ResourceManager::GetInstance()->IsLoading())
+	{
+		StateManager::GetInstance()->HandleInput();
+	}
+}
+
 // Update the engine
 void GameEngine::Update(GLdouble time)
 {
@@ -124,13 +139,13 @@ void GameEngine::Update(GLdouble time)
 	if (ResourceManager::GetInstance()->IsLoading())
 	{
 		ResourceManager::GetInstance()->Update(time);
-		hasLoaded = false;
+		if (hasLoaded)
+			hasLoaded = false;
 	}
 	else
 	{
 		if (!hasLoaded)
 		{
-			printf("Init...\n");
 			StateManager::GetInstance()->Initialize();
 			hasLoaded = true;
 		}

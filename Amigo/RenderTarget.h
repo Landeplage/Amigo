@@ -17,6 +17,7 @@ public:
 	void Draw(GLint x, GLint y, GLfloat rotation, GLfloat scaleX, GLfloat scaleY, GLfloat alpha, GLint xx, GLint yy, GLint w, GLint h);
 	void Draw(GLint x, GLint y, GLfloat rotation, GLfloat scaleX, GLfloat scaleY, Color color, GLfloat alpha, GLint xx, GLint yy, GLint w, GLint h);
 
+	void SetSize(Vec2 size);
 	Vec2 GetSize();
 private:
 	// Rendertarget stuff

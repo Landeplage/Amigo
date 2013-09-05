@@ -1,5 +1,6 @@
 #include "Menu.h"
 #include "Box.h"
+#include "ContentBox.h"
 #include "Button.h"
 #include "Slider.h"
 #include "SliderRange.h"
@@ -47,12 +48,12 @@ Menu::~Menu()
 	}
 }
 
-void Menu::Update(GLdouble time)
+void Menu::HandleInput()
 {
-	// Handle items
+	// Handle input
 	if (menuCurrent == menuGoTo)
 	{
-		// Update all items of the menu
+		// Handle input of all items of the menu
 		if (active
 			&& slide == 0.0f
 			&& (menuSystem->GetOverlaySlide() == -1.0f && !menuSystem->GetOverlayShow()))
@@ -61,11 +62,39 @@ void Menu::Update(GLdouble time)
 			for(GLuint i = 0; i < items.size(); i ++)
 			{
 				if (items[i]->menuID == menuCurrent && items[i] != focus)
+					items[i]->HandleInput();
+			}
+
+			// Handle the focused element last (as long as it exists within this specific menu)
+			for(GLuint i = 0; i < items.size(); i ++)
+			{
+				if (focus == items[i])
+					focus->HandleInput();
+			}
+		}
+	}
+}
+
+void Menu::Update(GLdouble time)
+{
+	// Handle items
+	if (menuCurrent == menuGoTo)
+	{
+		// Update all items of the menu
+		if (active && slide == 0.0f)
+		{
+			MenuItem* focus = menuSystem->GetFocus();
+			for(GLuint i = 0; i < items.size(); i ++)
+			{
+				if (items[i]->menuID == menuCurrent && items[i] != focus)
 					items[i]->Update(time);
 			}
-			// Update the focused element last
-			if (focus != NULL)
+			// Update the focused element last (as long as it exists within this specific menu)
+			for(GLuint i = 0; i < items.size(); i ++)
+			{
+				if (focus == items[i])
 				focus->Update(time);
+			}
 		}
 
 		// Make the slide settle down
@@ -120,6 +149,7 @@ void Menu::Draw()
 		(GLint)(position.y + (moveY * slide) - ((tmpScale - 1) * height) / 2),
 		0.0f, tmpScale, tmpScale, 1 - abs(slide), 0, 0, width, height);
 
+	// Cheap motion-blur effect
 	for(int i = 1; i < abs(slide * slide * slide) * 10; i ++)
 	{
 		renderTarget->Draw(
@@ -144,16 +174,15 @@ void Menu::Render()
 	for(GLuint i = 0; i < items.size(); i ++)
 	{
 		if (items[i] != focus && items[i]->menuID == menuCurrent)
-			items[i]->Draw(0.0f);
+			items[i]->Draw();
 	}
 
-	// Draw the focused item last
+	// Draw the focused element last (as long as it exists within this specific menu)
 	for(GLuint i = 0; i < items.size(); i ++)
 	{
-		if (items[i] == focus)
+		if (focus == items[i])
 		{
-			focus->Draw(0.0f);
-			break;
+			focus->Draw();
 		}
 	}
 
@@ -245,6 +274,13 @@ void Menu::GoBackInHistory()
 MenuItem* Menu::AddBox(std::string title, GLint x, GLint y, GLint width, GLint height, GLint menuID)
 {
 	items.push_back(new Box(menuSystem, title, x, y, width, height, menuID));
+	return items[items.size() - 1];
+}
+
+// Add a contentbox
+MenuItem* Menu::AddContentbox(std::string title, GLint x, GLint y, GLint width, GLint height, GLint menuID)
+{
+	items.push_back(new ContentBox(menuSystem, title, x, y, width, height, menuID));
 	return items[items.size() - 1];
 }
 

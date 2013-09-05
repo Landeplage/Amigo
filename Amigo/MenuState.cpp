@@ -16,6 +16,10 @@
 
 #include "ResourceManager.h"
 
+#include "Vec4.h"
+
+#include "ContentBox.h" // testing
+
 enum MENU
 {
 	MENU_SPLASH,
@@ -64,7 +68,7 @@ MenuState::~MenuState()
 	menuSystem->~MenuSystem();
 }
 
-bool MenuState::AddResources()
+void MenuState::AddResources()
 {
 	ResourceManager* rM = ResourceManager::GetInstance();
 
@@ -82,8 +86,6 @@ bool MenuState::AddResources()
 	rM->AddFont(fontRegular, "res\\font\\futura_regular.ttf", 14);
 	rM->AddFont(fontBold, "res\\font\\futura_heavy.ttf", 14);
 	rM->AddFont(fontBig, "res\\font\\futura_heavy.ttf", 24);
-
-	return true;
 }
 
 void MenuState::Init()
@@ -100,18 +102,37 @@ void MenuState::Init()
 	CreateMenu();
 }
 
-void MenuState::Update(GLdouble time)
+void MenuState::HandleInput()
 {
-	// Reset key-previous variable
-	keyEscPrevious = false;
-
 	// ESC to exit game
-	if (Input::GetKey(GLFW_KEY_ESC) && !keyEscPrevious)
+	if (Input::GetKey(GLFW_KEY_ESC))
 	{
-		GameEngine::GetInstance()->StopGame();
+		if (!keyEscPrevious)
+		{
+			cb->AddItem(new Slider(menuSystem, "Slider", Vec2(10, 10), cb->GetSize().x - 20, 0.0f, 25.0f, 5.0f, 0, [](){}));
+			//GameEngine::GetInstance()->StopGame();
+		}
 		keyEscPrevious = true;
 	}
-	
+	else
+	{
+		// Reset key-previous variable
+		keyEscPrevious = false;
+	}
+
+	// Testing resizing of contentbox
+	if (Input::getMouseRight())
+	{
+		Vec2 mouse = Input::getMousePos();
+		cb->SetSize(mouse - cb->GetPosition());
+	}
+
+	// Handle menu input
+	menuSystem->HandleInput();
+}
+
+void MenuState::Update(GLdouble time)
+{	
 	// Checkered background scrolling
 	checkerScroll +=  0.0f; //(GLfloat)(time / 100);
 	if (checkerScroll > 100)
@@ -235,11 +256,8 @@ void MenuState::Draw()
 	// Draw menu-system
 	menuSystem->Draw();
 
-	// Draw something here
-	//sprUI.Draw(105, 100 + 78 / 2 - 5, 0.0f, 8.0f, 1.0f, 1.0f, 8, 31, 1, 10); // Tødler på scroller-knapp
-
 	// Debug
-	fontRegular->Draw(30, 150, "debug", 0.0f, 1.0f, 1.0f, Color(0, 0, 0), 1.0f);
+	fontRegular->Draw(30, 120, "scrollBoxFocus = " + toString((GLint)menuSystem->GetCurrentScrollboxFocus()), 0.0f, 1.0f, 1.0f, Color(0, 0, 0), 1.0f);
 }
 
 void MenuState::CreateMenu()
@@ -279,7 +297,7 @@ void MenuState::CreateMenu()
 		"Join the game you've selected to the right.",
 		[=]()
 		{
-			menuSystem->ShowMessage("Join game", "This is where one would normally join a game...");
+			menuSystem->QueueMessage("Join game", "This is where one would normally join a game...");
 		}); yy += sep * 2;
 	button->active = false;
 	menuMain->AddButton("Options", xx, yy, 102, 28, MenuItem::CENTER, MENU_MAIN,
@@ -292,13 +310,13 @@ void MenuState::CreateMenu()
 		"Edit your hamster and write about it's life.",
 		[=]()
 		{
-			menuSystem->ShowMessage("My hamster", "This is where one would customize one's hamster.");
+			menuSystem->QueueMessage("My hamster", "This is where one would customize one's hamster.");
 		}); yy += sep;
 	menuMain->AddButton("Map editor", xx, yy, 102, 28, MenuItem::CENTER, MENU_MAIN,
 		"Create your own map.",
 		[=]()
 		{
-			menuSystem->ShowMessage("Map editor", "Lorem Ipsum er rett og slett dummytekst fra og for trykkeindustrien. Lorem Ipsum har vært bransjens standard for dummytekst helt siden 1500-tallet, da en ukjent boktrykker stokket en mengde bokstaver for å lage et prøveeksemplar av en bok. Lorem Ipsum har tålt tidens tann usedvanlig godt, og har i tillegg til å bestå gjennom fem århundrer også tålt spranget over til elektronisk typografi uten vesentlige endringer. Lorem Ipsum ble gjort allment kjent i 1960-årene ved lanseringen av Letraset-ark med avsnitt fra Lorem Ipsum, og senere med sideombrekkingsprogrammet Aldus PageMaker som tok i bruk nettopp Lorem Ipsum for dummytekst.");
+			menuSystem->QueueMessage("Map editor", "Lorem Ipsum er rett og slett dummytekst fra og for trykkeindustrien. Lorem Ipsum har vært bransjens standard for dummytekst helt siden 1500-tallet, da en ukjent boktrykker stokket en mengde bokstaver for å lage et prøveeksemplar av en bok. Lorem Ipsum har tålt tidens tann usedvanlig godt, og har i tillegg til å bestå gjennom fem århundrer også tålt spranget over til elektronisk typografi uten vesentlige endringer. Lorem Ipsum ble gjort allment kjent i 1960-årene ved lanseringen av Letraset-ark med avsnitt fra Lorem Ipsum, og senere med sideombrekkingsprogrammet Aldus PageMaker som tok i bruk nettopp Lorem Ipsum for dummytekst.");
 		}); yy += sep;
 
 	menuMain->AddButton("Quit", xx, (GLint)(box->GetPosition().y + box->GetSize().y - 43), 102, 28, MenuItem::CENTER, MENU_MAIN,
@@ -306,7 +324,7 @@ void MenuState::CreateMenu()
 		[=]()
 		{
 			// Show quit-message
-			menuSystem->ShowQuestion("Quit", "You sure about that?",
+			menuSystem->QueueQuestion("Quit", "You sure about that?",
 			[]()
 			{
 				// Yes-button
@@ -323,36 +341,49 @@ void MenuState::CreateMenu()
 		(GLint)box->GetSize().y, MENU_MAIN); // games-in-progress box
 
 	// Options
-	GLint space = 10;
-	Box *settingsBox;
-	settingsBox = (Box*)menuMain->AddBox("Check out these sweet sliders, man", centerX - 150, 250, 300, 250, MENU_OPTIONS);
+	ContentBox *cb;
+	cb = (ContentBox*)menuMain->AddContentbox("Audio", centerX - 440, centerY - 150, 280, 300, MENU_OPTIONS);
+	cb->AddItem(new Slider(menuSystem, "SFX volume", Vec2(15, 15), cb->GetSize().x - 30, 0.0f, 100.0f, 5, MENU_OPTIONS, [](){}));
+	cb->AddItem(new Slider(menuSystem, "Music volume", Vec2(15, 15), cb->GetSize().x - 30, 0.0f, 100.0f, 5, MENU_OPTIONS, [](){}));
 
-	Slider *slider;
-	slider = (Slider*)menuMain->AddSlider("Slider", Vec2(settingsBox->GetPosition().x + space, settingsBox->GetPosition().y + space), (GLint)(settingsBox->GetSize().x - space * 2), 1.0f, 100.0f, 1.0f, MENU_OPTIONS, [](){});
-	//slider->SetValue(0.0f);
+	cb = (ContentBox*)menuMain->AddContentbox("Video", centerX - 140, centerY - 150, 280, 300, MENU_OPTIONS);
+	cb = (ContentBox*)menuMain->AddContentbox("Controls", centerX + 160, centerY - 150, 280, 300, MENU_OPTIONS);
 
-	Slider *sliderRange;
-	sliderRange = (SliderRange*)menuMain->AddSliderRange("Range slider", Vec2(slider->GetPosition().x, slider->GetPosition().y + slider->GetSize().y + space),
-		(GLint)slider->GetSize().x,
-		10.0f,
-		20.0f, 1, MENU_OPTIONS, [](){});
-	sliderRange->SetValue(0.0f);
-
-	menuMain->AddButton("Accept", centerX - 51 - 55, 515, 102, 28, MenuItem::CENTER, MENU_OPTIONS, "Accept these changes.", [=]()
+	menuMain->AddButton("Accept", centerX - 51 - 55, 600, 102, 28, MenuItem::CENTER, MENU_OPTIONS, "Accept these changes.", [=]()
 		{
 			menuMain->GoToPrevious();
 		});
-	menuMain->AddButton("Cancel", centerX - 51 + 55, 515, 102, 28, MenuItem::CENTER, MENU_OPTIONS, "Cancel these changes and go back.", [=]()
+	menuMain->AddButton("Cancel", centerX - 51 + 55, 600, 102, 28, MenuItem::CENTER, MENU_OPTIONS, "Cancel these changes and go back.", [=]()
 		{
 			menuMain->GoToPrevious();
 		});
+
+	// Testing contentbox
+	//ContentBox *cb;
+	cb = (ContentBox*)menuMain->AddContentbox("Contentbox!", 100, 200, 200, 300, MENU_SPLASH);
+	this->cb = cb;
+	cb->AddItem(new Slider(menuSystem, "Slider", Vec2(10, 10), cb->GetSize().x - 20, 0.0f, 25.0f, 5.0f, 0, [](){}));
+	cb->AddItem(new SliderRange(menuSystem, "Range-slider", Vec2(10, 5), cb->GetSize().x - 20, 60.0f, 3.0f * 40.0f, 3.0f, 0, [](){}));
+	cb->AddItem(new Button(menuSystem, "Button", 10, 10, cb->GetSize().x, 28, MenuItem::CENTER, 0, "A button!", [](){}));
+
+	ContentBox *boxception;
+	boxception = (ContentBox*)cb->AddItem(new ContentBox(menuSystem, "Hai!", 10, 35, (GLint)cb->GetSize().x - 20, 200, 0));
+	boxception->AddItem(new Slider(menuSystem, "Slider", Vec2(10, 10), boxception->GetSize().x - 20, 0.0f, 100.0f, 5.0f, 0, [](){}));
+
+	ContentBox *deeper;
+	deeper = (ContentBox*)boxception->AddItem(new ContentBox(menuSystem, "Rolling deep!", 10, 35, boxception->GetSize().x - 20, 200, 0));
+	for(int i = 0; i < 10; i ++)
+	{
+		deeper->AddItem(new Button(menuSystem, "Click me!", 10, 10, deeper->GetSize().x + 200, 28, MenuItem::CENTER, 0, "", [](){}));
+	}
 
 	// On draw-event for Main Menu
 	menuMain->OnDraw([&]()
 	{
 		// Logo
-		GLfloat rot = menuSystem->GetRot();
+		/*GLfloat rot = menuSystem->GetRot();
 		if (menuMain->GetMenuCurrent() == MENU_SPLASH)
 			sprLogo->Draw((GLint)(Context::getWindowWidth() / 2 + ldirX(30, rot * 2)), (GLint)(230 + ldirY(10, rot)), (GLfloat)(ldirX(4, rot * 5)), 0.8f, 0.8f, 1.0f);
+			*/
 	});
 }

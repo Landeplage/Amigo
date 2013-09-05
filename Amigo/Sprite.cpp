@@ -103,6 +103,32 @@ bool Sprite::LoadTexture(const char *imagePath)
 	// Get image-data
 	imageData = ilGetData();
 
+	// Premultiply alpha
+	if (ilGetInteger(IL_IMAGE_FORMAT) == IL_RGBA)
+	{
+		GLint
+			width = ilGetInteger(IL_IMAGE_WIDTH),
+			height = ilGetInteger(IL_IMAGE_HEIGHT);
+
+		printf("\tPremultiplying %i pixels...\n", width * height);
+		for(int i = 0; i < width * height * 4; i += 4)
+		{
+			// Print five first pixels before multiplication
+			if (i < 5 * 4)
+				printf("\tPixel %i before = \t%.2f \t%.2f \t%.2f \t%.2f\n", (int)(i / 4), imageData[i] / 255.0f, imageData[i + 1] / 255.0f, imageData[i + 2] / 255.0f, imageData[i + 3] / 255.0f);
+				
+			// Premultiplicate alphas
+			for(int n = 0; n < 3; n ++)
+			{
+				//imageData[i + n] = (unsigned char)(((imageData[i + n] / 255.0f) * (imageData[i + 3] / 255.0f)) * 255.0f);
+			}
+
+			// Print five first pixels after multiplication
+			if (i < 5 * 4)
+				printf("\tPixel %i after = \t%.2f \t%.2f \t%.2f\n", (int)(i / 4), imageData[i] / 255.0f, imageData[i + 1] / 255.0f, imageData[i + 2] / 255.0f);
+		};
+	}
+
 	// Generate texture
 	glGenTextures(1, &texture);
 
@@ -212,9 +238,12 @@ void Sprite::Draw(GLint x, GLint y, GLfloat rotation, GLfloat scaleX, GLfloat sc
 	coX2 = (GLdouble)(xx + w) / width;
 	coY2 = (GLdouble)(yy + h) / height;
 
+	// Determine alpha
+	GLfloat a = Clamp(alpha, 0.0f, 1.0f);
+	glColor4ub(color.r, color.g, color.b, (unsigned char)(a * 255));
+
 	// Draw the textured quad
 	glBegin(GL_QUADS);
-	glColor4ub(color.r, color.g, color.b, (unsigned char)(Clamp(alpha, 0.0f, 1.0f) * 255));
 	glTexCoord2d(coX1, coY1); glVertex2d(-originX * scaleX,		-originY * scaleY);
 	glTexCoord2d(coX2, coY1); glVertex2d((w - originX) * scaleX,	-originY * scaleY);
 	glTexCoord2d(coX2, coY2); glVertex2d((w - originX) * scaleX,	(h - originY) * scaleY);

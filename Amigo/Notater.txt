@@ -1,12 +1,15 @@
 To do:
-- Separate states from GameEngine and make a state manager?
-- Make a load-manager class to manage loading
+- Make messages more important than questions! Because of reasons.
 
 Bugs:
 - 
 
 Tips:
 - For å unngå circular include, pre-define class'en i header-filen "manuelt" og include i .cpp-filen
+
+
+
+:: GIT ::
 
 How to setup git for commit/push:
 - cd "C:\Users\Martin\Dropbox\Amigo"
@@ -50,36 +53,36 @@ How to commit/push to GitHub:
 
 	// Rendertarget Begin
 	GLint max_texture_image_units, active_unit;
-    glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &max_texture_image_units);
-    glGetIntegerv(GL_ACTIVE_TEXTURE, &active_unit); // yes I know the naming is odd
+	glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &max_texture_image_units);
+	glGetIntegerv(GL_ACTIVE_TEXTURE, &active_unit); // yes I know the naming is odd
 	
 	if (texCount > 1)
-    {
-            for (GLuint i = 0; i < texCount; i++)
-            {
-                    // make sure RT textures are unbound before attaching
-                    for(GLuint u = 0; u < max_texture_image_units; u++)
+	{
+			for (GLuint i = 0; i < texCount; i++)
+			{
+					// make sure RT textures are unbound before attaching
+					for(GLuint u = 0; u < max_texture_image_units; u++)
 					{
-                            GLint bound_texture;
-                            glActiveTexture(GL_TEXTURE0 + u);
-                            glGetIntegerv(GL_TEXTURE_BINDING_2D, &bound_texture);
-                            if(bound_texture = texRT[i])
+							GLint bound_texture;
+							glActiveTexture(GL_TEXTURE0 + u);
+							glGetIntegerv(GL_TEXTURE_BINDING_2D, &bound_texture);
+							if(bound_texture = texRT[i])
 							{
-                                    // better yet, store (unit,texture) pairs, so that we can restore in RenderTarget::End.
-                                    glBindTexture(GL_TEXTURE_2D, 0);
-                            }
-                    }
-            }
+									// better yet, store (unit,texture) pairs, so that we can restore in RenderTarget::End.
+									glBindTexture(GL_TEXTURE_2D, 0);
+							}
+					}
+			}
 
-            glActiveTexture(active_unit); //okay, this is a kludge. Ideally the code rendering to the FBO takes care of this. But if now, we fail safely.
+			glActiveTexture(active_unit); //okay, this is a kludge. Ideally the code rendering to the FBO takes care of this. But if now, we fail safely.
  
-            GLenum* buffers = new GLenum[texCount];
-            glBindFramebuffer(GL_FRAMEBUFFER, frameBufferRT);
-            for (GLuint i = 0; i < texCount; i++)
-            {
-                    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, texRT[i], 0);
-                    buffers[i] = GL_COLOR_ATTACHMENT0 + i;
-            }
-            glDrawBuffers(texCount, buffers);
-            delete[] buffers;
-    }
+			GLenum* buffers = new GLenum[texCount];
+			glBindFramebuffer(GL_FRAMEBUFFER, frameBufferRT);
+			for (GLuint i = 0; i < texCount; i++)
+			{
+					glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, texRT[i], 0);
+					buffers[i] = GL_COLOR_ATTACHMENT0 + i;
+			}
+			glDrawBuffers(texCount, buffers);
+			delete[] buffers;
+	}

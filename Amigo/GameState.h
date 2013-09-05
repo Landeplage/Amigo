@@ -11,7 +11,8 @@ public:
 	GameState();
 	~GameState();
 	virtual void Init();
-	virtual bool AddResources();
+	virtual void AddResources();
+	virtual void HandleInput();
 	virtual void Update(GLdouble time);
 	virtual void Draw();
 

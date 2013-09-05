@@ -20,6 +20,7 @@ public:
 	void ChangeState(State *state);
 
 private:
+	void HandleInput();
 	void Update(GLdouble time);
 	void Draw();
 	void Cleanup();

@@ -10,6 +10,7 @@ public:
 	static StateManager *GetInstance();
 
 	void Initialize();
+	void HandleInput();
 	void Update(GLdouble time);
 	void Draw();
 	void Cleanup();

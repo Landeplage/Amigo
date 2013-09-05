@@ -23,7 +23,7 @@ GameState::~GameState()
 	printf("\n::: GameState Exit :::\n\n");
 }
 
-bool GameState::AddResources()
+void GameState::AddResources()
 {
 	printf("GameState Load...\n");
 
@@ -38,8 +38,6 @@ bool GameState::AddResources()
 
 	// Add fonts to be loaded
 	rM->AddFont(font, "res\\font\\robotob.ttf", 16);
-
-	return true;
 }
 
 void GameState::Init()
@@ -50,8 +48,6 @@ void GameState::Init()
 	player = Player();
 	// Assign sprite to player
 	player.SetSprite(sprPlayer);
-	// Set blend-mode
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// Init curve-variables
 	t = 0.0f;
@@ -65,6 +61,11 @@ void GameState::Init()
 	mouseIsInsideSpline = false;
 
 	printf("Done:::\n\n");
+}
+
+void GameState::HandleInput()
+{
+	// handle input
 }
 
 void GameState::Update(GLdouble time)

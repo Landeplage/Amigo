@@ -12,6 +12,7 @@ ResourceManager::ResourceManager()
 
 void ResourceManager::Load()
 {
+	printf("Loading assets for resourcemanager...\n");
 	font->LoadFont("res\\font\\robotob.ttf", 12);
 }
 
@@ -40,7 +41,7 @@ void ResourceManager::Update(GLdouble time)
 					spriteResources[simulatedLoadingCount - fontResources.size()]->path); // sprites
 			}
 
-			simulatedLoadingTime = 100.0;
+			simulatedLoadingTime = 50.0;
 			simulatedLoadingCount ++;
 		}
 	}
@@ -78,6 +79,7 @@ void ResourceManager::Draw()
 void ResourceManager::Cleanup()
 {
 	font->~Font();
+	UnloadAll();
 }
 
 void ResourceManager::StartLoading()

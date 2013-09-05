@@ -6,19 +6,34 @@ MenuItem::MenuItem()
 	active = true;
 	position = Vec2(0, 0);
 	size = Vec2(0, 0);
+	origin = Vec2(0, 0);
+	drawOffset = Vec2(0, 0);
 	menuID = 0;
 }
 
-void MenuItem::SetSize(GLint width, GLint height)
+void MenuItem::SetPosition(Vec2 position)
 {
-	size.x = (GLfloat)width;
-	size.y = (GLfloat)height;
+	this->position = position;
 }
 
-void MenuItem::SetPosition(GLint x, GLint y)
+void MenuItem::SetSize(Vec2 size)
 {
-	this->position.x = (GLfloat)x;
-	this->position.y = (GLfloat)y;
+	this->size = size;
+}
+
+void MenuItem::SetOrigin(Vec2 origin)
+{
+	this->origin = origin;
+}
+
+void MenuItem::SetDrawOffset(Vec2 drawOffset)
+{
+	this->drawOffset = drawOffset;
+}
+
+Vec2 MenuItem::GetPosition()
+{
+	return position;
 }
 
 Vec2 MenuItem::GetSize()
@@ -26,7 +41,17 @@ Vec2 MenuItem::GetSize()
 	return size;
 }
 
-Vec2 MenuItem::GetPosition()
+Vec2 MenuItem::GetOrigin()
 {
-	return position;
+	return origin;
+}
+
+Vec2 MenuItem::GetDrawOffset()
+{
+	return drawOffset;
+}
+
+std::vector<MenuItem*> MenuItem::GetChildren()
+{
+	return children;
 }

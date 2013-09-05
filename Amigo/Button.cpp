@@ -20,9 +20,8 @@ Button::Button(MenuSystem* menuSystem, std::string text, GLint x, GLint y, GLint
 
 	state = 0;
 
+	this->align = align;
 	SetTextAlignment(align);
-
-	hasBeenClicked = false;
 }
 
 void Button::Unload()
@@ -30,96 +29,97 @@ void Button::Unload()
 	// unload any resources
 }
 
-void Button::Update(GLdouble time)
+void Button::HandleInput()
 {
-	// Reset hasBeenClicked variable
-	hasBeenClicked = false;
-
-	if (!(active && visible))
+	if (!(active))
 		return;
 
-	// Get the focused item
 	MenuItem* focus = menuSystem->GetFocus();
 
+	// Optimization check
 	if (focus == NULL || focus == this)
 	{
-		// Handle button-states
+		// Get mouse input
 		Vec2 mouse = Input::getMousePos();
-		mouse.x -= menuOffset.x;
-		mouse.y -= menuOffset.y;
+		mouse = mouse - origin;
 
-		// Check if mouse is over button
+		bool isInside = false;
 		if (IsInside(mouse, (GLint)position.x, (GLint)position.y, (GLint)(position.x + size.x), (GLint)(position.y + size.y)))
 		{
-			// One-off event when mouse enters button
-			if (state == 0 && focus == NULL)
+			isInside = true;
+		}
+
+		if (focus == NULL && isInside)
+		{
+			menuSystem->SetFocus(this);
+		}
+
+		if (focus == this)
+		{
+			if (isInside)
 			{
-				// Set focus
-				menuSystem->SetFocus(this);
-				// Set tooltip
-				if (tooltip != "")
-					menuSystem->SetTooltip(Vec2(position.x + size.x / 2, position.y + 6), tooltip);
-			}
+				menuSystem->SetCursor(1);
 
-			// Set cursor
-			menuSystem->SetCursor(1);
+				if (!Input::getMouseLeft() && state == 0)
+				{
+					state = 1;
+					// play mouseover sound here
+					if (tooltip != "")
+						menuSystem->SetTooltip(Vec2(
+							position.x + origin.x + size.x / 2,
+							position.y + origin.y + 6),
+							tooltip);
+				}
 
-			// Set to hover-state
-			state = 1;
-
-			// Button pressed
-			if (Input::getMouseLeft() && focus == this)
-			{
-				state = 2;
-
-				// Clicked
 				if (Input::getMouseLeftPressed())
 				{
-					hasBeenClicked = true;
+					state = 2;
+				}
+
+				if (Input::getMouseLeftReleased() && state == 2)
+				{
+					onClick();
+					state = 0;
+					// play button click sound here
 					menuSystem->ResetTooltip();
 				}
 			}
-
-			// Button released
-			if (Input::getMouseLeftReleased())
+			else
 			{
-				state = 0;
-				// Reset cursor
-				menuSystem->SetCursor(0);
-				onClick();
-			}
-		}
-		else
-		{
-			state = 0;
-			if (focus == this)
-			{
-				if (Input::getMouseLeft())
-					state = 2;
-				else
+				if (!Input::getMouseLeft())
 				{
 					menuSystem->ResetFocus();
+					state = 0;
 					menuSystem->ResetTooltip();
-					// Reset cursor
-					menuSystem->SetCursor(0);
 				}
 			}
 		}
 	}
 }
 
-void Button::Draw(GLfloat transition)
+void Button::Update(GLdouble time)
+{
+	if (!(active))
+		return;
+
+	if (state != 0)
+	{
+		if (menuSystem->GetFocus() == NULL)
+		{
+			state = 0;
+		}
+	}
+}
+
+void Button::Draw()
 {
 	if (!visible)
 		return;
 
-	GLfloat rot, alpha;
-	rot = menuSystem->GetRot();
-	alpha = 1 - abs(transition);
-
+	GLfloat alpha = 1.0f;
 	GLint x, y, w, h, hh, xOff;
-	x = (GLint)(position.x);
-	y = (GLint)position.y;
+	x = (GLint)position.x + drawOffset.x;
+	y = (GLint)position.y + drawOffset.y;
 	w = (GLint)size.x;
 	h = (GLint)size.y;
 	hh = 17;
@@ -146,7 +146,7 @@ void Button::Draw(GLfloat transition)
 	// Draw the button-text
 	GLint bOff = 0;
 	if (state == 2) bOff = 2;
-	font->Draw((GLint)(x + textOffset.x), (GLint)(y + bOff + h / 2 - 4), text, 0.0f, 1.0f, 1.0f, Color(255, 255, 255), alpha);
+	font->Draw((GLint)(x + textOffset.x), (GLint)(y + bOff + h / 2 - 4), text, 0.0f, 1.0f, 1.0f, Color(255, 255, 255), alpha * 0.1f);
 	font->Draw((GLint)(x + textOffset.x), (GLint)(y + bOff + h / 2 - 5), text, 0.0f, 1.0f, 1.0f, Color(139, 98, 38), alpha);
 }
 
@@ -176,13 +176,19 @@ void Button::SetOnClick(std::function<void()> onClick)
 	function = onClick;
 }
 
-void Button::SetMenuOffset(GLint xOffset, GLint yOffset)
+void Button::SetSize(Vec2 size)
 {
-	menuOffset.x = (GLfloat)xOffset;
-	menuOffset.y = (GLfloat)yOffset;
+	MenuItem::SetSize(size);
+	SetTextAlignment(align);
 }
 
-bool Button::GetHasBeenClicked()
+void Button::SetPosition(Vec2 position)
 {
-	return hasBeenClicked;
+	MenuItem::SetPosition(position);
+	SetTextAlignment(align);
+}
+
+GLint Button::GetState()
+{
+	return state;
 }

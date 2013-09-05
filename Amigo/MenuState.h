@@ -4,6 +4,8 @@
 #include "MenuSystem.h"
 #include "Menu.h"
 
+#include "ContentBox.h"
+
 class MenuState : public State
 {
 public:
@@ -11,7 +13,8 @@ public:
 	~MenuState();
 
 	virtual void Init();
-	virtual bool AddResources();
+	virtual void AddResources();
+	virtual void HandleInput();
 	virtual void Update(GLdouble time);
 	virtual void Draw();
 
@@ -28,4 +31,7 @@ private:
 
 	MenuSystem* menuSystem;
 	Menu *menuMain, *menuTiny;
+
+	ContentBox *cb;
+	MenuItem *mi;
 };
