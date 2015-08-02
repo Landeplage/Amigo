@@ -1,10 +1,14 @@
 #pragma once
-#include <GLTools.h>
-#include <GL\glfw.h>
+//#include <GLTools.h>
+#include <GL\glew.h>
+#include "GLFW.h"
+
+#pragma comment(lib, "glew32.lib")
 
 class Context
 {
 public:
+	static GLFWwindow* getWindow();
 	static GLint getWindowWidth();
 	static GLint getWindowHeight();
 	
@@ -13,9 +17,12 @@ public:
 	static void Draw();
 	static void Cleanup();
 private:
-	static void GLFWCALL ChangeSize();
-	static int GLFWCALL CloseWindow();
+	static void ChangeSize(GLFWwindow* window);
+	static void CloseWindow(GLFWwindow* window);
 
+	//static GLShaderManager shaderManager;
 	static GLint windowWidth, windowHeight;
-	static GLShaderManager shaderManager;
+
+	static GLFWwindow* window;
+	static GLFWmonitor* monitor;
 };

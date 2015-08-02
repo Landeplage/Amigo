@@ -1,6 +1,6 @@
 #include "Player.h"
 #include "Input.h"
-#include <GL\glfw.h>
+#include "GLFW.h"
 
 const float acceleration = 0.3f;
 

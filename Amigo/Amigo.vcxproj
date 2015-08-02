@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -20,12 +20,14 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -39,8 +41,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\Martin\Documents\Visual Studio 2010\Libraries\freetype-2.4.9\include;C:\Users\Martin\Documents\Visual Studio 2010\Libraries\GLTools\include;C:\Users\Martin\Documents\Visual Studio 2010\Libraries\devil-SDK-x86-1.7.8\include;C:\Users\Martin\Documents\Visual Studio 2010\Libraries\glfw-2.7.5.bin.WIN32\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Martin\Documents\Visual Studio 2010\Libraries\freetype-2.4.9\objs\win32\vc2010;C:\Users\Martin\Downloads\SB5\VisualStudio2008\GLTools\Release;C:\Users\Martin\Documents\Visual Studio 2010\Libraries\devil-SDK-x86-1.7.8\lib;C:\Users\Martin\Documents\Visual Studio 2010\Libraries\glfw-2.7.5.bin.WIN32\lib-msvc100;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)\Libraries\Freetype\include;$(SolutionDir)\Libraries\Freetype\include\freetype2;$(SolutionDir)\Libraries\GLTools\include;$(SolutionDir)\Libraries\DevIL\include;$(SolutionDir)\Libraries\GLFW\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)\Libraries\Freetype\lib;$(SolutionDir)\Libraries\GLTools;$(SolutionDir)\Libraries\DevIL\lib;$(SolutionDir)\Libraries\GLFW;$(SolutionDir)\Libraries\libpng;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -58,7 +60,9 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>GLFW.lib;opengl32.lib;gltools.lib;glu32.lib;DevIL.lib;ILU.lib;ILUT.lib;libpng.lib;freetype249_D.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;glu32.lib;DevIL.lib;ILU.lib;ILUT.lib;libpng16.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreAllDefaultLibraries>
+      </IgnoreAllDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -127,6 +131,7 @@
     <ClInclude Include="FreeType.h" />
     <ClInclude Include="GameEngine.h" />
     <ClInclude Include="GameState.h" />
+    <ClInclude Include="GLFW.h" />
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="Menu.h" />
     <ClInclude Include="Player.h" />

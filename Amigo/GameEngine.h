@@ -1,4 +1,5 @@
 #pragma once
+#include <Windows.h>
 #include <GL\glew.h>
 #include "State.h"
 #include "Sprite.h"

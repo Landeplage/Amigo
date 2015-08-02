@@ -105,7 +105,7 @@ void MenuState::Init()
 void MenuState::HandleInput()
 {
 	// ESC to exit game
-	if (Input::GetKey(GLFW_KEY_ESC))
+	if (Input::GetKey(GLFW_KEY_ESCAPE))
 	{
 		if (!keyEscPrevious)
 		{
@@ -294,7 +294,7 @@ void MenuState::CreateMenu()
 			GameEngine::GetInstance()->ChangeState(new GameState());
 		}); yy += sep;
 	button = menuMain->AddButton("Join game", xx, yy, 102, 28, MenuItem::CENTER, MENU_MAIN,
-		"Join the game you've selected to the right.",
+		"Join the game you've selected in the game-list.",
 		[=]()
 		{
 			menuSystem->QueueMessage("Join game", "This is where one would normally join a game...");
@@ -381,9 +381,9 @@ void MenuState::CreateMenu()
 	menuMain->OnDraw([&]()
 	{
 		// Logo
-		/*GLfloat rot = menuSystem->GetRot();
+		GLfloat rot = menuSystem->GetRot();
 		if (menuMain->GetMenuCurrent() == MENU_SPLASH)
 			sprLogo->Draw((GLint)(Context::getWindowWidth() / 2 + ldirX(30, rot * 2)), (GLint)(230 + ldirY(10, rot)), (GLfloat)(ldirX(4, rot * 5)), 0.8f, 0.8f, 1.0f);
-			*/
+			
 	});
 }

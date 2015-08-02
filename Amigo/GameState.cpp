@@ -4,7 +4,7 @@
 #include "MenuState.h"
 #include "Helper.h"
 #include <math.h>
-#include <GL\glfw.h>
+#include "GLFW.h"
 #include "ResourceManager.h"
 
 GameState::GameState()
@@ -71,7 +71,7 @@ void GameState::HandleInput()
 void GameState::Update(GLdouble time)
 {
 	// Exit to menu with ESC
-	if (Input::GetKey(GLFW_KEY_ESC))
+	if (Input::GetKey(GLFW_KEY_ESCAPE))
 	{
 		GameEngine::GetInstance()->ChangeState(new MenuState());
 	}

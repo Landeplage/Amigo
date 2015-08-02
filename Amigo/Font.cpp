@@ -1,4 +1,4 @@
-#include <GLTools.h>
+/*#include <GLTools.h>*/
 #include <GL\glew.h>
 #include "Font.h"
 #include "Helper.h"

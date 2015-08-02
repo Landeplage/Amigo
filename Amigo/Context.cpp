@@ -1,9 +1,12 @@
 #include "Context.h"
 #include "GameEngine.h"
 
-GLShaderManager Context::shaderManager;
+//GLShaderManager Context::shaderManager;
 GLint Context::windowWidth;
 GLint Context::windowHeight;
+GLFWwindow* Context::window;
+GLFWmonitor* Context::monitor;
+
 
 int Context::Initialize()
 {
@@ -12,6 +15,8 @@ int Context::Initialize()
 	{
 		throw "Failed to initialize GLFW.";
 	}
+
+	printf("- GLFW done.\n");
 	
 	// Set some GLFW properties
 	glfwSwapInterval(1); // V-sync
@@ -20,20 +25,29 @@ int Context::Initialize()
 	windowWidth = 1280;
 	windowHeight = 720;
 
-	// Open a GLFW window
-	if (!glfwOpenWindow(windowWidth, windowHeight, 0, 0, 0, 0, 32, 0, GLFW_WINDOW ))
+	// Get primary monitor
+	monitor = glfwGetPrimaryMonitor();
+	monitor = NULL; // <-- this is to avoid it going fullscreen
+
+	// Create a GLFW window
+	window = glfwCreateWindow(windowWidth, windowHeight, "Amigo UI", monitor, NULL);
+
+	// Set current context to window (this enables OpenGL calls)
+	glfwMakeContextCurrent(window);
+
+	// Check for error on creating a window
+	if (!window)
 	{
 		throw "Failed to open GLFW window.";
 	}
 
 	// Set some GLFW-window properties
-	glfwSetWindowTitle("AmigoUI");
-	glfwSetWindowPos(200, 200);
-	glfwSetWindowRefreshCallback(ChangeSize);
-	glfwSetWindowCloseCallback(CloseWindow);
+	glfwSetWindowPos(window, 200, 200);
+	glfwSetWindowRefreshCallback(window, ChangeSize);
+	glfwSetWindowCloseCallback(window, CloseWindow);
 	//glfwDisable(GLFW_MOUSE_CURSOR);
 
-	// Initiate Glew
+	// Initialize Glew
 	GLenum err = glewInit();
 	if (GLEW_OK != err)
 	{
@@ -41,7 +55,7 @@ int Context::Initialize()
 	}
 
 	// Initialize shaders
-	shaderManager.InitializeStockShaders();
+	//shaderManager.InitializeStockShaders();
 
 	// Set some OpenGL properties
 	//glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD); // Set blend-equation
@@ -81,18 +95,18 @@ void Context::Update(GLdouble time)
 void Context::Draw()
 {
 	// Swap front and back rendering buffers
-	glfwSwapBuffers();
+	glfwSwapBuffers(window);
 
 	// Clear the buffer for next frame
 	glClear(GL_COLOR_BUFFER_BIT);
 }
 
 // Window has changed size, or has just been created
-void Context::ChangeSize()
+void Context::ChangeSize(GLFWwindow* window)
 {
 	// Get window size and do stuff
 	int w, h;
-	glfwGetWindowSize(&w, &h);
+	glfwGetWindowSize(window, &w, &h);
 
 	glViewport(0, 0, w, h);
 	glMatrixMode (GL_PROJECTION);
@@ -103,12 +117,15 @@ void Context::ChangeSize()
 }
 
 // The user has requested the window to close
-int Context::CloseWindow()
+void Context::CloseWindow(GLFWwindow* window)
 {
-	glfwCloseWindow();
+	glfwDestroyWindow(window);
 	GameEngine::GetInstance()->StopGame();
+}
 
-	return 0;
+GLFWwindow* Context::getWindow()
+{
+	return window;
 }
 
 int Context::getWindowWidth()

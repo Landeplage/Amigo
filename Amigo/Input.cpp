@@ -1,5 +1,5 @@
 #include "Input.h"
-#include <GL\glfw.h>
+#include "GLFW.h"
 #include "Context.h"
 
 Vec2 Input::mouse;
@@ -15,24 +15,39 @@ GLint Input::mouseWheelDiff;
 GLint Input::mouseWheelPrevious;
 GLint Input::mouseWheelIncrement;
 
+void Input::Initialize()
+{
+	// Set callback function for the mouse scrollwheel
+	glfwSetScrollCallback(Context::getWindow(), ScrollWheelCallback);
+}
+
 void Input::HandleInput()
 {
+	// Poll GLFW input events
+	glfwPollEvents();
+
+	// Get window from the context-class
+	GLFWwindow* window;
+	window = Context::getWindow();
+
 	// Get mouse-position
-	int mX, mY;
-	glfwGetMousePos(&mX, &mY);
+	double mX, mY;
+	glfwGetCursorPos(window, &mX, &mY);
 
 	// Limit the cursor to the edges of the window
+	/*
 	GLint windowWidth, windowHeight;
 	windowWidth = Context::getWindowWidth();
 	windowHeight = Context::getWindowHeight();
 	if (mX < 0)
-	{ glfwSetMousePos(0, mY); mX = 0; }
+	{ glfwSetCursorPos(window, 0, mY); mX = 0; }
 	if (mY < 0)
-	{ glfwSetMousePos(mX, 0); mY = 0; }
+	{ glfwSetCursorPos(window, mX, 0); mY = 0; }
 	if (mX > windowWidth)
-	{ glfwSetMousePos(windowWidth, mY); mX = windowWidth; }
+	{ glfwSetCursorPos(window, windowWidth, mY); mX = windowWidth; }
 	if (mY > windowHeight)
-	{ glfwSetMousePos(mX, windowHeight); mY = windowHeight; }
+	{ glfwSetCursorPos(window, mX, windowHeight); mY = windowHeight; }
+	*/
 
 	mouse.x = (GLfloat)mX;
 	mouse.y = (GLfloat)mY;
@@ -40,7 +55,7 @@ void Input::HandleInput()
 	// Get mouse left click
 	mouseLeftPressed = false;
 	mouseLeftReleased = false;
-	if (glfwGetMouseButton(GLFW_MOUSE_BUTTON_LEFT))
+	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT))
 		mouseLeftCurrent = true;
 	else
 		mouseLeftCurrent = false;
@@ -59,7 +74,7 @@ void Input::HandleInput()
 	// Get mouse right click
 	mouseRightPressed = false;
 	mouseRightReleased = false;
-	if (glfwGetMouseButton(GLFW_MOUSE_BUTTON_RIGHT))
+	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT))
 		mouseRightCurrent = true;
 	else
 		mouseRightCurrent = false;
@@ -74,27 +89,12 @@ void Input::HandleInput()
 	}
 
 	mouseRightPrevious = mouseRightCurrent;
-
-	// Update mouse-wheel variables
-	GLint mouseWheelCurrent = glfwGetMouseWheel();
-	mouseWheelDiff = mouseWheelCurrent - mouseWheelPrevious;
-	mouseWheelIncrement = 0;
-
-	if (mouseWheelCurrent > mouseWheelPrevious)
-	{
-		mouseWheelIncrement = 1;
-	}
-	if (mouseWheelCurrent < mouseWheelPrevious)
-	{
-		mouseWheelIncrement = -1;
-	}
-
-	mouseWheelPrevious = mouseWheelCurrent;
 }
 
 void Input::Update(GLdouble time)
 {
-	// update
+	// Reset mouse-wheel variable
+	mouseWheelDiff = 0;
 }
 
 Vec2 Input::getMousePos()
@@ -144,10 +144,15 @@ GLint Input::getMouseWheelIncrement()
 
 void Input::setMousePos(Vec2 position)
 {
-	glfwSetMousePos((GLint)position.x, (GLint)position.y);
+	glfwSetCursorPos(Context::getWindow(), (GLint)position.x, (GLint)position.y);
 }
 
 GLint Input::GetKey(GLint key)
 {
-	return glfwGetKey(key);
+	return glfwGetKey(Context::getWindow(), key);
+}
+
+void Input::ScrollWheelCallback(GLFWwindow* window, double x, double y)
+{
+	mouseWheelDiff = y;
 }

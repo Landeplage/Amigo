@@ -1,7 +1,7 @@
 #pragma once
 #include "Button.h"
 #include "Helper.h"
-#include <GL\glfw.h>
+#include "GLFW.h"
 #include "Input.h"
 #include "MenuSystem.h"
 
@@ -146,8 +146,8 @@ void Button::Draw()
 	// Draw the button-text
 	GLint bOff = 0;
 	if (state == 2) bOff = 2;
-	font->Draw((GLint)(x + textOffset.x), (GLint)(y + bOff + h / 2 - 4), text, 0.0f, 1.0f, 1.0f, Color(255, 255, 255), alpha * 0.1f);
-	font->Draw((GLint)(x + textOffset.x), (GLint)(y + bOff + h / 2 - 5), text, 0.0f, 1.0f, 1.0f, Color(139, 98, 38), alpha);
+	font->Draw((GLint)(x + textOffset.x), (GLint)(y + bOff + h / 2 - 4), text, 0.0f, 1.0f, 1.0f, Color(255, 255, 255), alpha * 0.1f); // highlight
+	font->Draw((GLint)(x + textOffset.x), (GLint)(y + bOff + h / 2 - 5), text, 0.0f, 1.0f, 1.0f, Color(139, 98, 38), alpha); // text
 }
 
 void Button::onClick()

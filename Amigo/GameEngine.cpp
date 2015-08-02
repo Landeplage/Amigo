@@ -45,11 +45,16 @@ bool GameEngine::Initialize()
 	// Initialize context
 	Context::Initialize();
 
+	printf("Context done.\n");
+
 	// Initialize DevIL
 	DevIL::Init();
 
 	// Initialize FreeType
 	FreeType::Init();
+
+	// Initialize input-class (must be done some time after context)
+	Input::Initialize();
 
 	printf("Your OpenGL version is %s\n", (const char*)glGetString(GL_VERSION));
 
@@ -78,7 +83,7 @@ void GameEngine::GameLoop()
 		currentFrameTime = glfwGetTime();
 		if ((currentFrameTime - lastFrameTime) * 1000.0 < 1000.0 / framerate)
 		{
-			glfwSleep(0.0001);
+			Sleep(0.0001);
 		}
 		else
 		{
@@ -108,7 +113,7 @@ void GameEngine::GameLoop()
 			if (time - fpsLastUpdate >= 1.0)
 			{
 				GLdouble fps = ((currentFrameTime - lastFrameTime) * 1000.0);
-				glfwSetWindowTitle(toString((int)((1000.0 / fps) * 100.0) / 100.0).c_str());
+				glfwSetWindowTitle(Context::getWindow(), toString((int)((1000.0 / fps) * 100.0) / 100.0).c_str());
 				fpsLastUpdate = time;
 			}
 

@@ -236,5 +236,8 @@
     <ClInclude Include="ShaderManager.h">
       <Filter>Header files\Engine</Filter>
     </ClInclude>
+    <ClInclude Include="GLFW.h">
+      <Filter>Header files\Engine\Libraries</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

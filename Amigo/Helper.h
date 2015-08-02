@@ -1,6 +1,6 @@
 #pragma once
 
-#include <GLTools.h>
+/*#include <GLTools.h>*/
 #include <sstream>
 #include <vector>
 #include "Vec2.h"

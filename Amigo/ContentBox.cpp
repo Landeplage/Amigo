@@ -51,7 +51,7 @@ void ContentBox::HandleInput()
 		{
 			// Wheel-scrolling
 			menuSystem->SetCurrentScrollboxFocus(this);
-			mouseWheelScroll = Input::getMouseWheelIncrement();
+			mouseWheelScroll = Input::getMouseWheel();
 		}
 
 		// Handle input of all active items
@@ -161,7 +161,7 @@ void ContentBox::Update(GLdouble time)
 {
 	if (menuSystem->GetCurrentScrollboxFocus() == this)
 	{
-		SetScrollY(scroll.y - mouseWheelScroll * (50.0f / (scrollContentSize.y - scrollButtonVer->GetSize().y)));
+		SetScrollY(scroll.y - mouseWheelScroll * (25.0f / (scrollContentSize.y - scrollButtonVer->GetSize().y)));
 	}
 
 	box->Update(time);

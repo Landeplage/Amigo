@@ -1,4 +1,4 @@
-#include <GLTools.h> // OpenGL Toolkit
+//#include <GLTools.h> // OpenGL Toolkit
 #include "Sprite.h"
 #include <string>
 #include "Helper.h"
