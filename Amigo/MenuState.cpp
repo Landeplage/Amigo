@@ -10,6 +10,10 @@
 
 #include "Slider.h"
 #include "SliderRange.h"
+#include "Dropdown.h"
+#include "InputField.h"
+#include "Text.h"
+#include "Checkbox.h"
 
 #include "Helper.h"
 #include "Color.h"
@@ -109,7 +113,8 @@ void MenuState::HandleInput()
 	{
 		if (!keyEscPrevious)
 		{
-			cb->AddItem(new Slider(menuSystem, "Slider", Vec2(10, 10), cb->GetSize().x - 20, 0.0f, 25.0f, 5.0f, 0, [](){}));
+			textItem->SetText("Hello world indeed! jjjgjgjgjÅÅÅ I am hoping that this long sentence jjjjjjjj");
+			//menuSystem->QueueMessage("Massage", "This is a massage."); // testing various situations where a message appears
 			//GameEngine::GetInstance()->StopGame();
 		}
 		keyEscPrevious = true;
@@ -257,7 +262,7 @@ void MenuState::Draw()
 	menuSystem->Draw();
 
 	// Debug
-	fontRegular->Draw(30, 120, "scrollBoxFocus = " + toString((GLint)menuSystem->GetCurrentScrollboxFocus()), 0.0f, 1.0f, 1.0f, Color(0, 0, 0), 1.0f);
+	fontRegular->Draw(10, 5, "focus = " + toString((GLint)menuSystem->GetFocus()), 0.0f, 1.0f, 1.0f, Color(0, 0, 0), 1.0f);
 }
 
 void MenuState::CreateMenu()
@@ -276,50 +281,50 @@ void MenuState::CreateMenu()
 	MenuItem *box, *button;
 
 	// Splash screen
-	menuMain->AddButton("Yup.", centerX - 51, centerY + 200, 102, 28, MenuItem::CENTER, MENU_SPLASH,
+	menuMain->AddItem(new Button(menuSystem, "Yup.", centerX - 51, centerY + 200, 102, 28, MenuItem::CENTER, MENU_SPLASH,
 		"Yep.",
 		[=]()
 		{
 			menuMain->GoTo(MENU_MAIN);
-		});
+		}));
 
 	// Main Menu
-	box = menuMain->AddBox("Menu", centerX - 330, centerY - 150, 130, 305, MENU_MAIN);
+	box = menuMain->AddItem(new Box(menuSystem, "Menu", centerX - 330, centerY - 150, 130, 305, MENU_MAIN));
 	xx = (GLint)(box->GetPosition().x + box->GetSize().x / 2) - 51;
 	yy = (GLint)box->GetPosition().y + 15;
-	menuMain->AddButton("Create game", xx, yy, 102, 28, MenuItem::CENTER, MENU_MAIN,
+	menuMain->AddItem(new Button(menuSystem, "Create game", xx, yy, 102, 28, MenuItem::CENTER, MENU_MAIN,
 		"Create an online session.",
 		[=]()
 		{
 			GameEngine::GetInstance()->ChangeState(new GameState());
-		}); yy += sep;
-	button = menuMain->AddButton("Join game", xx, yy, 102, 28, MenuItem::CENTER, MENU_MAIN,
+		})); yy += sep;
+	button = menuMain->AddItem(new Button(menuSystem, "Join game", xx, yy, 102, 28, MenuItem::CENTER, MENU_MAIN,
 		"Join the game you've selected in the game-list.",
 		[=]()
 		{
 			menuSystem->QueueMessage("Join game", "This is where one would normally join a game...");
-		}); yy += sep * 2;
+		})); yy += sep * 2;
 	button->active = false;
-	menuMain->AddButton("Options", xx, yy, 102, 28, MenuItem::CENTER, MENU_MAIN,
+	menuMain->AddItem(new Button(menuSystem, "Options", xx, yy, 102, 28, MenuItem::CENTER, MENU_MAIN,
 		"Tinker with audio, video and controller settings.",
 		[=]()
 		{
 			menuMain->GoTo(MENU_OPTIONS);
-		}); yy += sep;
-	menuMain->AddButton("My hamster", xx, yy, 102, 28, MenuItem::CENTER, MENU_MAIN,
-		"Edit your hamster and write about it's life.",
+		})); yy += sep;
+	menuMain->AddItem(new Button(menuSystem, "My hamster", xx, yy, 102, 28, MenuItem::CENTER, MENU_MAIN,
+		"Edit your hamster and fantasize about its life.",
 		[=]()
 		{
 			menuSystem->QueueMessage("My hamster", "This is where one would customize one's hamster.");
-		}); yy += sep;
-	menuMain->AddButton("Map editor", xx, yy, 102, 28, MenuItem::CENTER, MENU_MAIN,
+		})); yy += sep;
+	menuMain->AddItem(new Button(menuSystem, "Map editor", xx, yy, 102, 28, MenuItem::CENTER, MENU_MAIN,
 		"Create your own map.",
 		[=]()
 		{
 			menuSystem->QueueMessage("Map editor", "Lorem Ipsum er rett og slett dummytekst fra og for trykkeindustrien. Lorem Ipsum har vært bransjens standard for dummytekst helt siden 1500-tallet, da en ukjent boktrykker stokket en mengde bokstaver for å lage et prøveeksemplar av en bok. Lorem Ipsum har tålt tidens tann usedvanlig godt, og har i tillegg til å bestå gjennom fem århundrer også tålt spranget over til elektronisk typografi uten vesentlige endringer. Lorem Ipsum ble gjort allment kjent i 1960-årene ved lanseringen av Letraset-ark med avsnitt fra Lorem Ipsum, og senere med sideombrekkingsprogrammet Aldus PageMaker som tok i bruk nettopp Lorem Ipsum for dummytekst.");
-		}); yy += sep;
+		})); yy += sep;
 
-	menuMain->AddButton("Quit", xx, (GLint)(box->GetPosition().y + box->GetSize().y - 43), 102, 28, MenuItem::CENTER, MENU_MAIN,
+	menuMain->AddItem(new Button(menuSystem, "Quit", xx, (GLint)(box->GetPosition().y + box->GetSize().y - 43), 102, 28, MenuItem::CENTER, MENU_MAIN,
 		"Close the game and return to windows.",
 		[=]()
 		{
@@ -334,56 +339,75 @@ void MenuState::CreateMenu()
 			{
 				// No-button
 			});
-		}); yy += sep;
+		})); yy += sep;
 
-	menuMain->AddBox("Games in progress", (GLint)box->GetPosition().x + (GLint)box->GetSize().x + 25, (GLint)box->GetPosition().y,
+	menuMain->AddItem(new Box(menuSystem, "Games in progress", (GLint)box->GetPosition().x + (GLint)box->GetSize().x + 25, (GLint)box->GetPosition().y,
 		(GLint)(centerX - box->GetPosition().x - ((box->GetPosition().x + box->GetSize().x + 25) - centerX)), //auto-widen the box so that it all fits nicely in the middle of the screen
-		(GLint)box->GetSize().y, MENU_MAIN); // games-in-progress box
+		(GLint)box->GetSize().y, MENU_MAIN)); // games-in-progress box
 
 	// Options
 	ContentBox *cb;
-	cb = (ContentBox*)menuMain->AddContentbox("Audio", centerX - 440, centerY - 150, 280, 300, MENU_OPTIONS);
+	cb = (ContentBox*)menuMain->AddItem(new ContentBox(menuSystem, "Audio", centerX - 440, centerY - 150, 280, 300, MENU_OPTIONS));
 	cb->AddItem(new Slider(menuSystem, "SFX volume", Vec2(15, 15), cb->GetSize().x - 30, 0.0f, 100.0f, 5, MENU_OPTIONS, [](){}));
 	cb->AddItem(new Slider(menuSystem, "Music volume", Vec2(15, 15), cb->GetSize().x - 30, 0.0f, 100.0f, 5, MENU_OPTIONS, [](){}));
 
-	cb = (ContentBox*)menuMain->AddContentbox("Video", centerX - 140, centerY - 150, 280, 300, MENU_OPTIONS);
-	cb = (ContentBox*)menuMain->AddContentbox("Controls", centerX + 160, centerY - 150, 280, 300, MENU_OPTIONS);
+	cb = (ContentBox*)menuMain->AddItem(new ContentBox(menuSystem, "Video", centerX - 140, centerY - 150, 280, 300, MENU_OPTIONS));
+	cb = (ContentBox*)menuMain->AddItem(new ContentBox(menuSystem, "Controls", centerX + 160, centerY - 150, 280, 300, MENU_OPTIONS));
 
-	menuMain->AddButton("Accept", centerX - 51 - 55, 600, 102, 28, MenuItem::CENTER, MENU_OPTIONS, "Accept these changes.", [=]()
+	menuMain->AddItem(new Button(menuSystem, "Accept", centerX - 51 - 55, 600, 102, 28, MenuItem::CENTER, MENU_OPTIONS, "Accept these changes.", [=]()
 		{
 			menuMain->GoToPrevious();
-		});
-	menuMain->AddButton("Cancel", centerX - 51 + 55, 600, 102, 28, MenuItem::CENTER, MENU_OPTIONS, "Cancel these changes and go back.", [=]()
+		}));
+	menuMain->AddItem(new Button(menuSystem, "Cancel", centerX - 51 + 55, 600, 102, 28, MenuItem::CENTER, MENU_OPTIONS, "Cancel these changes and go back.", [=]()
 		{
 			menuMain->GoToPrevious();
-		});
+		}));
 
 	// Testing contentbox
 	//ContentBox *cb;
-	cb = (ContentBox*)menuMain->AddContentbox("Contentbox!", 100, 200, 200, 300, MENU_SPLASH);
+	cb = (ContentBox*)menuMain->AddItem(new ContentBox(menuSystem, "Contentbox!", 100, 200, 400, 400, MENU_SPLASH));
 	this->cb = cb;
 	cb->AddItem(new Slider(menuSystem, "Slider", Vec2(10, 10), cb->GetSize().x - 20, 0.0f, 25.0f, 5.0f, 0, [](){}));
 	cb->AddItem(new SliderRange(menuSystem, "Range-slider", Vec2(10, 5), cb->GetSize().x - 20, 60.0f, 3.0f * 40.0f, 3.0f, 0, [](){}));
-	cb->AddItem(new Button(menuSystem, "Button", 10, 10, cb->GetSize().x, 28, MenuItem::CENTER, 0, "A button!", [](){}));
+	cb->AddItem(new Button(menuSystem, "Button", 10, 10, cb->GetSize().x - 20, 28, MenuItem::CENTER, 0, "A button!", [](){}));
 
 	ContentBox *boxception;
-	boxception = (ContentBox*)cb->AddItem(new ContentBox(menuSystem, "Hai!", 10, 35, (GLint)cb->GetSize().x - 20, 200, 0));
-	boxception->AddItem(new Slider(menuSystem, "Slider", Vec2(10, 10), boxception->GetSize().x - 20, 0.0f, 100.0f, 5.0f, 0, [](){}));
+	boxception = (ContentBox*)cb->AddItem(new ContentBox(menuSystem, "Boxception", 10, 35, (GLint)cb->GetSize().x - 20, 200, 0));
+	boxception->AddItem(new Slider(menuSystem, "Slider", Vec2(10, 10), (GLint)boxception->GetSize().x - 34, 0.0f, 100.0f, 5.0f, 0, [](){}));
 
 	ContentBox *deeper;
-	deeper = (ContentBox*)boxception->AddItem(new ContentBox(menuSystem, "Rolling deep!", 10, 35, boxception->GetSize().x - 20, 200, 0));
-	for(int i = 0; i < 10; i ++)
-	{
-		deeper->AddItem(new Button(menuSystem, "Click me!", 10, 10, deeper->GetSize().x + 200, 28, MenuItem::CENTER, 0, "", [](){}));
-	}
+	deeper = (ContentBox*)boxception->AddItem(new ContentBox(menuSystem, "Deeper", 10, 35, (GLint)boxception->GetSize().x - 40, 200, 0));
+
+	// Testing dropdown
+	Dropdown *dd;
+	for (int i = 0; i < 10; i ++)
+		dd = (Dropdown*)deeper->AddItem(new Dropdown(menuSystem, "", Vec2(10, 10), Vec2(deeper->GetSize().x - 34, 28), MENU_SPLASH, "This is a dropdown!", [](){})); // dropdown in contentbox
+	for (int i = 0; i < 15; i++)
+		dd->AddItem("Dropdown-item #" + toString(i + 1));
+
+	// Testing input-field inside contentbox
+	InputField *in;
+	in = (InputField*)deeper->AddItem(new InputField(menuSystem, Vec2(10, 10), deeper->GetSize().x - 34, "Search...", MENU_SPLASH, [=](){}));
+
+	// Testing input-field
+	//InputField *in2;
+	//in2 = (InputField*)menuMain->AddItem(new InputField(menuSystem, Vec2(700, 200), 200, "Enter your name...", MENU_SPLASH, [](){}));
+
+	// Testing text
+	textItem = (Text*)menuMain->AddItem(new Text(menuSystem, "Hello world", Vec2(700, 400), menuSystem->GetFontRegular(), MENU_SPLASH));
+	textItem->SetMaxWidth(deeper->GetSize().x - 34);
+
+	// Testing checkboxes
+	Checkbox* checkBox;
+	checkBox = (Checkbox*)deeper->AddItem(new Checkbox(menuSystem, Vec2(10, 10), "Checkbox", MENU_SPLASH, [=]() {}));
 
 	// On draw-event for Main Menu
 	menuMain->OnDraw([&]()
 	{
 		// Logo
 		GLfloat rot = menuSystem->GetRot();
-		if (menuMain->GetMenuCurrent() == MENU_SPLASH)
+		/*if (menuMain->GetMenuCurrent() == MENU_SPLASH)
 			sprLogo->Draw((GLint)(Context::getWindowWidth() / 2 + ldirX(30, rot * 2)), (GLint)(230 + ldirY(10, rot)), (GLfloat)(ldirX(4, rot * 5)), 0.8f, 0.8f, 1.0f);
-			
+			*/
 	});
 }

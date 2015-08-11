@@ -41,7 +41,7 @@ void ResourceManager::Update(GLdouble time)
 					spriteResources[simulatedLoadingCount - fontResources.size()]->path); // sprites
 			}
 
-			simulatedLoadingTime = 50.0;
+			simulatedLoadingTime = 25.0;
 			simulatedLoadingCount ++;
 		}
 	}

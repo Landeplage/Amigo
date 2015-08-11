@@ -57,8 +57,8 @@ void RenderTarget::Begin()
 	//glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
 
 	//glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE_MINUS_DST_ALPHA, GL_ONE); //philly c
-	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); // slime73
-	//glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA); // Tamschi
+	//glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); // slime73
+	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA); // Tamschi
 }
 
 void RenderTarget::End()
@@ -108,7 +108,10 @@ void RenderTarget::Draw(GLint x, GLint y, GLfloat rotation, GLfloat scaleX, GLfl
 	coY2 = (GLdouble)(yy + h) / size.y;
 
 	// Set blend mode
-	//glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+	if (alpha < 1.0f)
+		glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+	else
+		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); // This one works pretty well
 	//glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// Draw the textured quad
@@ -125,6 +128,7 @@ void RenderTarget::Draw(GLint x, GLint y, GLfloat rotation, GLfloat scaleX, GLfl
 
 	// Reset blend mode
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA); // Tamschi
 }
 
 // Get size of rendertarget

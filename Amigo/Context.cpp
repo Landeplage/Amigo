@@ -59,7 +59,9 @@ int Context::Initialize()
 
 	// Set some OpenGL properties
 	//glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD); // Set blend-equation
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // Set blend-function
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // Set blend-function
+	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA); // Tamschi
+
 	glShadeModel(GL_FLAT);
 	glAlphaFunc(GL_GREATER, 0.0f); // Skip fully transparent pixels
 

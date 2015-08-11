@@ -1,6 +1,7 @@
 #include "ContentBox.h"
 #include "MenuSystem.h"
 #include "Input.h"
+#include "Helper.h"
 
 // Scrollerbar constants
 const int
@@ -14,20 +15,20 @@ ContentBox::ContentBox(MenuSystem* menuSystem, std::string title, GLint x, GLint
 	this->size = Vec2(w, h);
 	this->menuID = menuID;
 
-	box = new Box(menuSystem, title, x, y, w, h, menuID);
-	scrollButtonVer = new Button(menuSystem, "", position.x + size.x - SB_WIDTH, position.y, SB_WIDTH, SB_BMINHEIGHT, MenuItem::Align::CENTER, menuID, "", [](){});
-	scrollButtonVer->active = false;
-	scrollButtonHor = new Button(menuSystem, "", position.x, position.y + size.y - SB_WIDTH, SB_BMINHEIGHT, SB_WIDTH, MenuItem::Align::CENTER, menuID, "", [](){});
-	scrollButtonHor->active = false;
-	scrollButtonMouseOffset = Vec2();
-	scroll = Vec2(0.0f, 0.0f);
-	scrollContentSize.y = 0.0f;
+box = new Box(menuSystem, title, x, y, w, h, menuID);
+scrollButtonVer = new Button(menuSystem, "", position.x + size.x - SB_WIDTH, position.y, SB_WIDTH, SB_BMINHEIGHT, MenuItem::Align::CENTER, menuID, "", []() {});
+scrollButtonVer->active = false;
+scrollButtonHor = new Button(menuSystem, "", position.x, position.y + size.y - SB_WIDTH, SB_BMINHEIGHT, SB_WIDTH, MenuItem::Align::CENTER, menuID, "", []() {});
+scrollButtonHor->active = false;
+scrollButtonMouseOffset = Vec2();
+scroll = Vec2(0.0f, 0.0f);
+scrollContentSize.y = 0.0f;
 
-	// Add scrollbutton to list of children
-	children.push_back(scrollButtonHor);
-	children.push_back(scrollButtonVer);
+// Add scrollbutton to list of children
+children.push_back(scrollButtonHor);
+children.push_back(scrollButtonVer);
 
-	rt = new RenderTarget(0, 0);
+rt = new RenderTarget(0, 0);
 }
 
 void ContentBox::HandleInput()
@@ -37,17 +38,20 @@ void ContentBox::HandleInput()
 	scrollButtonVer->HandleInput();
 	HandleHorizontalScrollButton();
 	HandleVerticalScrollButton();
-	
+
 	GLint sbOffW = 0, sbOffH = 0;
 	if (scrollButtonVer->active)
 		sbOffW = SB_WIDTH;
 	if (scrollButtonHor->active)
 		sbOffH = SB_WIDTH;
 
+	// Set flag to make sure items are handled only once
+	bool activeItemsHaveBeenHandled = false;
+
 	Vec2 mouse = Input::getMousePos() - origin;
 	if (mouse.y > position.y && mouse.y < position.y + size.y - sbOffH && mouse.x > position.x && mouse.x < position.x + size.x - sbOffW)
 	{
-		if (scrollContentSize.y > size.y)
+		if (scrollContentSize.y > size.y && !(menuSystem->IsDropdownActive()))
 		{
 			// Wheel-scrolling
 			menuSystem->SetCurrentScrollboxFocus(this);
@@ -55,9 +59,13 @@ void ContentBox::HandleInput()
 		}
 
 		// Handle input of all active items
-		for(int i = 0; i < activeItems.size(); i ++)
+		if (!activeItemsHaveBeenHandled)
 		{
-			activeItems[i]->HandleInput();
+			for (int i = 0; i < activeItems.size(); i++)
+			{
+				activeItems[i]->HandleInput();
+			}
+			activeItemsHaveBeenHandled = true;
 		}
 	}
 	else
@@ -75,72 +83,67 @@ void ContentBox::HandleInput()
 
 			if (Input::getMouseLeft())
 			{
-				if (checked)
-					focus->HandleInput();
+				if (checked && !activeItemsHaveBeenHandled)
+				{
+					// Handle input of all active items (basically because sliders' buttons will stop updating if user grabs it and then the cursor leaves the contentbox)
+					for (int i = 0; i < activeItems.size(); i++)
+					{
+						activeItems[i]->HandleInput();
+					}
+					activeItemsHaveBeenHandled = true;
+				}
 			}
 			else
 			{
-				// Reset focus if focus is on any item in content, or subitems within content!
-				if (checked)
+				// Reset focus if focus is on any item in content, or subitems within content, unless some item has taken control of focus (f.ex. a dropdown)
+				if (checked && !(menuSystem->IsDropdownActive()))
 				{
 					menuSystem->ResetFocus();
 					menuSystem->ResetTooltip();
 				}
-			/*for(int i = 0; i < activeItems.size(); i ++)
-			{
-				if (focus == activeItems[i])
-				{
-					menuSystem->ResetFocus();
-					menuSystem->ResetTooltip();
-					break;
-				}
-				else
-				{
-					CheckChildrenFocus(activeItems[i]->GetChildren(), focus);
-				}
-			}*/
 			}
 		}
 
-		/*if (menuSystem->GetFocus() != NULL && !(Input::getMouseLeft()))
+		// If a dropdown within the contentbox has been activated, handle update on it
+		if (menuSystem->IsDropdownActive())
 		{
-			// Reset focus if focus is on any item in content, or subitems within content!
-			MenuItem *focus = menuSystem->GetFocus();
-			for(int i = 0; i < activeItems.size(); i ++)
-			{
-				if (focus == activeItems[i])
-				{
-					menuSystem->ResetFocus();
-					menuSystem->ResetTooltip();
-					break;
-				}
-				else
-				{
-					// if item has any children that might take focus...
-					std::vector<MenuItem*> children = activeItems[i]->GetChildren();
-					if (children.size() > 0)
-					{
-						for(int n = 0; n < children.size(); n ++)
-						{
-							if (focus == children[n])
-							{
-								menuSystem->ResetFocus();
-								menuSystem->ResetTooltip();
-								printf("Focus reset!\n");
-								break;
-							}
+			bool checked = false;
+			checked = CheckChildrenFocus(activeItems, menuSystem->GetFocus());
 
-							// Children's children also!
-						}
-					}
-				}
+			if (checked)
+			{
+				menuSystem->GetFocus()->HandleInput();
 			}
-		}*/
+		}
+
+		// If an inputField within the contentbox has been activated, handle update on all items (in case it's inside the contentbox somewhere
+		InputField *inputField;
+		inputField = menuSystem->GetActiveInputField();
+		if (inputField != NULL && !activeItemsHaveBeenHandled)
+		{
+			for (int i = 0; i < activeItems.size(); i++)
+			{
+				activeItems[i]->HandleInput();
+			}
+			activeItemsHaveBeenHandled = true;
+			/*
+			bool checked = false;
+			checked = CheckChildrenFocus(activeItems, inputField);
+
+			if (checked)
+			{
+				inputField->HandleInput();
+			}*/
+		}
 	}
 }
 
+// Returns true if any item or any of their children in this contentbox is currently focused
 bool ContentBox::CheckChildrenFocus(std::vector<MenuItem*> items, MenuItem* focus)
 {
+	if (focus == NULL)
+		return false;
+
 	for(int i = 0; i < items.size(); i ++)
 	{
 		if (focus == items[i])
@@ -161,7 +164,8 @@ void ContentBox::Update(GLdouble time)
 {
 	if (menuSystem->GetCurrentScrollboxFocus() == this)
 	{
-		SetScrollY(scroll.y - mouseWheelScroll * (25.0f / (scrollContentSize.y - scrollButtonVer->GetSize().y)));
+		if (mouseWheelScroll != 0.0f)
+			SetScrollY(scroll.y - mouseWheelScroll * (25.0f / (scrollContentSize.y - scrollButtonVer->GetSize().y)));
 	}
 
 	box->Update(time);
@@ -179,13 +183,17 @@ void ContentBox::Update(GLdouble time)
 
 void ContentBox::Draw()
 {
+	// Draw rendertarget (truncate edges to fit neatly in box)
+	if (activeItems.size() > 0)
+		rt->Draw(position.x + 1 + drawOffset.x, position.y + 1 + drawOffset.y, 0.0f, 1.0f, 1.0f, Color(255, 255, 255), 1.0f, 1, 1, rt->GetSize().x - 2, rt->GetSize().y - 2);
+
 	// Draw the box outline
 	box->Draw();
 
 	// Horizontal scroller
 	if (scrollButtonHor->active)
 	{
-		menuSystem->GetSpriteUI()->Draw(position.x + drawOffset.x + 1, scrollButtonHor->GetPosition().y + drawOffset.y,  0.0f, size.x - 2, 1.0f, Color(255, 255, 255), 1.0f, 0, 37, 1, 1);
+		menuSystem->GetSpriteUI()->Draw(position.x + drawOffset.x + 1, scrollButtonHor->GetPosition().y + drawOffset.y,  0.0f, size.x - 2, 1.0f, Color(255, 255, 255), 1.0f, 0, 52, 1, 1); // line
 		scrollButtonHor->Draw();
 		menuSystem->GetSpriteUI()->Draw(scrollButtonHor->GetPosition().x + drawOffset.x + scrollButtonHor->GetSize().x / 2 - 5, scrollButtonHor->GetPosition().y + drawOffset.y + (SB_WIDTH - 8) / 2 + 8, 270.0f, 8.0f, 1.0f, 1.0f, 8, 31, 1, 10); // lines on scrollerbutton
 	}
@@ -193,14 +201,10 @@ void ContentBox::Draw()
 	// Vertical scroller
 	if (scrollButtonVer->active)
 	{
-		menuSystem->GetSpriteUI()->Draw(scrollButtonVer->GetPosition().x + drawOffset.x, position.y + drawOffset.y + 1, 0.0f, 1.0f, size.y - 2, Color(255, 255, 255), 1.0f, 0, 37, 1, 1);
+		menuSystem->GetSpriteUI()->Draw(scrollButtonVer->GetPosition().x + drawOffset.x, position.y + drawOffset.y + 1, 0.0f, 1.0f, size.y - 2, Color(255, 255, 255), 1.0f, 0, 52, 1, 1); // line
 		scrollButtonVer->Draw();
 		menuSystem->GetSpriteUI()->Draw(scrollButtonVer->GetPosition().x + drawOffset.x + (SB_WIDTH - 8) / 2, scrollButtonVer->GetPosition().y + drawOffset.y + scrollButtonVer->GetSize().y / 2 - 5, 0.0f, 8.0f, 1.0f, 1.0f, 8, 31, 1, 10); // lines on scrollerbutton
 	}
-
-	// Draw rendertarget (truncate edges to fit neatly in box)
-	if (activeItems.size() > 0) 
-		rt->Draw(position.x + 1 + drawOffset.x, position.y + 1 + drawOffset.y, 0.0f, 1.0f, 1.0f, Color(255, 255, 255), 1.0f, 1, 1, rt->GetSize().x - 2, rt->GetSize().y - 2);
 }
 
 // Render the items onto the rendertarget
@@ -258,8 +262,9 @@ MenuItem* ContentBox::AddItem(MenuItem* item, Vec2 position, Vec2 size)
 	UpdateHorizontalScrollButtonAttributes();
 	UpdateVerticalScrollButtonAttributes();
 
-	// Repeat horizontal scrollbutton attribute update, in case vertical changed state
+	// Repeat scrollbutton attribute updates, in case either changed state
 	UpdateHorizontalScrollButtonAttributes();
+	UpdateVerticalScrollButtonAttributes();
 
 	// Make sure scrollers are moved to their places, and items are updated
 	SetScrollX(scroll.x);
@@ -341,7 +346,7 @@ void ContentBox::HandleHorizontalScrollButton()
 		if (Input::getMouseLeft())
 		{
 			scrollButtonHor->SetPosition(Vec2(mouse.x - scrollButtonMouseOffset.x, scrollButtonHor->GetPosition().y)); // move button
-			Input::setMousePos(Vec2(Input::getMousePos().x, scrollButtonHor->GetPosition().y + origin.y + scrollButtonMouseOffset.y)); // lock mouse vertically
+			//Input::setMousePos(Vec2(Input::getMousePos().x, scrollButtonHor->GetPosition().y + origin.y + scrollButtonMouseOffset.y)); // lock mouse vertically
 
 			LimitHorizontalScrollButton();
 
@@ -369,13 +374,15 @@ void ContentBox::HandleVerticalScrollButton()
 
 		if (Input::getMouseLeft())
 		{
-			scrollButtonVer->SetPosition(Vec2(scrollButtonVer->GetPosition().x, mouse.y - scrollButtonMouseOffset.y)); // move button
-			Input::setMousePos(Vec2(scrollButtonVer->GetPosition().x + origin.x + scrollButtonMouseOffset.x, Input::getMousePos().y)); // lock mouse horizontally
+			GLfloat yy;
+			yy = mouse.y - scrollButtonMouseOffset.y;
+			scrollButtonVer->SetPosition(Vec2(scrollButtonVer->GetPosition().x, yy)); // move button
+			//Input::setMousePos(Vec2(scrollButtonVer->GetPosition().x + origin.x + scrollButtonMouseOffset.x, Input::getMousePos().y)); // lock mouse horizontally
 
 			LimitVerticalScrollButton();
 
 			GLint sbOff = 0;
-			if (scrollButtonVer->active)
+			if (scrollButtonHor->active)
 			{
 				sbOff = SB_WIDTH;
 			}
@@ -549,7 +556,7 @@ void ContentBox::SetScrollY(GLfloat scroll)
 	UpdateItemAttributes();
 }
 
-// Update position/origin of any visible items
+// Update drawoffset/origin of any visible items
 void ContentBox::UpdateItemAttributes()
 {
 	GLint sbW = 0, sbH = 0;

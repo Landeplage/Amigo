@@ -4,6 +4,10 @@
 #include "Input.h"
 #include "Context.h"
 
+const Vec2
+	OVERLAY_BUTTONSIZE = Vec2(102, 28),
+	OVERLAY_MAX_BOXSIZE = Vec2(400, 200);
+
 MenuSystem::MenuSystem(Sprite* sprCursor, Sprite* sprUI, Font* fontBold, Font* fontRegular)
 {
 	printf("-> Creating MenuSystem...\n");
@@ -24,7 +28,9 @@ MenuSystem::MenuSystem(Sprite* sprCursor, Sprite* sprUI, Font* fontBold, Font* f
 	tooltipTimer = -1.0;
 
 	// Overlay variables
-	overlayRenderTarget = new RenderTarget(400, Context::getWindowHeight());
+	overlayRenderTarget = new RenderTarget(0, 0);
+	overlayItemsRenderTarget = new RenderTarget(0, 0);
+	overlayItemsRenderTargetPosition = Vec2(0, 0);
 	overlayShow = false;
 	overlayText = "?";
 	overlaySlide = -1.0f;
@@ -34,20 +40,34 @@ MenuSystem::MenuSystem(Sprite* sprCursor, Sprite* sprUI, Font* fontBold, Font* f
 	onOverlayButton2 = [](){};
 
 	// Add elements to message overlay system
-	overlayItems.push_back(new Box(this, "", 10, 10, overlayRenderTarget->GetSize().x, 10, 0));
-	overlayBox = (Box*)overlayItems[overlayItems.size() - 1];
+
+	// Box
+	overlayBox = new Box(this, "", 0, 0, 0, 0, 0);
 	overlayBox->visible = false;
+
+	// Button 1
 	overlayItems.push_back(new Button(this, "", 0, 0, 0, 0, MenuItem::CENTER, 0, "", [](){}));
 	overlayButton1 = (Button*)overlayItems[overlayItems.size() - 1];
 	overlayButton1->SetOnClick([=](){ this->OnOverlayButton1(); });
-	overlayButton1->SetOrigin(Vec2((Context::getWindowWidth() - overlayRenderTarget->GetSize().x) / 2, 0));
+
+	// Button 2
 	overlayItems.push_back(new Button(this, "", 0, 0, 0, 0, MenuItem::CENTER, 0, "", [](){}));
 	overlayButton2 = (Button*)overlayItems[overlayItems.size() - 1];
 	overlayButton2->SetOnClick([=](){ this->OnOverlayButton2(); });
-	overlayButton2->SetOrigin(Vec2((Context::getWindowWidth() - overlayRenderTarget->GetSize().x) / 2, 0));
+
+	// Text item
+	overlayTextItem = new Text(this, "", Vec2(0, 0), fontRegular, 0);
+	overlayTextItem->SetColor(Color(255, 255, 255));
+	overlayTextItem->SetShadowAttributes(Color(0, 0, 0), 0.3f);
 
 	// Current scrollbox variables
 	currentScrollboxFocus = 0;
+
+	// Initialize dropdown-variables
+	activeDropdown = NULL;
+
+	// Initialize input-field variables
+	activeInputField = NULL;
 }
 
 MenuSystem::~MenuSystem()
@@ -65,10 +85,40 @@ MenuSystem::~MenuSystem()
 	{
 		overlayItems[i]->Unload();
 	}
+
+	// Unload overlay rendertarget
+	overlayRenderTarget->~RenderTarget();
+
+	// Unload overlay text-item
+	overlayTextItem->Unload();
 }
 
 void MenuSystem::HandleInput()
 {
+	// Handle input on dropdowns
+	if (IsDropdownActive())
+	{
+		// This handles input on the items of the current dropdown
+		activeDropdown->HandleItems();
+
+		// Make sure dropdown is deactivated/reset if the user clicks somewhere
+		if (Input::getMouseLeftReleased())
+		{
+			activeDropdown->toggleDropdownStatus();
+			ResetFocus();
+		}
+	}
+
+	// Handle deactivation of the active input-field
+	if (activeInputField != NULL)
+	{
+		if (Input::getMouseLeftPressed() && focusedItem != activeInputField)
+		{
+			activeInputField->ToggleInputActive();
+			activeInputField = NULL;
+		}
+	}
+
 	// Handle input on all menus
 	for(GLuint i = 0; i < menus.size(); i ++)
 	{
@@ -166,18 +216,17 @@ void MenuSystem::Update(GLdouble time)
 		if (tooltipTimer <= 0)
 			tooltipTimer = 0;
 	}
-
-	// Render to the overlayrendertarget
-	if (overlaySlide > -1.0f)
-	{
-		RenderOverlay();
-	}
 }
 
 void MenuSystem::Draw()
 {
+	// Get window width/height
+	Vec2 wSize;
+	wSize.x = Context::getWindowWidth();
+	wSize.y = Context::getWindowHeight();
+
 	// Draw debug-text
-	std::string str = toString(overlaySlide);
+	std::string str = toString((GLint)activeDropdown);
 	fontBold->Draw((Context::getWindowWidth() - fontBold->GetWidth(str)) / 2, 10, str);
 
 	// Draw menus
@@ -186,14 +235,20 @@ void MenuSystem::Draw()
 		menus[i]->Draw();
 	}
 
+	// Draw the dropdown-list of the currently active dropdown
+	if (IsDropdownActive())
+	{
+		activeDropdown->DrawItems();
+	}
+
 	// Draw black rectangle to dim background of overlay
 	if (overlayBackgroundAlpha > 0.0f)
 	{
 		GLfloat alpha = overlayBackgroundAlpha * 0.5f;
-		sprUI->Draw(0, 0, 0.0f, (GLfloat)Context::getWindowWidth(), (GLfloat)Context::getWindowHeight(), Color(0, 0, 0), alpha, 0, 72, 1, 1);
+		sprUI->Draw(0, 0, 0.0f, wSize.x, wSize.y, Color(0, 0, 0), alpha, 0, 72, 1, 1);
 	}
 
-	// Draw the overlay render
+	// Draw the overlay
 	if (overlaySlide > -1.0f)
 	{
 		GLfloat slide, alpha;
@@ -202,7 +257,20 @@ void MenuSystem::Draw()
 		else
 			slide = EaseQuadIn(overlaySlide * -1);
 		alpha = abs(overlaySlide + 1.0f);
-		overlayRenderTarget->Draw((Context::getWindowWidth()  - overlayRenderTarget->GetSize().x) / 2 + slide * 50, 0, alpha);
+		overlayRenderTarget->Draw((wSize.x - overlayRenderTarget->GetSize().x) / 2 + slide * 50, (wSize.y - overlayRenderTarget->GetSize().y) / 2, alpha);
+
+		// Draw the items of the overlay
+		if (overlaySlide == 0)
+		{
+			for (GLint i = 0; i < (GLint)overlayItems.size(); i++)
+			{
+				overlayItems[i]->Draw();
+			}
+		}
+		else // draw the items-rendertarget
+		{
+			overlayItemsRenderTarget->Draw(overlayItemsRenderTargetPosition.x + slide * 50, overlayItemsRenderTargetPosition.y, alpha);
+		}
 	}
 
 	// Draw tooltip
@@ -220,6 +288,9 @@ void MenuSystem::Draw()
 // Render stuff to overlayrendertarget
 void MenuSystem::RenderOverlay()
 {
+	// Update rendertarget size to match box size
+	overlayRenderTarget->SetSize(overlayBox->GetSize() + Vec2(2, 0));
+
 	overlayRenderTarget->Begin();
 
 	float alpha;
@@ -229,19 +300,13 @@ void MenuSystem::RenderOverlay()
 	// Draw background box
 	alpha = 1.0f;
 	col = Color(122, 122, 122);
-	x = (int)overlayBox->GetPosition().x;
-	y = (int)overlayBox->GetPosition().y;
+	x = 0;
+	y = 0;
 	w = (int)overlayBox->GetSize().x;
 	h = (int)overlayBox->GetSize().y;
-	sprUI->Draw(x - 1, y, 0.0f, 1.0f, 1.0f, col, alpha, 25, 45, 5, 4); // Left top corner
-	sprUI->Draw(x - 1, y + 4, 0.0f, 1.0f, (GLfloat)(h - 8) / 20.0f, col, alpha, 25, 49, 5, 20); // Left side
-	sprUI->Draw(x - 1, y + h - 4, 0.0f, 1.0f, 1.0f, col, alpha, 25, 69, 5, 7); // Left bottom corner
-	sprUI->Draw(x + w - 4, y + h - 4, 0.0f, 1.0f, 1.0f, col, alpha, 31, 69, 5, 7); // Right bottom corner
-	sprUI->Draw(x + w - 4, y + 4, 0.0f, 1.0f, (GLfloat)(h - 8) / 20.0f, col, alpha, 31, 49, 5, 20); // Left side
-	sprUI->Draw(x + w - 4, y, 0.0f, 1.0f, 1.0f, col, alpha, 31, 45, 5, 4); // Right top corner
-	sprUI->Draw(x + 4, y, 0.0f, (GLfloat)(w - 8), 1.0f, col, alpha, 30, 45, 1, 4); // Top
-	sprUI->Draw(x + 4, y + 4, 0.0f, (GLfloat)(w - 8), (GLfloat)(h - 8) / 20.0f, col, alpha, 30, 49, 1, 20); // Mid
-	sprUI->Draw(x + 4, y + h - 4, 0.0f, (GLfloat)(w - 8), 1.0f, col, alpha, 30, 69, 1, 7); // Bottom
+
+	// Draw box
+	sprUI->DrawRectangleFromTexture(Vec2(x, y), Vec2(w + 2, h), Vec2(25, 45), Vec2(5, 7), Vec2(1, 17), col);
 
 	// Draw some noise
 	int wTmp, hTmp, nW, nH;
@@ -266,12 +331,6 @@ void MenuSystem::RenderOverlay()
 		}
 	}
 
-	// Items of the overlay
-	for(GLint i = 0; i < (GLint)overlayItems.size(); i ++)
-	{
-		overlayItems[i]->Draw();
-	}
-
 	// Title
 	fontBold->Draw((GLint)(x + overlayBox->GetSize().x / 2 - fontBold->GetWidth(overlayBox->GetTitle()) / 2),
 		y + 25 + 1,
@@ -282,17 +341,79 @@ void MenuSystem::RenderOverlay()
 		overlayBox->GetTitle(), 0.0f, 1.0f, 1.0f,
 		Color(255, 255, 255), 1.0f); // actual text
 
-	// Message-text
-	fontRegular->DrawLinebreak((GLint)(x + overlayBox->GetSize().x / 2 - fontRegular->GetWidth(overlayText, overlayBox->GetSize().x - 30) / 2),
-		y + 70 - 1,
-		overlayText, (GLint)overlayBox->GetSize().x - 30, 18,
-		Color(0, 0, 0), 0.5f); // shadow
-	fontRegular->DrawLinebreak((GLint)(x + overlayBox->GetSize().x / 2 - fontRegular->GetWidth(overlayText, overlayBox->GetSize().x - 30) / 2),
-		y + 70,
-		overlayText, (GLint)overlayBox->GetSize().x - 30, 18,
-		Color(255, 255, 255), 1.0f); // actual text
+	// Draw text
+	overlayTextItem->Draw();
 
 	overlayRenderTarget->End();
+}
+
+// Render the rendertarget that will be used for making it look like the buttons are sliding in
+void MenuSystem::RenderOverlayItems()
+{
+	// Loop through all overlayItems, and find out how big our rendertarget needs to be
+	Vec2 rtLeftTop, rtRightBot, tmpLeftTop, tmpRightBot;
+
+	rtLeftTop = Vec2(Context::getWindowWidth(), Context::getWindowHeight()); // set LeftTop to a high value, so it doesn't get stuck at 0.0f.
+
+	for (int i = 0; i < overlayItems.size(); i++)
+	{
+		if (!overlayItems[i]->active)
+			continue;
+
+		tmpLeftTop = overlayItems[i]->GetPosition();
+		tmpRightBot = tmpLeftTop + overlayItems[i]->GetSize();
+
+		// Find leftmost point
+		if (tmpLeftTop.x < rtLeftTop.x)
+			rtLeftTop.x = tmpLeftTop.x;
+
+		// Find topmost point
+		if (tmpLeftTop.y < rtLeftTop.y)
+			rtLeftTop.y = tmpLeftTop.y;
+
+		// Find rightmost point
+		if (tmpRightBot.x > rtRightBot.x)
+			rtRightBot.x = tmpRightBot.x;
+
+		// Find downmost point
+		if (tmpRightBot.y > rtRightBot.y)
+			rtRightBot.y = tmpRightBot.y;
+	}
+
+	// Apply rendertarget size
+	Vec2 padding;
+	padding = Vec2(20, 20); // add some pixels for padding, since some items have graphics beyond their size
+	overlayItemsRenderTarget->SetSize(rtRightBot - rtLeftTop + padding);
+
+	// Now we also know where to draw our rendertarget
+	overlayItemsRenderTargetPosition = rtLeftTop - Vec2(padding.x / 2, padding.y / 2); // move it to make up for the padding
+
+	// Adjust rtLeftTop for padding
+	rtLeftTop = rtLeftTop - Vec2(padding.x / 2, padding.y / 2);
+
+	// Transform item positions from absolute to relative
+	for (int i = 0; i < overlayItems.size(); i++)
+	{
+		overlayItems[i]->SetPosition(overlayItems[i]->GetPosition() - rtLeftTop);
+	}
+
+	// Prepare rendertarget for drawing
+	overlayItemsRenderTarget->Begin();
+
+	// Draw the items of the overlay
+	for (GLint i = 0; i < (GLint)overlayItems.size(); i++)
+	{
+		overlayItems[i]->Draw();
+	}
+
+	// Perform render
+	overlayItemsRenderTarget->End();
+
+	// Transform item positions from relative to absolute
+	for (int i = 0; i < overlayItems.size(); i++)
+	{
+		overlayItems[i]->SetPosition(overlayItems[i]->GetPosition() + rtLeftTop);
+	}
 }
 
 // Add a menu
@@ -372,56 +493,63 @@ void MenuSystem::SetCursor(GLint cursorOffset)
 // Show a message-overlay on screen
 void MenuSystem::ShowMessage(Message *message)
 {
+	// Init overlay text-item and box
 	OverlayInit(message->title, message->message);
 
+	// Some helpful variables for setting up button
+	Vec2 wSize, bSize;
+	wSize = Vec2(Context::getWindowWidth(), Context::getWindowHeight());
+	bSize = OVERLAY_BUTTONSIZE;
+
 	// Setup "Okay"-button
-	overlayButton1->SetSize(Vec2(102, 28));
+	overlayButton1->SetSize(bSize);
 	overlayButton1->SetText("Okay", MenuItem::CENTER);
-	overlayButton1->SetPosition(Vec2(overlayBox->GetPosition().x + overlayBox->GetSize().x / 2 - 51, overlayBox->GetPosition().y + overlayBox->GetSize().y - 50));
+	overlayButton1->SetPosition(Vec2((wSize.x - bSize.x) / 2, (wSize.y + overlayBox->GetSize().y) / 2 - bSize.y - 25));
 	this->onOverlayButton1 = message->onButton1;
 
 	// Hide the other button
 	overlayButton2->active = false;
 	overlayButton2->visible = false;
+
+	// Render the overlay
+	RenderOverlay();
+
+	// Render the overlay-items rendertarget
+	RenderOverlayItems();
 }
 
 // Show a question on screen, with two options
 void MenuSystem::ShowQuestion(Message *message)
 {
+	// Init overlay text-item and box
 	OverlayInit(message->title, message->message);
 
+	// Some helpful variables for setting up buttons
+	Vec2 wSize, bSize;
+	wSize = Vec2(Context::getWindowWidth(), Context::getWindowHeight());
+	bSize = OVERLAY_BUTTONSIZE;
+
 	// Setup "Yes"-button
-	overlayButton1->SetSize(Vec2(102, 28));
+	overlayButton1->SetSize(bSize);
 	overlayButton1->SetText("Yes", MenuItem::CENTER);
-	overlayButton1->SetPosition(Vec2(overlayBox->GetPosition().x + overlayBox->GetSize().x / 2 - 51 - 71, overlayBox->GetPosition().y + overlayBox->GetSize().y - 50));
+	overlayButton1->SetPosition(Vec2((wSize.x - bSize.x) / 2 - 70, (wSize.y + overlayBox->GetSize().y) / 2 - bSize.y - 25));
 	this->onOverlayButton1 = message->onButton1;
 
 	// Setup "No" button
-	overlayButton2->SetSize(Vec2(102, 28));
+	overlayButton2->SetSize(bSize);
 	overlayButton2->SetText("No", MenuItem::CENTER);
-	overlayButton2->SetPosition(Vec2(overlayBox->GetPosition().x + overlayBox->GetSize().x / 2 - 51 + 71, overlayBox->GetPosition().y + overlayBox->GetSize().y - 50));
+	overlayButton2->SetPosition(Vec2((wSize.x - bSize.x) / 2 + 70, (wSize.y + overlayBox->GetSize().y) / 2 - bSize.y - 25));
 	this->onOverlayButton2 = message->onButton2;
 
 	// Make sure the "No" button is visible and active
 	overlayButton2->active = true;
 	overlayButton2->visible = true;
-}
 
-// Queue a message
-void MenuSystem::QueueMessage(std::string title, std::string message)
-{
-	messageQueue.push_back(new Message(MSG_MESSAGE, title, message, [](){}, [](){} ));
-}
+	// Render the overlay
+	RenderOverlay();
 
-void MenuSystem::QueueMessage(std::string title, std::string message, std::function<void()> onButton1)
-{
-	messageQueue.push_back(new Message(MSG_MESSAGE, title, message, onButton1, [](){}));
-}
-
-// Show a yes/no question
-void MenuSystem::QueueQuestion(std::string title, std::string question, std::function<void()> onButton1, std::function<void()> onButton2)
-{
-	messageQueue.push_back(new Message(MSG_QUESTION, title, question, onButton1, onButton2));
+	// Render the overlay-items rendertarget
+	RenderOverlayItems();
 }
 
 // Initiate the overlay-box
@@ -432,13 +560,41 @@ void MenuSystem::OverlayInit(std::string title, std::string text)
 	overlayShow = true;
 	ResetFocus();
 
+	// Update the text-item
+	overlayTextItem->SetText(overlayText);
+	overlayTextItem->SetMaxWidth(350);
+
 	// Setup box
 	overlayBox->SetTitle(title);
-	overlayBox->SetSize(Vec2(overlayBox->GetSize().x, fontRegular->GetHeight(overlayText, 400 - 30, 18) + 150));
-	if (overlayBox->GetSize().y < 250)
-		overlayBox->SetSize(Vec2(overlayBox->GetSize().x, 225));
+	Vec2 boxSize;
+	boxSize = overlayTextItem->GetSize() + Vec2(100, 150);
+	if (boxSize.x < OVERLAY_MAX_BOXSIZE.x)
+		boxSize.x = OVERLAY_MAX_BOXSIZE.x;
+	if (boxSize.y < OVERLAY_MAX_BOXSIZE.y)
+		boxSize.y = OVERLAY_MAX_BOXSIZE.y;
+	overlayBox->SetSize(boxSize);
 	overlayBox->SetPosition(Vec2(0, (Context::getWindowHeight() - overlayBox->GetSize().y) / 2));
-	// (GLint)(Context::getWindowWidth() / 2 - overlayBox->GetSize().x / 2)
+
+	// Update the text-item position, based on the box's width
+	overlayTextItem->SetPosition(Vec2((boxSize.x - overlayTextItem->GetSize().x) / 2, 70));
+}
+
+// Queue a message
+void MenuSystem::QueueMessage(std::string title, std::string message)
+{
+	QueueMessage(title, message, [](){});
+}
+
+// Queue a message with a function
+void MenuSystem::QueueMessage(std::string title, std::string message, std::function<void()> onButton1)
+{
+	messageQueue.push_back(new Message(MSG_MESSAGE, title, message, onButton1, [](){}));
+}
+
+// Show a yes/no question
+void MenuSystem::QueueQuestion(std::string title, std::string question, std::function<void()> onButton1, std::function<void()> onButton2)
+{
+	messageQueue.push_back(new Message(MSG_QUESTION, title, question, onButton1, onButton2));
 }
 
 // Hide the overlay
@@ -559,4 +715,37 @@ void MenuSystem::ResetCurrentScrollboxFocus()
 MenuItem* MenuSystem::GetCurrentScrollboxFocus()
 {
 	return currentScrollboxFocus;
+}
+
+// Activates a given dropdown
+void MenuSystem::ActivateDropdown(Dropdown* dropdown)
+{
+	activeDropdown = dropdown;
+}
+
+// Sets activeDropdown to NULL, this deactivating it
+void MenuSystem::DeactivateDropdown()
+{
+	activeDropdown = NULL;
+}
+
+// Gets whether or not focus is locked
+bool MenuSystem::IsDropdownActive()
+{
+	if (activeDropdown == NULL)
+		return false;
+	else
+		return true;
+}
+
+// Set an input field to be active (so that menuSystem can eventually deactivate it)
+void MenuSystem::ActivateInputField(InputField *inputField)
+{
+	activeInputField = inputField;
+}
+
+// Get the currently active input-field (if any). If none is active, NULL is returned.
+InputField* MenuSystem::GetActiveInputField()
+{
+	return activeInputField;
 }

@@ -35,7 +35,12 @@ ShaderManager::ShaderManager()
 	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &compileError);
 
 	if (compileError == 0)
+	{
 		printf("WARNING! Shader did not compile.\n");
+		GLchar infoLog[2048];
+		glGetShaderInfoLog(fragmentShader, 2048, NULL, infoLog);
+		printf(infoLog);
+	}
 }
 
 ShaderManager::~ShaderManager()

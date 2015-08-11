@@ -41,20 +41,9 @@ void Box::Draw()
 	y = (GLint)position.y + drawOffset.y;
 	w = (GLint)size.x;
 	h = (GLint)size.y;
-	
-	// Compensate for edges
-	w -= 8;
-	h -= 6;
 
 	// Draw box
-	sprite->Draw(x, y, 0.0f, 1.0f, 1.0f, alpha, 0, 31, 6, 7); // Left top corner
-	sprite->Draw(x, y + 7, 0.0f, 1.0f, (GLfloat)(h - 7), alpha, 0, 38, 1, 1); // Left side
-	sprite->Draw(x, y + h, 0.0f, 1.0f, 1.0f, alpha, 0, 39, 7, 6); // Left bottom corner
-	sprite->Draw(x + 7, y + h + 5, 0.0f, (GLfloat)(w - 6), 1.0f, alpha, 0, 38, 1, 1); // Bottom
-	sprite->Draw(x + w + 8, y + h, 0.0f, -1.0f, 1.0f, alpha, 0, 39, 7, 6); // Right bottom corner
-	sprite->Draw(x + w + 7, y + 7, 0.0f, 1.0f, (GLfloat)(h - 7), alpha, 0, 38, 1, 1); // Right side
-	sprite->Draw(x + w + 8, y, 0.0f, -1.0f, 1.0f, alpha, 0, 31, 6, 7); // Right top corner
-	sprite->Draw(x + 6, y, 0.0f, (GLfloat)(w - 4), 1.0f, alpha, 6, 31, 1, 2); // Top
+	sprite->DrawRectangleFromTexture(Vec2(x, y), Vec2(w, h), Vec2(0, 45), Vec2(6, 7), Vec2(1, 1));
 
 	// Draw title over box
 	if (title != "")

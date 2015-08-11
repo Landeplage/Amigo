@@ -20,6 +20,7 @@ public:
 	int GetWidth(std::string str, GLint maxWidth);
 	int GetHeight(std::string str);
 	int GetHeight(std::string str, GLint maxWidth, GLint lineHeight);
+	std::string TruncateString(std::string text, GLint width);
 
 	void Draw(int x, int y, std::string str);
 	void Draw(int x, int y, std::string str, float rotation, float scaleX, float scaleY, Color color, float alpha);

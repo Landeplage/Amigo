@@ -253,3 +253,61 @@ void Sprite::Draw(GLint x, GLint y, GLfloat rotation, GLfloat scaleX, GLfloat sc
 	// Pop the matrix
 	glPopMatrix();
 }
+
+// Draw a rectangle based on a minimized rectangle within a texture
+void Sprite::DrawRectangleFromTexture(Vec2 position, Vec2 size, Vec2 imageCoordinates, Vec2 cornerSize, Vec2 sidePixels)
+{
+	DrawRectangleFromTexture(position, size, imageCoordinates, cornerSize, sidePixels, Color(255, 255, 255));
+}
+
+// Draw a rectangle based on a minimized rectangle within a texture
+void Sprite::DrawRectangleFromTexture(Vec2 position, Vec2 size, Vec2 imageCoordinates, Vec2 cornerSize, Vec2 sidePixels, Color color)
+{
+	// Set alpha, rotation, color
+	GLfloat a, r;
+	a = 1.0f;
+	r = 0.0f;
+
+	Color c;
+	c = color;
+
+	// Helper variables
+	GLfloat x, y, w, h, icx, icy, csx, csy, hpix, vpix;
+	x = position.x;
+	y = position.y;
+	w = size.x;
+	h = size.y;
+	icx = imageCoordinates.x;
+	icy = imageCoordinates.y;
+	csx = cornerSize.x;
+	csy = cornerSize.y;
+	hpix = sidePixels.x;
+	vpix = sidePixels.y;
+
+	// Middle
+	Draw(x + csx, y + csy, r, (w - (csx * 2)) / hpix, (h - (csy * 2)) / vpix, c, a, icx + csx, icy + csy, hpix, vpix);
+
+	// Top left corner
+	Draw(x, y, r, 1.0f, 1.0f, c, a, icx, icy, csx, csy);
+
+	// Top
+	Draw(x + csx, y, r, (w - (csx * 2)) / hpix, 1.0f, c, a, icx + csx, icy, hpix, csy);
+
+	// Top right corner
+	Draw(x + w - csx, y, r, 1.0f, 1.0f, c, a, icx + csx + hpix, icy, csx, csy);
+
+	// Right side
+	Draw(x + w - csx, y + csy, r, 1.0f, (h - (csy * 2)) / vpix, c, a, icx + csx + hpix, icy + csy, csx, vpix);
+
+	// Bottom right corner
+	Draw(x + w - csx, y + h - csy, r, 1.0f, 1.0f, c, a, icx + csx + hpix, icy + csy + vpix, csx, csy);
+
+	// Bottom
+	Draw(x + csx, y + h - csy, r, (w - (csx * 2)) / hpix, 1.0f, c, a, icx + csx, icy + csy + vpix, hpix, csy);
+
+	// Bottom left corner
+	Draw(x, y + h - csy, r, 1.0f, 1.0f, c, a, icx, icy + csy + vpix, csx, csy);
+
+	// Left side
+	Draw(x, y + csy, r, 1.0f, (h - (csy * 2)) / vpix, c, a, icx, icy + csy, csx, vpix);
+}

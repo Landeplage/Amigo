@@ -5,6 +5,7 @@
 #include "Menu.h"
 
 #include "ContentBox.h"
+#include "Text.h"
 
 class MenuState : public State
 {
@@ -34,4 +35,5 @@ private:
 
 	ContentBox *cb;
 	MenuItem *mi;
+	Text *textItem;
 };

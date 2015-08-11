@@ -9,10 +9,10 @@ class Button : public MenuItem
 public:
 	Button(MenuSystem* menuSystem, std::string text, GLint x, GLint y, GLint w, GLint h, MenuItem::Align align, GLint menuID, std::string tooltip, std::function<void()> onClick);
 	
+	virtual void Unload();
 	virtual void HandleInput();
 	virtual void Update(GLdouble time);
 	virtual void Draw();
-	virtual void Unload();
 
 	void SetText(std::string text, MenuItem::Align align);
 	void SetTextAlignment(MenuItem::Align align);

@@ -71,7 +71,7 @@ void Slider::HandleInput()
 	if (!(active && visible))
 		return;
 
-	// Handle buttons input
+	// Handle button's input
 	button->HandleInput();
 
 	// Handle the button's movement along the slider
@@ -111,7 +111,7 @@ void Slider::Draw()
 
 	// Draw the button
 	button->Draw();
-	sprite->Draw((GLint)(button->GetPosition().x + drawOffset.x + 5), (GLint)(button->GetPosition().y + drawOffset.y + 4), 0.0f, 1.0f, 1.0f, alpha, 0, 104, 21, 10); // Scroller-button
+	//sprite->Draw((GLint)(button->GetPosition().x + drawOffset.x + 5), (GLint)(button->GetPosition().y + drawOffset.y + 4), 0.0f, 1.0f, 1.0f, alpha, 0, 104, 21, 10); // Metal graphic
 }
 
 void Slider::DrawCommonElements(GLint x, GLint y, GLfloat alpha)
@@ -123,11 +123,11 @@ void Slider::DrawCommonElements(GLint x, GLint y, GLfloat alpha)
 
 	// Draw slider-info text
 	GLuint c = 255 * alpha;
-	font->Draw(x, (GLint)position.y + drawOffset.y + 1, text, 0.0f, 1.0f, 1.0f, Color(c, c, c), alpha);
-	font->Draw((GLint)(x + size.x - font->GetWidth(valueString)), (GLint)position.y + drawOffset.y + 1, valueString, 0.0f, 1.0f, 1.0f, Color(255, 255, 255), alpha);
+	font->Draw(x, (GLint)position.y + drawOffset.y + 1, text, 0.0f, 1.0f, 1.0f, Color(c, c, c), alpha * 0.6f); // info-text highlight
+	font->Draw((GLint)(x + size.x - font->GetWidth(valueString)), (GLint)position.y + drawOffset.y + 1, valueString, 0.0f, 1.0f, 1.0f, Color(255, 255, 255), alpha * 0.6f); // value highlight
 
-	font->Draw(x, (GLint)position.y + drawOffset.y, text, 0.0f, 1.0f, 1.0f, Color(139, 98, 38), alpha);
-	font->Draw((GLint)(x + size.x - font->GetWidth(valueString)), (GLint)position.y + drawOffset.y, valueString, 0.0f, 1.0f, 1.0f, Color(139, 98, 38), alpha);
+	font->Draw(x, (GLint)position.y + drawOffset.y, text, 0.0f, 1.0f, 1.0f, Color(139, 98, 38), alpha); // info-text
+	font->Draw((GLint)(x + size.x - font->GetWidth(valueString)), (GLint)position.y + drawOffset.y, valueString, 0.0f, 1.0f, 1.0f, Color(139, 98, 38), alpha); // value
 }
 
 // Set the value of the slider
@@ -201,7 +201,7 @@ void Slider::HandleButton(Button *button, GLint limitXLeft, GLint limitXRight, G
 			if (buttonX > limitXRight) button->SetPosition(Vec2(limitXRight, button->GetPosition().y));
 
 			// Set the mouse-position to the button's position
-			Input::setMousePos(Vec2(Input::getMousePos().x, button->GetPosition().y - origin.y - mouseOffset.y));
+			//Input::setMousePos(Vec2(Input::getMousePos().x, button->GetPosition().y - origin.y - mouseOffset.y));
 
 			// Calculate the new value of the slider
 			CalculateValue(button, maxPos, minPos, value);

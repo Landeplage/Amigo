@@ -428,3 +428,30 @@ int Font::GetHeight(std::string str, GLint width, GLint lineHeight)
 
 	return h;
 }
+
+// Truncate string to width with "..." at the end
+std::string Font::TruncateString(std::string text, GLint width)
+{
+	std::string str;
+	str = text;
+
+	if (GetWidth(str) > width)
+	{
+		int pos = 1;
+		while (GetWidth(str.substr(0, str.length() - pos) + "...") > width) // shorten the string if it's too long
+		{
+			pos++;
+			if (str.length() - pos <= 1)
+				break;
+			if (str.substr(str.length() - pos - 1, 1) == " ") // we don't want the last character to be a space
+			{
+				pos++;
+				if (str.length() - pos <= 1)
+					break;
+			}
+		}
+		str = str.substr(0, str.length() - pos) + "...";
+	}
+
+	return str;
+}

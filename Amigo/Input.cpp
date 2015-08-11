@@ -1,6 +1,8 @@
 #include "Input.h"
 #include "GLFW.h"
 #include "Context.h"
+#include <cstdio>
+#include "Helper.h"
 
 Vec2 Input::mouse;
 bool Input::mouseLeftCurrent;
@@ -14,11 +16,22 @@ bool Input::mouseRightReleased;
 GLint Input::mouseWheelDiff;
 GLint Input::mouseWheelPrevious;
 GLint Input::mouseWheelIncrement;
+std::string Input::textInput;
 
 void Input::Initialize()
 {
+	// Get GLFW window
+	GLFWwindow* window;
+	window = Context::getWindow();
+
 	// Set callback function for the mouse scrollwheel
-	glfwSetScrollCallback(Context::getWindow(), ScrollWheelCallback);
+	glfwSetScrollCallback(window, ScrollWheelCallback);
+
+	// Set callback for text-input
+	glfwSetCharCallback(window, CharacterCallback);
+
+	// Initialize string for text input
+	textInput = "";
 }
 
 void Input::HandleInput()
@@ -95,6 +108,9 @@ void Input::Update(GLdouble time)
 {
 	// Reset mouse-wheel variable
 	mouseWheelDiff = 0;
+
+	// Reset text-input variable
+	textInput = "";
 }
 
 Vec2 Input::getMousePos()
@@ -152,7 +168,21 @@ GLint Input::GetKey(GLint key)
 	return glfwGetKey(Context::getWindow(), key);
 }
 
+// Fetches the current textinput
+std::string Input::GetTextInput()
+{
+	return textInput;
+}
+
 void Input::ScrollWheelCallback(GLFWwindow* window, double x, double y)
 {
 	mouseWheelDiff = y;
+}
+
+// GLFW callback for keyboard text input (gets unicode codepoint)
+void Input::CharacterCallback(GLFWwindow* window, unsigned int codepoint)
+{
+	std::string s(1, static_cast<char>(codepoint));
+	printf(s.c_str());
+	textInput += s;
 }

@@ -4,11 +4,14 @@
 #include "MenuItem.h"
 #include "Box.h"
 #include "Button.h"
+#include "Dropdown.h"
+#include "InputField.h"
 #include "Sprite.h"
 #include "Font.h"
 #include "Vec2.h"
 #include <vector>
 #include <functional>
+#include "Text.h"
 
 class MenuSystem
 {
@@ -45,10 +48,20 @@ public:
 	void QueueMessage(std::string title, std::string text, std::function<void()> onButton1);
 	void QueueQuestion(std::string title, std::string question, std::function<void()> onButton1, std::function<void()> onButton2);
 
+	// Dropdown functions
+	void ActivateDropdown(Dropdown* dropdown);
+	void DeactivateDropdown();
+	bool IsDropdownActive();
+
+	// Input-field functions
+	void ActivateInputField(InputField *inputField);
+	InputField* GetActiveInputField();
+
 private:
 	void OverlayInit(std::string title, std::string text);
 	void HideOverlay();
 	void RenderOverlay();
+	void RenderOverlayItems();
 	void DrawTooltip();
 	void OnOverlayButton1();
 	void OnOverlayButton2();
@@ -61,7 +74,8 @@ private:
 	GLfloat rot;
 	GLint cursorOffset;
 
-	RenderTarget *overlayRenderTarget;
+	RenderTarget *overlayRenderTarget, *overlayItemsRenderTarget;
+	Vec2 overlayItemsRenderTargetPosition;
 	bool overlayShow;
 	GLfloat overlaySlide, overlayBackgroundAlpha, overlayBackgroundAlphaTarget;
 	std::string overlayText;
@@ -95,14 +109,24 @@ private:
 		MSG_TYPE messageType;
 		std::string message, title;
 		std::function<void()> onButton1, onButton2;
-
 	};
 
 	std::vector<Message*> messageQueue;
+	Text *overlayTextItem;
 
 	void ShowMessage(Message *message);
 	void ShowQuestion(Message *message);
 
 	// Members for handling wheel-scrolling in boxes
 	MenuItem* currentScrollboxFocus;
+
+	// Members for keeping track of whether or not an item has locked focus (for example a dropdown).
+	bool lockedFocus;
+
+	// Members for handling dropdowns
+	std::vector<std::string*> dropdownItems;
+	Dropdown *activeDropdown;
+
+	// Members for handling input fields
+	InputField *activeInputField;
 };

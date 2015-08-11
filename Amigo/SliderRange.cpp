@@ -94,8 +94,8 @@ void SliderRange::Draw()
 	button->Draw();
 	button2->Draw();
 
-	sprite->Draw((GLint)(button->GetPosition().x + drawOffset.x + 5), (GLint)(button->GetPosition().y + drawOffset.y + 4), 0.0f, 1.0f, 1.0f, alpha, 0, 104, 21, 10); // Scroller-button
-	sprite->Draw((GLint)(button2->GetPosition().x + drawOffset.x + 5), (GLint)(button2->GetPosition().y + drawOffset.y + 4), 0.0f, 1.0f, 1.0f, alpha, 0, 104, 21, 10); // Scroller-button
+	//sprite->Draw((GLint)(button->GetPosition().x + drawOffset.x + 5), (GLint)(button->GetPosition().y + drawOffset.y + 4), 0.0f, 1.0f, 1.0f, alpha, 0, 104, 21, 10); // Metal graphic
+	//sprite->Draw((GLint)(button2->GetPosition().x + drawOffset.x + 5), (GLint)(button2->GetPosition().y + drawOffset.y + 4), 0.0f, 1.0f, 1.0f, alpha, 0, 104, 21, 10); // Metal graphic
 }
 
 // Set the value of the slider

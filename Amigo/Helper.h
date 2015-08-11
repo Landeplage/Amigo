@@ -28,6 +28,14 @@ static std::string toString(int value)
 	return out.str();
 }
 
+// Convert an unsigned integer into a string
+static std::string toString(unsigned int value)
+{
+	std::stringstream out;
+	out << value;
+	return out.str();
+}
+
 // Convert a float into a string
 static std::string toString(float value)
 {
@@ -81,6 +89,14 @@ static GLint getNextPower2(int a)
 static bool IsInside(Vec2 Point, int x1, int y1, int x2, int y2)
 {
 	if (Point.x >= x1 && Point.x < x2 && Point.y >= y1 && Point.y < y2)
+		return true;
+	return false;
+}
+
+// Check if a point is inside a rectangle
+static bool IsInside(Vec2 Point, Vec2 Position, Vec2 Size)
+{
+	if (Point.x >= Position.x && Point.x < (Position.x + Size.x) && Point.y >= Position.y && Point.y < (Position.y + Size.y))
 		return true;
 	return false;
 }

@@ -147,6 +147,18 @@
     <ClCompile Include="ShaderManager.cpp">
       <Filter>Source files\Engine</Filter>
     </ClCompile>
+    <ClCompile Include="Dropdown.cpp">
+      <Filter>Source files\Menu\Elements</Filter>
+    </ClCompile>
+    <ClCompile Include="InputField.cpp">
+      <Filter>Source files\Menu\Elements</Filter>
+    </ClCompile>
+    <ClCompile Include="Text.cpp">
+      <Filter>Source files\Menu\Elements</Filter>
+    </ClCompile>
+    <ClCompile Include="Checkbox.cpp">
+      <Filter>Source files\Menu\Elements</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MenuState.h">
@@ -238,6 +250,18 @@
     </ClInclude>
     <ClInclude Include="GLFW.h">
       <Filter>Header files\Engine\Libraries</Filter>
+    </ClInclude>
+    <ClInclude Include="Dropdown.h">
+      <Filter>Header files\Menu\Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="InputField.h">
+      <Filter>Header files\Menu\Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="Text.h">
+      <Filter>Header files\Menu\Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="Checkbox.h">
+      <Filter>Header files\Menu\Elements</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
