@@ -15,7 +15,7 @@ Checkbox::Checkbox(MenuSystem *menuSystem, Vec2 position, std::string text, GLin
 	this->sprite = menuSystem->GetSpriteUI();
 
 	// Init button
-	button = new Button(this->menuSystem, "", 0, 0, 16, 16, Align::CENTER, this->menuID, "", [=]() {
+	button = new Button(this->menuSystem, "", Vec2(0, 0), Vec2(18, 18), Align::CENTER, this->menuID, "", [=]() {
 		SetToggled(!toggled);
 		onClick();
 	});
@@ -65,13 +65,16 @@ void Checkbox::Draw()
 	x = position.x + drawOffset.x;
 	y = position.y + drawOffset.y;
 
+	// Draw button
+	button->Draw();
+
 	// Draw checkbox-background
-	sprite->Draw(x - 1, y, 0.0f, 1.0f, 1.0f, Color(255, 255, 255), 1.0f, 21, 100, 18, 19);
+	sprite->Draw(Vec2(x + 3, y + 3), 0.0f, Vec2(1.0f, 1.0f), Color(255, 255, 255), 1.0f, 21, 100, 12, 12);
 
 	// Draw checkmark
 	if (toggled)
 	{
-		sprite->Draw(x + 3, y + 3, 0.0f, 1.0f, 1.0f, Color(255, 255, 255), 1.0f, 39, 100, 10, 10);
+		sprite->Draw(Vec2(x + 3, y + 2), 0.0f, Vec2(1.0f, 1.0f), Color(255, 255, 255), 1.0f, 33, 100, 13, 13);
 	}
 
 	// Draw text-item

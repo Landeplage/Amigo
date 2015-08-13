@@ -159,6 +159,9 @@
     <ClCompile Include="Checkbox.cpp">
       <Filter>Source files\Menu\Elements</Filter>
     </ClCompile>
+    <ClCompile Include="RadioBox.cpp">
+      <Filter>Source files\Menu\Elements</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MenuState.h">
@@ -261,6 +264,9 @@
       <Filter>Header files\Menu\Elements</Filter>
     </ClInclude>
     <ClInclude Include="Checkbox.h">
+      <Filter>Header files\Menu\Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="RadioBox.h">
       <Filter>Header files\Menu\Elements</Filter>
     </ClInclude>
   </ItemGroup>

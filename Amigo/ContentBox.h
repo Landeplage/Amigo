@@ -34,6 +34,7 @@ private:
 	bool CheckChildrenFocus(std::vector<MenuItem*> items, MenuItem* focus);
 	void ResizeRendertarget();
 	void UpdateScrollContentSize();
+	void RefreshContentBox();
 
 	void HandleHorizontalScrollButton();
 	void HandleVerticalScrollButton();

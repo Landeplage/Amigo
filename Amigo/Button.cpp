@@ -5,13 +5,13 @@
 #include "Input.h"
 #include "MenuSystem.h"
 
-Button::Button(MenuSystem* menuSystem, std::string text, GLint x, GLint y, GLint w, GLint h, MenuItem::Align align, GLint menuID, std::string tooltip, std::function<void()> onClick)
+Button::Button(MenuSystem* menuSystem, std::string text, Vec2 position, Vec2 size, MenuItem::Align align, GLint menuID, std::string tooltip, std::function<void()> onClick)
 {
 	this->menuSystem = menuSystem;
 	this->text = text;
 	this->tooltip = tooltip;
-	this->position = Vec2((GLfloat)x, (GLfloat)y);
-	this->size = Vec2((GLfloat)w, (GLfloat)h);
+	this->position = position;
+	this->size = size;
 	this->menuID = menuID;
 	this->function = onClick;
 
@@ -138,8 +138,8 @@ void Button::Draw()
 	// Draw the button-text
 	GLint bOff = 0;
 	if (state == 2) bOff = 2;
-	font->Draw((GLint)(x + textOffset.x), (GLint)(y + bOff + h / 2 - 7), text, 0.0f, 1.0f, 1.0f, Color(255, 255, 255), alpha * 1.0f); // highlight
-	font->Draw((GLint)(x + textOffset.x), (GLint)(y + bOff + h / 2 - 8), text, 0.0f, 1.0f, 1.0f, Color(139, 98, 38), alpha); // text
+	font->Draw(Vec2((GLint)(x + textOffset.x), (GLint)(y + bOff + h / 2 - 7)), text, 0.0f, Vec2(1.0f, 1.0f), Color(255, 255, 255), alpha * 1.0f); // highlight
+	font->Draw(Vec2((GLint)(x + textOffset.x), (GLint)(y + bOff + h / 2 - 8)), text, 0.0f, Vec2(1.0f, 1.0f), Color(139, 98, 38), alpha); // text
 }
 
 void Button::onClick()

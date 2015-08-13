@@ -35,12 +35,12 @@ void BlendtestState::Init()
 
 	// Render test-image to rendertarget 1
 	rt->Begin();
-	sprTest->Draw(0, 0);
+	sprTest->Draw(Vec2(0, 0));
 	rt->End();
 
 	// Render rendertarget 1 to rendertarget 2
 	rt2->Begin();
-	sprTest->Draw(0, 0);
+	sprTest->Draw(Vec2(0, 0));
 	rt->Draw(50, 0);
 	rt2->End();
 
@@ -64,10 +64,10 @@ void BlendtestState::Draw()
 	float alpha = Input::getMousePos().x / 1280;
 
 	// Draw background
-	sprBg->Draw(0, 0, 0.0f, 1280.0f, 1.0f, Color(255, 255, 255), 1.0f, 0, 0, 1, 720);
+	sprBg->Draw(Vec2(0, 0), 0.0f, Vec2(1280.0f, 1.0f), Color(255, 255, 255), 1.0f, 0, 0, 1, 720);
 
 	// Draw test-image
-	sprTest->Draw(200, 200, 0.0f, 1.0f, 1.0f, alpha);
+	sprTest->Draw(Vec2(200, 200), 0.0f, Vec2(1.0f, 1.0f), alpha);
 	//sprTest->Draw(250, 200, 0.0f, 1.0f, 1.0f, alpha);
 
 	// Draw rendertargets
@@ -77,5 +77,5 @@ void BlendtestState::Draw()
 	ShaderManager::GetInstance()->Reset();
 
 	// Draw some text
-	font->Draw(10, 10, "Hello, this is text.", 0.0f, 1.0f, 1.0f, Color(255, 255, 255), alpha);
+	font->Draw(Vec2(10, 10), "Hello, this is text.", 0.0f, Vec2(1.0f, 1.0f), Color(255, 255, 255), alpha);
 }

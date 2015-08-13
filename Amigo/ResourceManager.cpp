@@ -53,7 +53,7 @@ void ResourceManager::Update(GLdouble time)
 
 void ResourceManager::Draw()
 {
-	font->Draw(10, 10, "Loading...");
+	font->Draw(Vec2(10, 10), "Loading...");
 	const char* str;
 	float a;
 
@@ -72,7 +72,7 @@ void ResourceManager::Draw()
 		{
 			str = spriteResources[i - fontResources.size()]->path;
 		}
-		font->Draw(20, 30 + i * 18, str, 0.0f, 1.0f, 1.0f, Color(255, 255, 255), a); // fonts
+		font->Draw(Vec2(20, 30 + i * 18), str, 0.0f, Vec2(1.0f, 1.0f), Color(255, 255, 255), a); // fonts
 	}
 }
 

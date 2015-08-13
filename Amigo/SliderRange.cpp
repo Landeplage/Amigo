@@ -17,8 +17,8 @@ SliderRange::SliderRange(MenuSystem *menuSystem, std::string text, Vec2 position
 	this->font = menuSystem->GetFontRegular();
 	this->sprite = menuSystem->GetSpriteUI();
 
-	this->button = new Button(menuSystem, "", (GLint)position.x, (GLint)(position.y + font->GetHeight("Mj")), 1, 1, CENTER, 0, "", onRelease);
-	this->button2 = new Button(menuSystem, "", (GLint)position.x, (GLint)(position.y + font->GetHeight("Mj")), 1, 1, CENTER, 0, "", onRelease);
+	this->button = new Button(menuSystem, "", Vec2((GLint)position.x, (GLint)(position.y + font->GetHeight("Mj"))), Vec2(1, 1), CENTER, 0, "", onRelease);
+	this->button2 = new Button(menuSystem, "", Vec2((GLint)position.x, (GLint)(position.y + font->GetHeight("Mj"))), Vec2(1, 1), CENTER, 0, "", onRelease);
 	children.push_back(button);
 	children.push_back(button2);
 
@@ -84,11 +84,11 @@ void SliderRange::Draw()
 	
 	// Draw filled part
 	sprite->Draw(
-		(GLint)(button->GetPosition().x + button->GetSize().x) + drawOffset.x,
-		y,
+		Vec2((GLint)(button->GetPosition().x + button->GetSize().x) + drawOffset.x,
+		y),
 		0.0f,
-		(GLfloat)(button2->GetPosition().x - (button->GetPosition().x + button->GetSize().x) + 1),
-		1.0f, alpha, 17, 31, 1, 7); // Fill
+		Vec2((GLfloat)(button2->GetPosition().x - (button->GetPosition().x + button->GetSize().x) + 1),
+		1.0f), alpha, 17, 31, 1, 7); // Fill
 
 	// Draw buttons
 	button->Draw();

@@ -3,6 +3,7 @@
 #include <vector>
 #include "Vec2.h"
 #include "Sprite.h"
+#include <functional>
 
 class MenuSystem;
 
@@ -36,6 +37,11 @@ public:
 	virtual void SetOrigin(Vec2 origin);
 	virtual void SetDrawOffset(Vec2 drawOffset);
 
+	void SetPositionCallback(std::function<void()> callback);
+	void SetSizeCallback(std::function<void()> callback);
+	void SetOriginCallback(std::function<void()> callback);
+	void SetDrawOffsetCallback(std::function<void()> callback);
+
 	bool active, visible;
 	int menuID;
 
@@ -44,4 +50,11 @@ protected:
 	std::vector<MenuItem*> children;
 	Sprite *sprite;
 	MenuSystem *menuSystem;
+
+	// Callback-functions
+	std::function<void()>
+		setPositionCallback,
+		setSizeCallback,
+		setOriginCallback,
+		setDrawOffsetCallback;
 };

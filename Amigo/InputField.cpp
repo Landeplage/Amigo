@@ -19,7 +19,7 @@ InputField::InputField(MenuSystem* menuSystem, Vec2 position, GLint width, std::
 	this->sprite = menuSystem->GetSpriteUI();
 
 	// Init button
-	button = new Button(menuSystem, "", position.x, position.y, this->size.x, this->size.y, Align::CENTER, menuID, "",
+	button = new Button(menuSystem, "", position, this->size, Align::CENTER, menuID, "",
 	[=]() {
 		// Activate input
 		if (!inputActive)
@@ -169,18 +169,18 @@ void InputField::Draw()
 	//sprite->Draw(position.x, position.y, 0.0f, size.x, size.y, Color(0, 0, 0), 0.25f, 0, 72, 1, 1);
 
 	// Draw text
-	font->Draw(position.x + drawOffset.x + 9, position.y + drawOffset.y + 7, displayText, 0.0f, 1.0f, 1.0f, Color(116, 85, 38), 1.0f);
+	font->Draw(Vec2(position.x + drawOffset.x + 9, position.y + drawOffset.y + 7), displayText, 0.0f, Vec2(1.0f, 1.0f), Color(116, 85, 38), 1.0f);
 
 	// Draw info-text (when there's nothing in the field)
 	if (displayText == "" && !inputActive)
-		font->Draw(position.x + drawOffset.x + 9, position.y + drawOffset.y + 7, infoText, 0.0f, 1.0f, 1.0f, Color(193, 181, 166), 1.0f);
+		font->Draw(Vec2(position.x + drawOffset.x + 9, position.y + drawOffset.y + 7), infoText, 0.0f, Vec2(1.0f, 1.0f), Color(193, 181, 166), 1.0f);
 
 	// Draw input-indicator
 	if (inputActive && indicatorTimer > (INPUT_INDICATOR_TIME / 2))
 	{
 		GLint offset;
 		offset = font->GetWidth(displayText.substr(0, editPos));
-		sprite->Draw(position.x + drawOffset.x + 9 + offset, position.y + drawOffset.y + 4, 0.0f, 1, size.y - 8, Color(255, 255, 255), 1.0f, 35, 77, 1, 1);
+		sprite->Draw(Vec2(position.x + drawOffset.x + 9 + offset, position.y + drawOffset.y + 4), 0.0f, Vec2(1, size.y - 8), Color(255, 255, 255), 1.0f, 35, 77, 1, 1);
 	}
 
 	// debug

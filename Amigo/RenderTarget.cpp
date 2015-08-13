@@ -32,6 +32,9 @@ RenderTarget::RenderTarget(GLint width, GLint height)
 	// Bind to default framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+	// Init finalblend
+	finalBlend = false;
+
 	printf("Done\n");
 }
 
@@ -108,10 +111,11 @@ void RenderTarget::Draw(GLint x, GLint y, GLfloat rotation, GLfloat scaleX, GLfl
 	coY2 = (GLdouble)(yy + h) / size.y;
 
 	// Set blend mode
-	if (alpha < 1.0f)
-		glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+	if (finalBlend && alpha < 1.0f)
+		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 	else
 		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); // This one works pretty well
+		
 	//glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// Draw the textured quad
@@ -143,4 +147,10 @@ void RenderTarget::SetSize(Vec2 size)
 	this->size = size;
 	glBindTexture(GL_TEXTURE_2D, texRT[0]);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+}
+
+// Set this rendertarget to use the blend mode correct for blending into the default framebuffer (testing/debug)
+void RenderTarget::SetFinalBlend(bool finalBlend)
+{
+	this->finalBlend = finalBlend;
 }

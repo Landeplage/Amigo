@@ -20,6 +20,15 @@ public:
 	void SetMaxWidth(GLint maxWidth);
 	void SetShadowAttributes(Color color, GLfloat alpha);
 
+	enum TextMode
+	{
+		LINEBREAK,
+		TRUNCATE
+	};
+
+	void SetTextMode(TextMode textMode);
+	void SetAlign(Align align);
+
 private:
 	RenderTarget *rt;
 	Font* font;
@@ -27,6 +36,9 @@ private:
 	Color color, shadowColor;
 	GLfloat alpha, shadowAlpha;
 	GLint maxWidth;
+	TextMode textMode;
+	Align align;
+	GLint alignOffset;
 
 	void UpdateRendertarget();
 	void UpdateAttributes();

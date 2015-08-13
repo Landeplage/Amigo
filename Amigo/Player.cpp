@@ -27,7 +27,7 @@ void Player::Update(GLdouble time)
 
 void Player::Draw()
 {
-	sprite->Draw((GLint)position.x, (GLint)position.y);
+	sprite->Draw(Vec2((GLint)position.x, (GLint)position.y));
 }
 
 void Player::SetPosition(Vec2 position)

@@ -19,6 +19,9 @@ public:
 
 	void SetSize(Vec2 size);
 	Vec2 GetSize();
+
+	void SetFinalBlend(bool finalBlend);
+
 private:
 	// Rendertarget stuff
 	union Viewport { struct { GLint x, y; GLint width, height; }; GLint vp[4]; };
@@ -26,4 +29,5 @@ private:
 	GLuint frameBufferRT;
 	GLuint* texRT;
 	Vec2 size, windowSize;
+	bool finalBlend;
 };

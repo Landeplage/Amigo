@@ -7,7 +7,7 @@
 class Button : public MenuItem
 {
 public:
-	Button(MenuSystem* menuSystem, std::string text, GLint x, GLint y, GLint w, GLint h, MenuItem::Align align, GLint menuID, std::string tooltip, std::function<void()> onClick);
+	Button(MenuSystem* menuSystem, std::string text, Vec2 position, Vec2 size, MenuItem::Align align, GLint menuID, std::string tooltip, std::function<void()> onClick);
 	
 	virtual void Unload();
 	virtual void HandleInput();

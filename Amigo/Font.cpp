@@ -213,7 +213,7 @@ void Font::LoadFont(const char* path, int size)
 	printf("Done :: %i\n", texture);
 }
 
-void Font::Draw(int x, int y, std::string str, float rotation, float scaleX, float scaleY, Color color, float alpha)
+void Font::Draw(Vec2 position, std::string str, float rotation, Vec2 scale, Color color, float alpha)
 {
 	// Bind the spritefont texture
 	glBindTexture(GL_TEXTURE_2D, texture);
@@ -230,7 +230,7 @@ void Font::Draw(int x, int y, std::string str, float rotation, float scaleX, flo
 		charCode = (unsigned char)(str[i] - 32);
 
 		// Rotate and translate the quad
-		glTranslatef((GLfloat)(x + glyphs[charCode].offsetX), (GLfloat)(y + glyphs[charCode].offsetY), 0.0f);
+		glTranslatef((GLfloat)(position.x + glyphs[charCode].offsetX), (GLfloat)(position.y + glyphs[charCode].offsetY), 0.0f);
 		glRotatef(rotation, 0.0f, 0.0f, 1.0f);
 
 		// Calculate texture coordinates
@@ -249,19 +249,19 @@ void Font::Draw(int x, int y, std::string str, float rotation, float scaleX, flo
 		glEnd();
 
 		// Make way for the next character
-		x += glyphs[charCode].advanceX + spacing;
+		position.x += glyphs[charCode].advanceX + spacing;
 
 		// Pop the matrix
 		glPopMatrix();
 	}
 }
 
-void Font::Draw(int x, int y, std::string str)
+void Font::Draw(Vec2 position, std::string str)
 {
-	Draw(x, y, str, 0.0f, 1.0f, 1.0f, Color(255, 255, 255), 1.0f);
+	Draw(position, str, 0.0f, Vec2(1.0f, 1.0f), Color(255, 255, 255), 1.0f);
 }
 
-void Font::DrawShorten(int x, int y, std::string str, float rotation, float scaleX, float scaleY, Color color, float alpha, int width)
+void Font::DrawShorten(Vec2 position, std::string str, float rotation, Vec2 scale, Color color, float alpha, int width)
 {
 	int pos = 1;
 	if (GetWidth(str) > width)
@@ -280,15 +280,15 @@ void Font::DrawShorten(int x, int y, std::string str, float rotation, float scal
 		}
 		str = str.substr(0, str.length() - pos) + "...";
 	}
-	Draw(x, y, str, rotation, scaleX, scaleY, color, alpha);
+	Draw(position, str, rotation, scale, color, alpha);
 }
 
-void Font::DrawLinebreak(int x, int y, std::string str, int width, int lineHeight)
+void Font::DrawLinebreak(Vec2 position, std::string str, int width, int lineHeight)
 {
-	DrawLinebreak(x, y, str, width, lineHeight, Color(255, 255, 255), 1.0f);
+	DrawLinebreak(position, str, width, lineHeight, Color(255, 255, 255), 1.0f);
 }
 
-void Font::DrawLinebreak(int x, int y, std::string str, int width, int lineHeight, Color color, float alpha)
+void Font::DrawLinebreak(Vec2 position, std::string str, int width, int lineHeight, Color color, float alpha)
 {
 	int pos = 0, posPrev = 0;
 	while(GetWidth(str.substr(posPrev, str.length() - posPrev)) > width)
@@ -316,14 +316,14 @@ void Font::DrawLinebreak(int x, int y, std::string str, int width, int lineHeigh
 			str.insert(pos - 1, "-");
 		}
 
-		Draw(x, y, str.substr(posPrev, pos - posPrev), 0.0f, 1.0f, 1.0f, color, alpha);
-		y += lineHeight;
+		Draw(position, str.substr(posPrev, pos - posPrev), 0.0f, Vec2(1.0f, 1.0f), color, alpha);
+		position.y += lineHeight;
 
 		posPrev = pos;
 	}
 
 	// Draw the last line
-	Draw(x, y, str.substr(pos, str.length() - pos), 0.0f, 1.0f, 1.0f, color, alpha);
+	Draw(position, str.substr(pos, str.length() - pos), 0.0f, Vec2(1.0f, 1.0f), color, alpha);
 }
 
 // Get width of a single-line string

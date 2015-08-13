@@ -14,6 +14,7 @@
 #include "InputField.h"
 #include "Text.h"
 #include "Checkbox.h"
+#include "RadioBox.h"
 
 #include "Helper.h"
 #include "Color.h"
@@ -113,7 +114,7 @@ void MenuState::HandleInput()
 	{
 		if (!keyEscPrevious)
 		{
-			textItem->SetText("Hello world indeed! jjjgjgjgjÅÅÅ I am hoping that this long sentence jjjjjjjj");
+			//radioBox->AddItem("Radio button");
 			//menuSystem->QueueMessage("Massage", "This is a massage."); // testing various situations where a message appears
 			//GameEngine::GetInstance()->StopGame();
 		}
@@ -129,7 +130,7 @@ void MenuState::HandleInput()
 	if (Input::getMouseRight())
 	{
 		Vec2 mouse = Input::getMousePos();
-		cb->SetSize(mouse - cb->GetPosition());
+		//cb->SetSize(mouse - cb->GetPosition()); // <-- Debug
 	}
 
 	// Handle menu input
@@ -157,8 +158,8 @@ void MenuState::Draw()
 	GLfloat rot = menuSystem->GetRot();
 
 	// Draw top and bottom background
-	sprBack1->Draw(0, 0);
-	sprBack3->Draw(0, 652);
+	sprBack1->Draw(Vec2(0, 0));
+	sprBack3->Draw(Vec2(0, 652));
 
 	// Chequered background
 	GLfloat bW, bH;
@@ -177,17 +178,17 @@ void MenuState::Draw()
 		for(GLint n = 0; n < (Context::getWindowHeight() / bH) + 2; n ++)
 		{
 			//sprChequer.Draw((GLint)(i * bW - (bW * 1) + slide + checkerScroll - 100), (GLint)(n * bH - (bH * 1)), 0.0f, 1.0f, 1.0f, 0.03f);
-			sprChequer->Draw((GLint)(i * bW + ldirX(30, rot * 2) - (bW * 1) - slide), (GLint)(n * bH + ldirY(20, rot * 3) - (bH * 1)), 0.0f, 1.0f, 1.0f, 0.03f);
+			sprChequer->Draw(Vec2((GLint)(i * bW + ldirX(30, rot * 2) - (bW * 1) - slide), (GLint)(n * bH + ldirY(20, rot * 3) - (bH * 1))), 0.0f, Vec2(1.0f, 1.0f), 0.03f);
 		}
 	}
 
 	// Draw the middle part of the background
-	sprBack2->Draw(0, 85);
+	sprBack2->Draw(Vec2(0, 85));
 
 	// Draw the small logo at the top
 	if (menuMain->GetMenuCurrent() != MENU_SPLASH)
 	{
-		sprLogoSmall->Draw(Context::getWindowWidth() / 2, 50);
+		sprLogoSmall->Draw(Vec2(Context::getWindowWidth() / 2, 50));
 	}
 
 	// Draw breadcrumbs in top left corner
@@ -213,9 +214,9 @@ void MenuState::Draw()
 	// Breadcrumb back
 	if (w > 0)
 	{
-		sprUI->Draw(x, y, 0.0f, 1.0f, 1.0f, alpha, 0, 77, 5, 27); // Left
-		sprUI->Draw(x + 5, y, 0.0f, w - 17, 1.0f, alpha, 5, 77, 1, 27); // Mid
-		sprUI->Draw(x + w - 12, y, 0.0f, 1.0f, 1.0f, alpha, 6, 77, 12, 27); // Right
+		sprUI->Draw(Vec2(x, y), 0.0f, Vec2(1.0f, 1.0f), alpha, 0, 77, 5, 27); // Left
+		sprUI->Draw(Vec2(x + 5, y), 0.0f, Vec2(w - 17, 1.0f), alpha, 5, 77, 1, 27); // Mid
+		sprUI->Draw(Vec2(x + w - 12, y), 0.0f, Vec2(1.0f, 1.0f), alpha, 6, 77, 12, 27); // Right
 	}
 
 	// Breadcrumb text
@@ -225,14 +226,14 @@ void MenuState::Draw()
 		if (menuMain->GetHistory(i) >= 0)
 		{
 			str = menuName[menuMain->GetHistory(i)];
-			fontRegular->Draw(x + 12 + w, y + 4, str, 0.0f, 1.0f, 1.0f, Color(255, 255, 255), 0.5f * alpha);
-			fontRegular->Draw(x + 12 + w, y + 3, str, 0.0f, 1.0f, 1.0f, Color(77, 77, 77), alpha);
+			fontRegular->Draw(Vec2(x + 12 + w, y + 4), str, 0.0f, Vec2(1.0f, 1.0f), Color(255, 255, 255), 0.5f * alpha);
+			fontRegular->Draw(Vec2(x + 12 + w, y + 3), str, 0.0f, Vec2(1.0f, 1.0f), Color(77, 77, 77), alpha);
 			w += fontRegular->GetWidth(str) + 30;
 			if (i > 0) // Draw a separator
 			{
 				if (menuMain->GetHistory(i - 1) >= 0)
 				{
-					sprUI->Draw(x + w - 12, y, 0.0f, 1.0f, 1.0f, alpha, 18, 77, 12, 23); // Separator
+					sprUI->Draw(Vec2(x + w - 12, y), 0.0f, Vec2(1.0f, 1.0f), alpha, 18, 77, 12, 23); // Separator
 				}
 			}
 		}
@@ -255,14 +256,14 @@ void MenuState::Draw()
 	}
 	x += EaseQuadIn(abs(menuMain->GetSlide())) * 50 * i;
 	
-	fontBig->Draw(x + w + 8, y, menuName[menuMain->GetMenuCurrent()], 0.0f, 1.0f, 1.0f, Color(0, 0, 0), 0.25f * alpha); // Shadow
-	fontBig->Draw(x + w + 7, y - 2, menuName[menuMain->GetMenuCurrent()], 0.0f, 1.0f, 1.0f, Color(255, 255, 255), 1.0f * alpha); // Draw current menu
+	fontBig->Draw(Vec2(x + w + 8, y), menuName[menuMain->GetMenuCurrent()], 0.0f, Vec2(1.0f, 1.0f), Color(0, 0, 0), 0.25f * alpha); // Shadow
+	fontBig->Draw(Vec2(x + w + 7, y - 2), menuName[menuMain->GetMenuCurrent()], 0.0f, Vec2(1.0f, 1.0f), Color(255, 255, 255), 1.0f * alpha); // Draw current menu
 
 	// Draw menu-system
 	menuSystem->Draw();
 
 	// Debug
-	fontRegular->Draw(10, 5, "focus = " + toString((GLint)menuSystem->GetFocus()), 0.0f, 1.0f, 1.0f, Color(0, 0, 0), 1.0f);
+	fontRegular->Draw(Vec2(10, 5), "focus = " + toString((GLint)menuSystem->GetFocus()), 0.0f, Vec2(1.0f, 1.0f), Color(0, 0, 0), 1.0f);
 }
 
 void MenuState::CreateMenu()
@@ -281,7 +282,7 @@ void MenuState::CreateMenu()
 	MenuItem *box, *button;
 
 	// Splash screen
-	menuMain->AddItem(new Button(menuSystem, "Yup.", centerX - 51, centerY + 200, 102, 28, MenuItem::CENTER, MENU_SPLASH,
+	menuMain->AddItem(new Button(menuSystem, "Yup.", Vec2(centerX - 51, centerY + 200), Vec2(102, 28), MenuItem::CENTER, MENU_SPLASH,
 		"Yep.",
 		[=]()
 		{
@@ -292,39 +293,39 @@ void MenuState::CreateMenu()
 	box = menuMain->AddItem(new Box(menuSystem, "Menu", centerX - 330, centerY - 150, 130, 305, MENU_MAIN));
 	xx = (GLint)(box->GetPosition().x + box->GetSize().x / 2) - 51;
 	yy = (GLint)box->GetPosition().y + 15;
-	menuMain->AddItem(new Button(menuSystem, "Create game", xx, yy, 102, 28, MenuItem::CENTER, MENU_MAIN,
+	menuMain->AddItem(new Button(menuSystem, "Create game", Vec2(xx, yy), Vec2(102, 28), MenuItem::CENTER, MENU_MAIN,
 		"Create an online session.",
 		[=]()
 		{
 			GameEngine::GetInstance()->ChangeState(new GameState());
 		})); yy += sep;
-	button = menuMain->AddItem(new Button(menuSystem, "Join game", xx, yy, 102, 28, MenuItem::CENTER, MENU_MAIN,
+	button = menuMain->AddItem(new Button(menuSystem, "Join game", Vec2(xx, yy), Vec2(102, 28), MenuItem::CENTER, MENU_MAIN,
 		"Join the game you've selected in the game-list.",
 		[=]()
 		{
 			menuSystem->QueueMessage("Join game", "This is where one would normally join a game...");
 		})); yy += sep * 2;
 	button->active = false;
-	menuMain->AddItem(new Button(menuSystem, "Options", xx, yy, 102, 28, MenuItem::CENTER, MENU_MAIN,
+	menuMain->AddItem(new Button(menuSystem, "Options", Vec2(xx, yy), Vec2(102, 28), MenuItem::CENTER, MENU_MAIN,
 		"Tinker with audio, video and controller settings.",
 		[=]()
 		{
 			menuMain->GoTo(MENU_OPTIONS);
 		})); yy += sep;
-	menuMain->AddItem(new Button(menuSystem, "My hamster", xx, yy, 102, 28, MenuItem::CENTER, MENU_MAIN,
+	menuMain->AddItem(new Button(menuSystem, "My hamster", Vec2(xx, yy), Vec2(102, 28), MenuItem::CENTER, MENU_MAIN,
 		"Edit your hamster and fantasize about its life.",
 		[=]()
 		{
 			menuSystem->QueueMessage("My hamster", "This is where one would customize one's hamster.");
 		})); yy += sep;
-	menuMain->AddItem(new Button(menuSystem, "Map editor", xx, yy, 102, 28, MenuItem::CENTER, MENU_MAIN,
+	menuMain->AddItem(new Button(menuSystem, "Map editor", Vec2(xx, yy), Vec2(102, 28), MenuItem::CENTER, MENU_MAIN,
 		"Create your own map.",
 		[=]()
 		{
 			menuSystem->QueueMessage("Map editor", "Lorem Ipsum er rett og slett dummytekst fra og for trykkeindustrien. Lorem Ipsum har vært bransjens standard for dummytekst helt siden 1500-tallet, da en ukjent boktrykker stokket en mengde bokstaver for å lage et prøveeksemplar av en bok. Lorem Ipsum har tålt tidens tann usedvanlig godt, og har i tillegg til å bestå gjennom fem århundrer også tålt spranget over til elektronisk typografi uten vesentlige endringer. Lorem Ipsum ble gjort allment kjent i 1960-årene ved lanseringen av Letraset-ark med avsnitt fra Lorem Ipsum, og senere med sideombrekkingsprogrammet Aldus PageMaker som tok i bruk nettopp Lorem Ipsum for dummytekst.");
 		})); yy += sep;
 
-	menuMain->AddItem(new Button(menuSystem, "Quit", xx, (GLint)(box->GetPosition().y + box->GetSize().y - 43), 102, 28, MenuItem::CENTER, MENU_MAIN,
+	menuMain->AddItem(new Button(menuSystem, "Quit", Vec2(xx, (GLint)(box->GetPosition().y + box->GetSize().y - 43)), Vec2(102, 28), MenuItem::CENTER, MENU_MAIN,
 		"Close the game and return to windows.",
 		[=]()
 		{
@@ -354,52 +355,52 @@ void MenuState::CreateMenu()
 	cb = (ContentBox*)menuMain->AddItem(new ContentBox(menuSystem, "Video", centerX - 140, centerY - 150, 280, 300, MENU_OPTIONS));
 	cb = (ContentBox*)menuMain->AddItem(new ContentBox(menuSystem, "Controls", centerX + 160, centerY - 150, 280, 300, MENU_OPTIONS));
 
-	menuMain->AddItem(new Button(menuSystem, "Accept", centerX - 51 - 55, 600, 102, 28, MenuItem::CENTER, MENU_OPTIONS, "Accept these changes.", [=]()
+	menuMain->AddItem(new Button(menuSystem, "Accept", Vec2(centerX - 51 - 55, 600), Vec2(102, 28), MenuItem::CENTER, MENU_OPTIONS, "Accept these changes.", [=]()
 		{
 			menuMain->GoToPrevious();
 		}));
-	menuMain->AddItem(new Button(menuSystem, "Cancel", centerX - 51 + 55, 600, 102, 28, MenuItem::CENTER, MENU_OPTIONS, "Cancel these changes and go back.", [=]()
+	menuMain->AddItem(new Button(menuSystem, "Cancel", Vec2(centerX - 51 + 55, 600), Vec2(102, 28), MenuItem::CENTER, MENU_OPTIONS, "Cancel these changes and go back.", [=]()
 		{
 			menuMain->GoToPrevious();
 		}));
 
 	// Testing contentbox
-	//ContentBox *cb;
-	cb = (ContentBox*)menuMain->AddItem(new ContentBox(menuSystem, "Contentbox!", 100, 200, 400, 400, MENU_SPLASH));
-	this->cb = cb;
-	cb->AddItem(new Slider(menuSystem, "Slider", Vec2(10, 10), cb->GetSize().x - 20, 0.0f, 25.0f, 5.0f, 0, [](){}));
-	cb->AddItem(new SliderRange(menuSystem, "Range-slider", Vec2(10, 5), cb->GetSize().x - 20, 60.0f, 3.0f * 40.0f, 3.0f, 0, [](){}));
-	cb->AddItem(new Button(menuSystem, "Button", 10, 10, cb->GetSize().x - 20, 28, MenuItem::CENTER, 0, "A button!", [](){}));
-
+	cb = (ContentBox*)menuMain->AddItem(new ContentBox(menuSystem, "Contentbox!", centerX - 200, 200, 400, 330, MENU_SPLASH));
+	/*
 	ContentBox *boxception;
 	boxception = (ContentBox*)cb->AddItem(new ContentBox(menuSystem, "Boxception", 10, 35, (GLint)cb->GetSize().x - 20, 200, 0));
-	boxception->AddItem(new Slider(menuSystem, "Slider", Vec2(10, 10), (GLint)boxception->GetSize().x - 34, 0.0f, 100.0f, 5.0f, 0, [](){}));
 
 	ContentBox *deeper;
 	deeper = (ContentBox*)boxception->AddItem(new ContentBox(menuSystem, "Deeper", 10, 35, (GLint)boxception->GetSize().x - 40, 200, 0));
+	*/
 
-	// Testing dropdown
-	Dropdown *dd;
-	for (int i = 0; i < 10; i ++)
-		dd = (Dropdown*)deeper->AddItem(new Dropdown(menuSystem, "", Vec2(10, 10), Vec2(deeper->GetSize().x - 34, 28), MENU_SPLASH, "This is a dropdown!", [](){})); // dropdown in contentbox
-	for (int i = 0; i < 15; i++)
-		dd->AddItem("Dropdown-item #" + toString(i + 1));
+	// Testing radioboxes
+	RadioBox *radioBox;
+	radioBox = (RadioBox*)menuMain->AddItem(new RadioBox(menuSystem, Vec2(100, 200), 200, "What to add?", MENU_SPLASH, [=](){}));
+	GLint rb1, rb2, rb3, rb4, rb5;
+	rb1 = radioBox->AddItem("Button");
+	rb2 = radioBox->AddItem("Slider");
+	rb3 = radioBox->AddItem("Checkbox");
+	rb4 = radioBox->AddItem("Input field");
+	rb5 = radioBox->AddItem("Dropdown");
 
-	// Testing input-field inside contentbox
-	InputField *in;
-	in = (InputField*)deeper->AddItem(new InputField(menuSystem, Vec2(10, 10), deeper->GetSize().x - 34, "Search...", MENU_SPLASH, [=](){}));
-
-	// Testing input-field
-	//InputField *in2;
-	//in2 = (InputField*)menuMain->AddItem(new InputField(menuSystem, Vec2(700, 200), 200, "Enter your name...", MENU_SPLASH, [](){}));
-
-	// Testing text
-	textItem = (Text*)menuMain->AddItem(new Text(menuSystem, "Hello world", Vec2(700, 400), menuSystem->GetFontRegular(), MENU_SPLASH));
-	textItem->SetMaxWidth(deeper->GetSize().x - 34);
-
-	// Testing checkboxes
-	Checkbox* checkBox;
-	checkBox = (Checkbox*)deeper->AddItem(new Checkbox(menuSystem, Vec2(10, 10), "Checkbox", MENU_SPLASH, [=]() {}));
+	menuMain->AddItem(new Button(menuSystem, "Add", Vec2(100, 200 + radioBox->GetSize().y + 10), Vec2(200, 28), MenuItem::Align::CENTER, MENU_SPLASH, "Add selected item to the contentbox.",[=]()
+	{
+		if (radioBox->GetSelected() == rb1)
+			cb->AddItem(new Button(menuSystem, "Button", Vec2(10, 10), Vec2(cb->GetSize().x - 20, 28), MenuItem::Align::CENTER, MENU_SPLASH, "This is a button.", []() {}));
+		if (radioBox->GetSelected() == rb2)
+			cb->AddItem(new Slider(menuSystem, "Slider", Vec2(10, 10), cb->GetSize().x - 20, 0.0f, 100.0f, 1.0f, MENU_SPLASH, []() {}));
+		if (radioBox->GetSelected() == rb3)
+			cb->AddItem(new Checkbox(menuSystem, Vec2(10, 10), "Checkbox", MENU_SPLASH, []() {}));
+		if (radioBox->GetSelected() == rb4)
+			cb->AddItem(new InputField(menuSystem, Vec2(10, 10), cb->GetSize().x - 20, "Input field...", MENU_SPLASH, []() {}));
+		if (radioBox->GetSelected() == rb5)
+		{
+			dd = (Dropdown*)cb->AddItem(new Dropdown(menuSystem, "Dropdown", Vec2(10, 10), Vec2(cb->GetSize().x - 20, 28), MENU_SPLASH, "This is a dropdown.", []() {}));
+			for (int i = 0; i < 10; i++)
+			{ dd->AddItem("Item #" + toString(i)); }
+		}
+	}));
 
 	// On draw-event for Main Menu
 	menuMain->OnDraw([&]()

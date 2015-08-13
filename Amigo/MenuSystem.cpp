@@ -46,12 +46,12 @@ MenuSystem::MenuSystem(Sprite* sprCursor, Sprite* sprUI, Font* fontBold, Font* f
 	overlayBox->visible = false;
 
 	// Button 1
-	overlayItems.push_back(new Button(this, "", 0, 0, 0, 0, MenuItem::CENTER, 0, "", [](){}));
+	overlayItems.push_back(new Button(this, "", Vec2(0, 0), Vec2(0, 0), MenuItem::CENTER, 0, "", [](){}));
 	overlayButton1 = (Button*)overlayItems[overlayItems.size() - 1];
 	overlayButton1->SetOnClick([=](){ this->OnOverlayButton1(); });
 
 	// Button 2
-	overlayItems.push_back(new Button(this, "", 0, 0, 0, 0, MenuItem::CENTER, 0, "", [](){}));
+	overlayItems.push_back(new Button(this, "", Vec2(0, 0), Vec2(0, 0), MenuItem::CENTER, 0, "", [](){}));
 	overlayButton2 = (Button*)overlayItems[overlayItems.size() - 1];
 	overlayButton2->SetOnClick([=](){ this->OnOverlayButton2(); });
 
@@ -227,7 +227,7 @@ void MenuSystem::Draw()
 
 	// Draw debug-text
 	std::string str = toString((GLint)activeDropdown);
-	fontBold->Draw((Context::getWindowWidth() - fontBold->GetWidth(str)) / 2, 10, str);
+	fontBold->Draw(Vec2((Context::getWindowWidth() - fontBold->GetWidth(str)) / 2, 10), str);
 
 	// Draw menus
 	for(GLuint i = 0; i < menus.size(); i ++)
@@ -245,7 +245,7 @@ void MenuSystem::Draw()
 	if (overlayBackgroundAlpha > 0.0f)
 	{
 		GLfloat alpha = overlayBackgroundAlpha * 0.5f;
-		sprUI->Draw(0, 0, 0.0f, wSize.x, wSize.y, Color(0, 0, 0), alpha, 0, 72, 1, 1);
+		sprUI->Draw(Vec2(0, 0), 0.0f, Vec2(wSize.x, wSize.y), Color(0, 0, 0), alpha, 0, 72, 1, 1);
 	}
 
 	// Draw the overlay
@@ -281,7 +281,7 @@ void MenuSystem::Draw()
 	if (cursorOffset > -1)
 	{
 		Vec2 mouse = Input::getMousePos();
-		sprCursor->Draw((GLint)mouse.x, (GLint)mouse.y, 0.0f, 1.0f, 1.0f, 1.0f, cursorOffset * 32, 0, 32, 32);
+		sprCursor->Draw(Vec2((GLint)mouse.x, (GLint)mouse.y), 0.0f, Vec2(1.0f, 1.0f), 1.0f, cursorOffset * 32, 0, 32, 32);
 	}
 }
 
@@ -327,18 +327,18 @@ void MenuSystem::RenderOverlay()
 				wTmp = nW;
 			else
 				wTmp = w - i;
-			sprUI->Draw(x + i, y + n, 0.0f, 1.0f, 1.0f, alpha, 44, 0, wTmp, hTmp);
+			sprUI->Draw(Vec2(x + i, y + n), 0.0f, Vec2(1.0f, 1.0f), alpha, 44, 0, wTmp, hTmp);
 		}
 	}
 
 	// Title
-	fontBold->Draw((GLint)(x + overlayBox->GetSize().x / 2 - fontBold->GetWidth(overlayBox->GetTitle()) / 2),
-		y + 25 + 1,
-		overlayBox->GetTitle(), 0.0f, 1.0f, 1.0f,
+	fontBold->Draw(Vec2((GLint)(x + overlayBox->GetSize().x / 2 - fontBold->GetWidth(overlayBox->GetTitle()) / 2),
+		y + 25 + 1),
+		overlayBox->GetTitle(), 0.0f, Vec2(1.0f, 1.0f),
 		Color(0, 0, 0), 0.5f); // shadow
-	fontBold->Draw((GLint)(x + overlayBox->GetSize().x / 2 - fontBold->GetWidth(overlayBox->GetTitle()) / 2),
-		y + 25,
-		overlayBox->GetTitle(), 0.0f, 1.0f, 1.0f,
+	fontBold->Draw(Vec2((GLint)(x + overlayBox->GetSize().x / 2 - fontBold->GetWidth(overlayBox->GetTitle()) / 2),
+		y + 25),
+		overlayBox->GetTitle(), 0.0f, Vec2(1.0f, 1.0f),
 		Color(255, 255, 255), 1.0f); // actual text
 
 	// Draw text
@@ -563,6 +563,7 @@ void MenuSystem::OverlayInit(std::string title, std::string text)
 	// Update the text-item
 	overlayTextItem->SetText(overlayText);
 	overlayTextItem->SetMaxWidth(350);
+	overlayTextItem->SetAlign(MenuItem::Align::CENTER);
 
 	// Setup box
 	overlayBox->SetTitle(title);
@@ -576,7 +577,7 @@ void MenuSystem::OverlayInit(std::string title, std::string text)
 	overlayBox->SetPosition(Vec2(0, (Context::getWindowHeight() - overlayBox->GetSize().y) / 2));
 
 	// Update the text-item position, based on the box's width
-	overlayTextItem->SetPosition(Vec2((boxSize.x - overlayTextItem->GetSize().x) / 2, 70));
+	overlayTextItem->SetPosition(Vec2(boxSize.x / 2, 70));
 }
 
 // Queue a message
@@ -684,7 +685,7 @@ void MenuSystem::DrawTooltip()
 	alpha = 1.0f;
 
 	// Tooltip-box
-	sprUI->Draw(x - 1, y, 0.0f, 1.0f, 1.0f, alpha, 25, 45, 5, 4); // Left top corner
+	/*sprUI->Draw(x - 1, y, 0.0f, 1.0f, 1.0f, alpha, 25, 45, 5, 4); // Left top corner
 	sprUI->Draw(x - 1, y + 4, 0.0f, 1.0f, (GLfloat)(h - 8) / 20.0f, alpha, 25, 49, 5, 20); // Left side
 	sprUI->Draw(x - 1, y + h - 4, 0.0f, 1.0f, 1.0f, alpha, 25, 69, 5, 7); // Left bottom corner
 	sprUI->Draw(x + w - 4, y + h - 4, 0.0f, 1.0f, 1.0f, alpha, 31, 69, 5, 7); // Right bottom corner
@@ -693,13 +694,16 @@ void MenuSystem::DrawTooltip()
 	sprUI->Draw(x + 4, y, 0.0f, (GLfloat)(w - 8), 1.0f, alpha, 30, 45, 1, 4); // Top
 	sprUI->Draw(x + 4, y + 4, 0.0f, (GLfloat)(w - 8), (GLfloat)(h - 8) / 20.0f, alpha, 30, 49, 1, 20); // Mid
 	sprUI->Draw(x + 4, y + h - 4, 0.0f, (GLfloat)(pointerX - 4), 1.0f, alpha, 30, 69, 1, 7); // Bottom Left
-	sprUI->Draw(x + pointerX + 22, y + h - 4, 0.0f, (GLfloat)(w - pointerX - 22 - 4), 1.0f, alpha, 30, 69, 1, 7); // Bottom Right
-	sprUI->Draw(x + pointerX, y + h - 4, 0.0f, 22, 1.0f, alpha, 30, 69, 1, 3); // Patch above pointer
-	sprUI->Draw(x + pointerX, y + h - 1, 0.0f, 1.0f, 1.0f, alpha, 18, 31, 22, 13); // Pointer
+	sprUI->Draw(x + pointerX + 22, y + h - 4, 0.0f, (GLfloat)(w - pointerX - 22 - 4), 1.0f, alpha, 30, 69, 1, 7); // Bottom Right*/
+
+	sprUI->DrawRectangleFromTexture(Vec2(x - 1, y), Vec2(w, h + 3), Vec2(25, 45), Vec2(5, 7), Vec2(1, 17));
+
+	sprUI->Draw(Vec2(x + pointerX, y + h - 4), 0.0f, Vec2(22, 1.0f), alpha, 30, 69, 1, 3); // Patch above pointer
+	sprUI->Draw(Vec2(x + pointerX, y + h - 1), 0.0f, Vec2(1.0f, 1.0f), alpha, 18, 31, 22, 13); // Pointer
 
 	// Tooltip text
-	fontRegular->DrawLinebreak(x + 8, y + 8, tooltipString, w - 10, 17, Color(255, 255, 255), alpha);
-	fontRegular->DrawLinebreak(x + 8, y + 7, tooltipString, w - 10, 17, Color(95, 95, 95), alpha);
+	fontRegular->DrawLinebreak(Vec2(x + 8, y + 8), tooltipString, w - 10, 17, Color(255, 255, 255), alpha);
+	fontRegular->DrawLinebreak(Vec2(x + 8, y + 7), tooltipString, w - 10, 17, Color(95, 95, 95), alpha);
 }
 
 void MenuSystem::SetCurrentScrollboxFocus(MenuItem* scrollbox)

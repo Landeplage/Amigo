@@ -30,7 +30,7 @@ Dropdown::Dropdown(MenuSystem* menuSystem, std::string text, Vec2 position, Vec2
 	this->sprite = menuSystem->GetSpriteUI();
 
 	// Dropdown-button
-	button = new Button(menuSystem, this->text, position.x, position.y, size.x, size.y, Align::LEFT, menuID, tooltip,
+	button = new Button(menuSystem, this->text, position, size, Align::LEFT, menuID, tooltip,
 		[=]() {
 		if (dropdownItems.size() > 0) // Check if there is any point to activating this dropdown
 		{
@@ -108,8 +108,8 @@ void Dropdown::Draw()
 	bPos = button->GetPosition();
 	bDof = button->GetDrawOffset();
 
-	sprite->Draw(bPos.x + bDof.x + size.x - 30, bPos.y + bDof.y + 2, 0.0f, 1.0f, (GLfloat)((size.y - 4) / 24), 1.0f, 37, 47, 2, 24); // line
-	sprite->Draw(bPos.x + bDof.x + size.x - 20, bPos.y + bDof.y + (GLint)size.y / 2 - 3, 0.0f, 1.0f, 1.0f, 1.0f, 31, 89, 10, 6); // triangle
+	sprite->Draw(Vec2(bPos.x + bDof.x + size.x - 30, bPos.y + bDof.y + 2), 0.0f, Vec2(1.0f, (GLfloat)((size.y - 4) / 24)), 1.0f, 37, 47, 2, 24); // line
+	sprite->Draw(Vec2(bPos.x + bDof.x + size.x - 20, bPos.y + bDof.y + (GLint)size.y / 2 - 3), 0.0f, Vec2(1.0f, 1.0f), 1.0f, 31, 89, 10, 6); // triangle
 }
 
 void Dropdown::Unload()
@@ -303,7 +303,8 @@ void Dropdown::HandleItems()
 
 		if (Input::getMouseLeftReleased())
 		{
-			SetSelectedItem(dropdownItems[itemHover]->id);
+			if (itemHover != -1)
+				SetSelectedItem(dropdownItems[itemHover]->id);
 			function(); // <- Do onClick function
 		}
 	}
@@ -385,8 +386,8 @@ void Dropdown::DrawItems()
 		indH = (GLfloat)maxDropdownHeight / ((GLfloat)(dropdownItems.size() * _ITEMHEIGHT)) * ((GLfloat)(maxDropdownHeight + 7)); // indicator height
 		yOff = floor(abs((GLfloat)scroll / (GLfloat)maxScroll) * (((GLfloat)maxDropdownHeight + 7) - indH)); // indicator movement
 
-		sprite->Draw(position.x + origin.x + size.x - 6, y + 1, 0.0f, 1, maxDropdownHeight + 9, Color(0, 0, 0), 0.25f, 5, 5, 1, 1); // line
-		sprite->Draw(position.x + origin.x + size.x - 4, y + 2 + yOff, 0.0f, 2, indH, Color(0, 0, 0), 0.25f, 5, 5, 1, 1); // indicator
+		sprite->Draw(Vec2(position.x + origin.x + size.x - 6, y + 1), 0.0f, Vec2(1, maxDropdownHeight + 9), Color(0, 0, 0), 0.25f, 5, 5, 1, 1); // line
+		sprite->Draw(Vec2(position.x + origin.x + size.x - 4, y + 2 + yOff), 0.0f, Vec2(2, indH), Color(0, 0, 0), 0.25f, 5, 5, 1, 1); // indicator
 	}
 }
 
@@ -478,7 +479,7 @@ void Dropdown::UpdateRendertarget()
 	// Draw item texts
 	for (int i = 0; i < dropdownItems.size(); i++)
 	{
-		font->Draw(9, (i * _ITEMHEIGHT) + 7 + scroll, dropdownItems[i]->displayText, 0.0f, 1.0f, 1.0f, Color(139, 98, 38), 1.0f);
+		font->Draw(Vec2(9, (i * _ITEMHEIGHT) + 7 + scroll), dropdownItems[i]->displayText, 0.0f, Vec2(1.0f, 1.0f), Color(139, 98, 38), 1.0f);
 	}
 
 	// Perform render
@@ -530,9 +531,9 @@ void Dropdown::UpdateHighlightRendertarget()
 		{
 			if (itemHover == i)
 			{
-				sprite->Draw(0, 0, 0.0f, hrt->GetSize().x, 1.0f, 1.0f, 40, 47, 1, 24); // highlight-box
-				font->Draw(8, 4 + 1, dropdownItems[i]->displayText, 0.0f, 1.0f, 1.0f, Color(255, 255, 255), 0.5f); // text-highlight
-				font->Draw(8, 4, dropdownItems[i]->displayText, 0.0f, 1.0f, 1.0f, Color(139, 98, 38), 1.0f); // text
+				sprite->Draw(Vec2(0, 0), 0.0f, Vec2(hrt->GetSize().x, 1.0f), 1.0f, 40, 47, 1, 24); // highlight-box
+				font->Draw(Vec2(8, 4 + 1), dropdownItems[i]->displayText, 0.0f, Vec2(1.0f, 1.0f), Color(255, 255, 255), 0.5f); // text-highlight
+				font->Draw(Vec2(8, 4), dropdownItems[i]->displayText, 0.0f, Vec2(1.0f, 1.0f), Color(139, 98, 38), 1.0f); // text
 			}
 		}
 	}

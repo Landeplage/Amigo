@@ -30,6 +30,13 @@ Text::Text(MenuSystem* menuSystem, std::string text, Vec2 position, Font* font, 
 	// Init shadow's attributes
 	shadowColor = Color(255, 255, 255);
 	shadowAlpha = 0.6f;
+
+	// Init textmode
+	textMode = TextMode::LINEBREAK;
+
+	// Init alignment
+	align = MenuItem::Align::LEFT;
+	alignOffset = 0;
 }
 
 void Text::Unload()
@@ -51,7 +58,7 @@ void Text::Update(GLdouble time)
 void Text::Draw()
 {
 	// Draw the rendertarget
-	rt->Draw(position.x + drawOffset.x, position.y + drawOffset.y - 3, alpha);
+	rt->Draw(position.x + drawOffset.x + alignOffset, position.y + drawOffset.y - 3, alpha);
 }
 
 // Set the text
@@ -99,18 +106,24 @@ void Text::UpdateRendertarget()
 	if (maxWidth <= 0) // If no width has been specified...
 	{
 		// Draw highlight (text is drawn slightly downward because "Å" would get cut off)
-		font->Draw(0, 4, text, 0.0f, 1.0f, 1.0f, Color(255, 255, 255), 0.6f);
+		font->Draw(Vec2(0, 4), text, 0.0f, Vec2(1.0f, 1.0f), shadowColor, shadowAlpha);
 
 		// Draw text
-		font->Draw(0, 3, text, 0.0f, 1.0f, 1.0f, color, 1.0f);
+		font->Draw(Vec2(0, 3), text, 0.0f, Vec2(1.0f, 1.0f), color, 1.0f);
 	}
-	else // If a linebreak-width has been specified
+	else // A width has been specified
 	{
-		// Draw shadow/highlight one pixel below the regular text
-		font->DrawLinebreak(0, 4, text, maxWidth, LINEBREAK_HEIGHT, shadowColor, shadowAlpha);
-
-		// Draw text (btw, text is drawn slightly downward to prevent characters like "Å" from getting cut off)
-		font->DrawLinebreak(0, 3, text, maxWidth, LINEBREAK_HEIGHT, color, 1.0f);
+		switch (textMode)
+		{
+		case LINEBREAK:
+			font->DrawLinebreak(Vec2(0, 4), text, maxWidth, LINEBREAK_HEIGHT, shadowColor, shadowAlpha);
+			font->DrawLinebreak(Vec2(0, 3), text, maxWidth, LINEBREAK_HEIGHT, color, 1.0f);
+			break;
+		case TRUNCATE:
+			font->DrawShorten(Vec2(0, 4), text, 0.0f, Vec2(1.0f, 1.0f), shadowColor, shadowAlpha, maxWidth);
+			font->DrawShorten(Vec2(0, 3), text, 0.0f, Vec2(1.0f, 1.0f), color, alpha, maxWidth);
+			break;
+		}
 	}
 
 	// Perform rendering
@@ -121,13 +134,21 @@ void Text::UpdateRendertarget()
 void Text::UpdateAttributes()
 {
 	// Update size
-	if (maxWidth <= 0) // If no linebreak-width has been specified
+	if (maxWidth <= 0) // If no maximum-width has been specified
 	{
 		SetSize(Vec2(font->GetWidth(text), font->GetHeight(text) + 1));
 	}
-	else // If a linebreak-width has been specified
+	else // If max width has been specified
 	{
-		SetSize(Vec2(font->GetWidth(text, maxWidth), font->GetHeight(text, maxWidth, LINEBREAK_HEIGHT) + 1));
+		switch (textMode)
+		{
+		case LINEBREAK:
+			SetSize(Vec2(font->GetWidth(text, maxWidth), font->GetHeight(text, maxWidth, LINEBREAK_HEIGHT) + 1));
+			break;
+		case TRUNCATE:
+			SetSize(Vec2(font->GetWidth(font->TruncateString(text, maxWidth)), font->GetHeight(font->TruncateString(text, maxWidth)) + 5));
+			break;
+		}
 	}
 
 	// Update rendertarget
@@ -139,4 +160,38 @@ void Text::SetShadowAttributes(Color color, GLfloat alpha)
 {
 	shadowColor = color;
 	shadowAlpha = alpha;
+
+	// Update attributes
+	UpdateAttributes();
+}
+
+// Set how the text handles strings that are wider than maxWidth
+void Text::SetTextMode(TextMode textMode)
+{
+	this->textMode = textMode;
+
+	// Update attributes
+	UpdateAttributes();
+}
+
+// Set how the text aligns
+void Text::SetAlign(Align align)
+{
+	this->align = align;
+
+	// Find out the width of the text
+	GLint tmpWidth = 0;
+	switch (textMode)
+	{
+	case TextMode::LINEBREAK: tmpWidth = font->GetWidth(text, maxWidth); break;
+	case TextMode::TRUNCATE: tmpWidth = font->GetWidth(font->TruncateString(text, maxWidth)); break;
+	}
+
+	// Set alignment offset based on width
+	switch (align)
+	{
+	case Align::LEFT: break;
+	case Align::RIGHT: alignOffset = -tmpWidth; break;
+	case Align::CENTER: alignOffset = -(tmpWidth / 2); break;
+	}
 }

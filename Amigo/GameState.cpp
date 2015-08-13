@@ -101,10 +101,10 @@ void GameState::Update(GLdouble time)
 void GameState::Draw()
 {
 	// Draw background
-	sprBackground->Draw(0, 0);
+	sprBackground->Draw(Vec2(0, 0));
 
 	// Draw ground
-	sprGround->Draw(0, 720 - 191);
+	sprGround->Draw(Vec2(0, 720 - 191));
 
 	// Draw player
 	player.Draw();
@@ -123,7 +123,7 @@ void GameState::Draw()
 
 			dir = Vec2Dir(hprev, h);
 			len = Vec2Len(hprev, h);
-			sprPoint->Draw((int)(h.x - 1), (int)(h.y - 1), 0.0f, 3, 3, 1.0f, 10, 10, 1, 1);
+			sprPoint->Draw(Vec2((int)(h.x - 1), (int)(h.y - 1)), 0.0f, Vec2(3, 3), 1.0f, 10, 10, 1, 1);
 
 			hprev = h;
 		}
@@ -134,12 +134,12 @@ void GameState::Draw()
 	{
 		for(unsigned int i = 0; i < splinePoints.size(); i ++)
 		{
-			sprPoint->Draw((int)splinePoints[i].x - 15, (int)splinePoints[i].y - 15);
-			font->Draw((int)splinePoints[i].x - 7, (int)splinePoints[i].y - 7, toString((int)i));
-			sprPoint->Draw((int)splinePoints[i].x, (int)splinePoints[i].y,
+			sprPoint->Draw(Vec2((int)splinePoints[i].x - 15, (int)splinePoints[i].y - 15));
+			font->Draw(Vec2((int)splinePoints[i].x - 7, (int)splinePoints[i].y - 7), toString((int)i));
+			sprPoint->Draw(Vec2((int)splinePoints[i].x, (int)splinePoints[i].y),
 				Vec2Dir(splinePoints[i] + splineVelocities[i], splinePoints[i]),
-				Vec2Len(splinePoints[i] + splineVelocities[i], splinePoints[i]),
-				1.0f, 0.5f, 10, 10, 1, 1);
+				Vec2(Vec2Len(splinePoints[i] + splineVelocities[i], splinePoints[i]),
+				1.0f), 0.5f, 10, 10, 1, 1);
 		}
 	}
 
@@ -163,7 +163,7 @@ void GameState::Draw()
 	{
 		Vec2 h; 
 		h = GetCatmullrom(&splinePoints, &splineVelocities, t);
-		sprPoint->Draw((int)(h.x - 15), (int)(h.y - 15), 0.0f, 1.0f, 1.0f, Color(255, 128, 128), 1.0f);
+		sprPoint->Draw(Vec2((int)(h.x - 15), (int)(h.y - 15)), 0.0f, Vec2(1.0f, 1.0f), Color(255, 128, 128), 1.0f);
 	}
 
 	// Draw a point the eases in/out
@@ -172,14 +172,14 @@ void GameState::Draw()
 	if (tTemp > 1.0f)
 		tTemp = 2.0f - tTemp;
 	Vec2 v = Vec2(200 * EaseQuadInOut(tTemp), 100.0f);
-	sprPoint->Draw(20 + (int)(v.x - 15), (int)(v.y - 15));
+	sprPoint->Draw(Vec2(20 + (int)(v.x - 15), (int)(v.y - 15)));
 
 	// Draw a point at the mouse position
 	Vec2 mouse = Input::getMousePos();
-	sprPoint->Draw(mouse.x, mouse.y, 0.0f, 1.0f, 1.0f, (float)mouseIsInsideSpline);
+	sprPoint->Draw(Vec2(mouse.x, mouse.y), 0.0f, Vec2(1.0f, 1.0f), (float)mouseIsInsideSpline);
 
 	// Debug text
-	font->Draw(10, 10, toString(t));
+	font->Draw(Vec2(10, 10), toString(t));
 }
 
 Vec2* GameState::AddVector(Vec2 position)

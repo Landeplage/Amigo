@@ -24,7 +24,7 @@ Slider::Slider(MenuSystem *menuSystem, std::string text, Vec2 position, GLint wi
 	this->font = menuSystem->GetFontRegular();
 	this->sprite = menuSystem->GetSpriteUI();
 
-	button = new Button(menuSystem, "", (GLint)position.x, (GLint)(position.y + font->GetHeight("Mj")), 1, 1, CENTER, 0, "", onRelease);
+	button = new Button(menuSystem, "", Vec2((GLint)position.x, (GLint)(position.y + font->GetHeight("Mj"))), Vec2(1, 1), CENTER, 0, "", onRelease);
 	children.push_back(button);
 
 	this->value = min;
@@ -106,8 +106,8 @@ void Slider::Draw()
 	DrawCommonElements(x, y, alpha);
 
 	// Draw filled part of slider-back
-	sprite->Draw(x - 1, y, 0.0f, 1.0f, 1.0f, alpha, 14, 31, 3, 7); // Fill (left)
-	sprite->Draw(x + 2, y, 0.0f, (GLfloat)(button->GetPosition().x - position.x - 2), 1.0f, alpha, 17, 31, 1, 7); // Fill (mid)
+	sprite->Draw(Vec2(x - 1, y), 0.0f, Vec2(1.0f, 1.0f), alpha, 14, 31, 3, 7); // Fill (left)
+	sprite->Draw(Vec2(x + 2, y), 0.0f, Vec2((GLfloat)(button->GetPosition().x - position.x - 2), 1.0f), alpha, 17, 31, 1, 7); // Fill (mid)
 
 	// Draw the button
 	button->Draw();
@@ -117,17 +117,17 @@ void Slider::Draw()
 void Slider::DrawCommonElements(GLint x, GLint y, GLfloat alpha)
 {
 	// Draw slider-back
-	sprite->Draw(x, y, 0.0f, 1.0f, 1.0f, alpha, 9, 31, 2, 5); // Slider-back (left)
-	sprite->Draw(x + 2, y, 0.0f, (GLfloat)(size.x - 4), 1.0f, alpha, 11, 31, 1, 5); // Slider-back (left)
-	sprite->Draw(x + (GLint)size.x - 2, y, 0.0f, 1.0f, 1.0f, alpha, 12, 31, 2, 5); // Slider-back (right)
+	sprite->Draw(Vec2(x, y), 0.0f, Vec2(1.0f, 1.0f), alpha, 9, 31, 2, 5); // Slider-back (left)
+	sprite->Draw(Vec2(x + 2, y), 0.0f, Vec2((GLfloat)(size.x - 4), 1.0f), alpha, 11, 31, 1, 5); // Slider-back (left)
+	sprite->Draw(Vec2(x + (GLint)size.x - 2, y), 0.0f, Vec2(1.0f, 1.0f), alpha, 12, 31, 2, 5); // Slider-back (right)
 
 	// Draw slider-info text
 	GLuint c = 255 * alpha;
-	font->Draw(x, (GLint)position.y + drawOffset.y + 1, text, 0.0f, 1.0f, 1.0f, Color(c, c, c), alpha * 0.6f); // info-text highlight
-	font->Draw((GLint)(x + size.x - font->GetWidth(valueString)), (GLint)position.y + drawOffset.y + 1, valueString, 0.0f, 1.0f, 1.0f, Color(255, 255, 255), alpha * 0.6f); // value highlight
+	font->Draw(Vec2(x, (GLint)position.y + drawOffset.y + 1), text, 0.0f, Vec2(1.0f, 1.0f), Color(c, c, c), alpha * 0.6f); // info-text highlight
+	font->Draw(Vec2((GLint)(x + size.x - font->GetWidth(valueString)), (GLint)position.y + drawOffset.y + 1), valueString, 0.0f, Vec2(1.0f, 1.0f), Color(255, 255, 255), alpha * 0.6f); // value highlight
 
-	font->Draw(x, (GLint)position.y + drawOffset.y, text, 0.0f, 1.0f, 1.0f, Color(139, 98, 38), alpha); // info-text
-	font->Draw((GLint)(x + size.x - font->GetWidth(valueString)), (GLint)position.y + drawOffset.y, valueString, 0.0f, 1.0f, 1.0f, Color(139, 98, 38), alpha); // value
+	font->Draw(Vec2(x, (GLint)position.y + drawOffset.y), text, 0.0f, Vec2(1.0f, 1.0f), Color(139, 98, 38), alpha); // info-text
+	font->Draw(Vec2((GLint)(x + size.x - font->GetWidth(valueString)), (GLint)position.y + drawOffset.y), valueString, 0.0f, Vec2(1.0f, 1.0f), Color(139, 98, 38), alpha); // value
 }
 
 // Set the value of the slider

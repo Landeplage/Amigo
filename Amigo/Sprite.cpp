@@ -113,9 +113,9 @@ bool Sprite::LoadTexture(const char *imagePath)
 		printf("\tPremultiplying %i pixels...\n", width * height);
 		for(int i = 0; i < width * height * 4; i += 4)
 		{
-			// Print five first pixels before multiplication
+			/*// Print five first pixels before multiplication
 			if (i < 5 * 4)
-				printf("\tPixel %i before = \t%.2f \t%.2f \t%.2f \t%.2f\n", (int)(i / 4), imageData[i] / 255.0f, imageData[i + 1] / 255.0f, imageData[i + 2] / 255.0f, imageData[i + 3] / 255.0f);
+				printf("\tPixel %i before = \t%.2f \t%.2f \t%.2f \t%.2f\n", (int)(i / 4), imageData[i] / 255.0f, imageData[i + 1] / 255.0f, imageData[i + 2] / 255.0f, imageData[i + 3] / 255.0f);*/
 				
 			// Premultiplicate alphas
 			for(int n = 0; n < 3; n ++)
@@ -123,9 +123,9 @@ bool Sprite::LoadTexture(const char *imagePath)
 				//imageData[i + n] = (unsigned char)(((imageData[i + n] / 255.0f) * (imageData[i + 3] / 255.0f)) * 255.0f);
 			}
 
-			// Print five first pixels after multiplication
+			/*// Print five first pixels after multiplication
 			if (i < 5 * 4)
-				printf("\tPixel %i after = \t%.2f \t%.2f \t%.2f\n", (int)(i / 4), imageData[i] / 255.0f, imageData[i + 1] / 255.0f, imageData[i + 2] / 255.0f);
+				printf("\tPixel %i after = \t%.2f \t%.2f \t%.2f\n", (int)(i / 4), imageData[i] / 255.0f, imageData[i + 1] / 255.0f, imageData[i + 2] / 255.0f);*/
 		};
 	}
 
@@ -199,27 +199,27 @@ bool Sprite::LoadTexture(const char *imagePath)
 	return true;
 }
 
-void Sprite::Draw(GLint x, GLint y)
+void Sprite::Draw(Vec2 position)
 {
-	Draw(x, y, 0.0f, 1.0f, 1.0f, 1.0f, 0, 0, width, height);
+	Draw(position, 0.0f, Vec2(1.0f, 1.0f), 1.0f, 0, 0, width, height);
 }
 
-void Sprite::Draw(GLint x, GLint y, GLfloat rotation, GLfloat scaleX, GLfloat scaleY, GLfloat alpha)
+void Sprite::Draw(Vec2 position, GLfloat rotation, Vec2 scale, GLfloat alpha)
 {
-	Draw(x, y, rotation, scaleX, scaleY, alpha, 0, 0, width, height);
+	Draw(position, rotation, scale, alpha, 0, 0, width, height);
 }
 
-void Sprite::Draw(GLint x, GLint y, GLfloat rotation, GLfloat scaleX, GLfloat scaleY, Color color, GLfloat alpha)
+void Sprite::Draw(Vec2 position, GLfloat rotation, Vec2 scale, Color color, GLfloat alpha)
 {
-	Draw(x, y, rotation, scaleX, scaleY, color, alpha, 0, 0, width, height);
+	Draw(position, rotation, scale, color, alpha, 0, 0, width, height);
 }
 
-void Sprite::Draw(GLint x, GLint y, GLfloat rotation, GLfloat scaleX, GLfloat scaleY, GLfloat alpha, GLint xx, GLint yy, GLint w, GLint h)
+void Sprite::Draw(Vec2 position, GLfloat rotation, Vec2 scale, GLfloat alpha, GLint xx, GLint yy, GLint w, GLint h)
 {
-	Draw(x, y, rotation, scaleX, scaleY, Color(255, 255, 255), alpha, xx, yy, w, h);
+	Draw(position, rotation, scale, Color(255, 255, 255), alpha, xx, yy, w, h);
 }
 
-void Sprite::Draw(GLint x, GLint y, GLfloat rotation, GLfloat scaleX, GLfloat scaleY, Color color, GLfloat alpha, GLint xx, GLint yy, GLint w, GLint h)
+void Sprite::Draw(Vec2 position, GLfloat rotation, Vec2 scale, Color color, GLfloat alpha, GLint xx, GLint yy, GLint w, GLint h)
 {
 	// Bind texture
 	glBindTexture(GL_TEXTURE_2D, texture);
@@ -228,7 +228,7 @@ void Sprite::Draw(GLint x, GLint y, GLfloat rotation, GLfloat scaleX, GLfloat sc
 	glPushMatrix();
 
 	// Rotate and translate the quad
-	glTranslatef((GLfloat)x, (GLfloat)y, 0.0f);
+	glTranslatef(position.x, position.y, 0.0f);
 	glRotatef(rotation, 0.0f, 0.0f, 1.0f);
 
 	// Calculate coordinates
@@ -244,10 +244,10 @@ void Sprite::Draw(GLint x, GLint y, GLfloat rotation, GLfloat scaleX, GLfloat sc
 
 	// Draw the textured quad
 	glBegin(GL_QUADS);
-	glTexCoord2d(coX1, coY1); glVertex2d(-originX * scaleX,		-originY * scaleY);
-	glTexCoord2d(coX2, coY1); glVertex2d((w - originX) * scaleX,	-originY * scaleY);
-	glTexCoord2d(coX2, coY2); glVertex2d((w - originX) * scaleX,	(h - originY) * scaleY);
-	glTexCoord2d(coX1, coY2); glVertex2d(-originX * scaleX,		(h - originY) * scaleY);
+	glTexCoord2d(coX1, coY1); glVertex2d(-originX * scale.x,		-originY * scale.y);
+	glTexCoord2d(coX2, coY1); glVertex2d((w - originX) * scale.x,	-originY * scale.y);
+	glTexCoord2d(coX2, coY2); glVertex2d((w - originX) * scale.x,	(h - originY) * scale.y);
+	glTexCoord2d(coX1, coY2); glVertex2d(-originX * scale.x,		(h - originY) * scale.y);
 	glEnd();
 
 	// Pop the matrix
@@ -285,29 +285,29 @@ void Sprite::DrawRectangleFromTexture(Vec2 position, Vec2 size, Vec2 imageCoordi
 	vpix = sidePixels.y;
 
 	// Middle
-	Draw(x + csx, y + csy, r, (w - (csx * 2)) / hpix, (h - (csy * 2)) / vpix, c, a, icx + csx, icy + csy, hpix, vpix);
+	Draw(Vec2(x + csx, y + csy), r, Vec2((w - (csx * 2)) / hpix, (h - (csy * 2)) / vpix), c, a, icx + csx, icy + csy, hpix, vpix);
 
 	// Top left corner
-	Draw(x, y, r, 1.0f, 1.0f, c, a, icx, icy, csx, csy);
+	Draw(Vec2(x, y), r, Vec2(1.0f, 1.0f), c, a, icx, icy, csx, csy);
 
 	// Top
-	Draw(x + csx, y, r, (w - (csx * 2)) / hpix, 1.0f, c, a, icx + csx, icy, hpix, csy);
+	Draw(Vec2(x + csx, y), r, Vec2((w - (csx * 2)) / hpix, 1.0f), c, a, icx + csx, icy, hpix, csy);
 
 	// Top right corner
-	Draw(x + w - csx, y, r, 1.0f, 1.0f, c, a, icx + csx + hpix, icy, csx, csy);
+	Draw(Vec2(x + w - csx, y), r, Vec2(1.0f, 1.0f), c, a, icx + csx + hpix, icy, csx, csy);
 
 	// Right side
-	Draw(x + w - csx, y + csy, r, 1.0f, (h - (csy * 2)) / vpix, c, a, icx + csx + hpix, icy + csy, csx, vpix);
+	Draw(Vec2(x + w - csx, y + csy), r, Vec2(1.0f, (h - (csy * 2)) / vpix), c, a, icx + csx + hpix, icy + csy, csx, vpix);
 
 	// Bottom right corner
-	Draw(x + w - csx, y + h - csy, r, 1.0f, 1.0f, c, a, icx + csx + hpix, icy + csy + vpix, csx, csy);
+	Draw(Vec2(x + w - csx, y + h - csy), r, Vec2(1.0f, 1.0f), c, a, icx + csx + hpix, icy + csy + vpix, csx, csy);
 
 	// Bottom
-	Draw(x + csx, y + h - csy, r, (w - (csx * 2)) / hpix, 1.0f, c, a, icx + csx, icy + csy + vpix, hpix, csy);
+	Draw(Vec2(x + csx, y + h - csy), r, Vec2((w - (csx * 2)) / hpix, 1.0f), c, a, icx + csx, icy + csy + vpix, hpix, csy);
 
 	// Bottom left corner
-	Draw(x, y + h - csy, r, 1.0f, 1.0f, c, a, icx, icy + csy + vpix, csx, csy);
+	Draw(Vec2(x, y + h - csy), r, Vec2(1.0f, 1.0f), c, a, icx, icy + csy + vpix, csx, csy);
 
 	// Left side
-	Draw(x, y + csy, r, 1.0f, (h - (csy * 2)) / vpix, c, a, icx, icy + csy, csx, vpix);
+	Draw(Vec2(x, y + csy), r, Vec2(1.0f, (h - (csy * 2)) / vpix), c, a, icx, icy + csy, csx, vpix);
 }

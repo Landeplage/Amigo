@@ -132,13 +132,10 @@ void Menu::Update(GLdouble time)
 	Render();
 }
 
-// Draw the rendertarget texture
 void Menu::Draw()
 {
-	// Draw rendertarget
-	GLfloat tmpScale;
-
 	// Scale
+	GLfloat tmpScale;
 	tmpScale = 1.0f + (slide * scale);
 	
 	// Draw the rendertarget

@@ -16,9 +16,9 @@ ContentBox::ContentBox(MenuSystem* menuSystem, std::string title, GLint x, GLint
 	this->menuID = menuID;
 
 box = new Box(menuSystem, title, x, y, w, h, menuID);
-scrollButtonVer = new Button(menuSystem, "", position.x + size.x - SB_WIDTH, position.y, SB_WIDTH, SB_BMINHEIGHT, MenuItem::Align::CENTER, menuID, "", []() {});
+scrollButtonVer = new Button(menuSystem, "", Vec2(position.x + size.x - SB_WIDTH, position.y), Vec2(SB_WIDTH, SB_BMINHEIGHT), MenuItem::Align::CENTER, menuID, "", []() {});
 scrollButtonVer->active = false;
-scrollButtonHor = new Button(menuSystem, "", position.x, position.y + size.y - SB_WIDTH, SB_BMINHEIGHT, SB_WIDTH, MenuItem::Align::CENTER, menuID, "", []() {});
+scrollButtonHor = new Button(menuSystem, "", Vec2(position.x, position.y + size.y - SB_WIDTH), Vec2(SB_BMINHEIGHT, SB_WIDTH), MenuItem::Align::CENTER, menuID, "", []() {});
 scrollButtonHor->active = false;
 scrollButtonMouseOffset = Vec2();
 scroll = Vec2(0.0f, 0.0f);
@@ -193,17 +193,17 @@ void ContentBox::Draw()
 	// Horizontal scroller
 	if (scrollButtonHor->active)
 	{
-		menuSystem->GetSpriteUI()->Draw(position.x + drawOffset.x + 1, scrollButtonHor->GetPosition().y + drawOffset.y,  0.0f, size.x - 2, 1.0f, Color(255, 255, 255), 1.0f, 0, 52, 1, 1); // line
+		menuSystem->GetSpriteUI()->Draw(Vec2(position.x + drawOffset.x + 1, scrollButtonHor->GetPosition().y + drawOffset.y),  0.0f, Vec2(size.x - 2, 1.0f), Color(255, 255, 255), 1.0f, 0, 52, 1, 1); // line
 		scrollButtonHor->Draw();
-		menuSystem->GetSpriteUI()->Draw(scrollButtonHor->GetPosition().x + drawOffset.x + scrollButtonHor->GetSize().x / 2 - 5, scrollButtonHor->GetPosition().y + drawOffset.y + (SB_WIDTH - 8) / 2 + 8, 270.0f, 8.0f, 1.0f, 1.0f, 8, 31, 1, 10); // lines on scrollerbutton
+		menuSystem->GetSpriteUI()->Draw(Vec2(scrollButtonHor->GetPosition().x + drawOffset.x + scrollButtonHor->GetSize().x / 2 - 5, scrollButtonHor->GetPosition().y + drawOffset.y + (SB_WIDTH - 8) / 2 + 8), 270.0f, Vec2(8.0f, 1.0f), 1.0f, 8, 31, 1, 10); // lines on scrollerbutton
 	}
 
 	// Vertical scroller
 	if (scrollButtonVer->active)
 	{
-		menuSystem->GetSpriteUI()->Draw(scrollButtonVer->GetPosition().x + drawOffset.x, position.y + drawOffset.y + 1, 0.0f, 1.0f, size.y - 2, Color(255, 255, 255), 1.0f, 0, 52, 1, 1); // line
+		menuSystem->GetSpriteUI()->Draw(Vec2(scrollButtonVer->GetPosition().x + drawOffset.x, position.y + drawOffset.y + 1), 0.0f, Vec2(1.0f, size.y - 2), Color(255, 255, 255), 1.0f, 0, 52, 1, 1); // line
 		scrollButtonVer->Draw();
-		menuSystem->GetSpriteUI()->Draw(scrollButtonVer->GetPosition().x + drawOffset.x + (SB_WIDTH - 8) / 2, scrollButtonVer->GetPosition().y + drawOffset.y + scrollButtonVer->GetSize().y / 2 - 5, 0.0f, 8.0f, 1.0f, 1.0f, 8, 31, 1, 10); // lines on scrollerbutton
+		menuSystem->GetSpriteUI()->Draw(Vec2(scrollButtonVer->GetPosition().x + drawOffset.x + (SB_WIDTH - 8) / 2, scrollButtonVer->GetPosition().y + drawOffset.y + scrollButtonVer->GetSize().y / 2 - 5), 0.0f, Vec2(8.0f, 1.0f), 1.0f, 8, 31, 1, 10); // lines on scrollerbutton
 	}
 }
 
@@ -251,9 +251,22 @@ MenuItem* ContentBox::AddItem(MenuItem* item, Vec2 position, Vec2 size)
 {
 	// Add new item to vector
 	items.push_back(item);
+	
+	// Set some attributes
 	item->SetPosition(position);
 	item->SetSize(size);
 	item->SetOrigin(this->position);
+
+	// Set callback functions for when item changes position or size
+	item->SetPositionCallback([=]()
+	{
+		RefreshContentBox();
+	});
+
+	item->SetSizeCallback([=]()
+	{
+		RefreshContentBox();
+	});
 
 	// Update the scroll content size
 	UpdateScrollContentSize();
@@ -672,4 +685,29 @@ void ContentBox::SetDrawOffset(Vec2 drawOffset)
 	scrollButtonHor->SetDrawOffset(drawOffset);
 	scrollButtonVer->SetDrawOffset(drawOffset);
 	UpdateItemAttributes();
+}
+
+// Do a complete refresh of the contentbox
+void ContentBox::RefreshContentBox()
+{
+	// Update the scroll content size
+	UpdateScrollContentSize();
+
+	// Enable scroller-button if need be, and autosize it
+	UpdateHorizontalScrollButtonAttributes();
+	UpdateVerticalScrollButtonAttributes();
+
+	// Repeat scrollbutton attribute updates, in case either changed state
+	UpdateHorizontalScrollButtonAttributes();
+	UpdateVerticalScrollButtonAttributes();
+
+	// Make sure scrollers are moved to their places, and items are updated
+	SetScrollX(scroll.x);
+	SetScrollY(scroll.y);
+
+	// Resize rendertarget
+	ResizeRendertarget();
+
+	// Render items to rendertarget
+	Render();
 }

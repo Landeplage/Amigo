@@ -48,8 +48,8 @@ void Box::Draw()
 	// Draw title over box
 	if (title != "")
 	{
-		font->DrawShorten(x + 5, y - 17, title, 0.0f, 1.0f, 1.0f, Color(255, 255, 255), alpha * 0.5f, w - 10);
-		font->DrawShorten(x + 5, y - 18, title, 0.0f, 1.0f, 1.0f, Color(116, 85, 38), alpha, w - 10);
+		font->DrawShorten(Vec2(x + 5, y - 17), title, 0.0f, Vec2(1.0f, 1.0f), Color(255, 255, 255), alpha * 0.5f, w - 10);
+		font->DrawShorten(Vec2(x + 5, y - 18), title, 0.0f, Vec2(1.0f, 1.0f), Color(116, 85, 38), alpha, w - 10);
 	}
 }
 
