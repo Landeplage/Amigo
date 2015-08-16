@@ -162,6 +162,12 @@
     <ClCompile Include="RadioBox.cpp">
       <Filter>Source files\Menu\Elements</Filter>
     </ClCompile>
+    <ClCompile Include="ListBox.cpp">
+      <Filter>Source files\Menu\Elements</Filter>
+    </ClCompile>
+    <ClCompile Include="ListItem.cpp">
+      <Filter>Source files\Menu\Elements</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MenuState.h">
@@ -267,6 +273,12 @@
       <Filter>Header files\Menu\Elements</Filter>
     </ClInclude>
     <ClInclude Include="RadioBox.h">
+      <Filter>Header files\Menu\Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="ListBox.h">
+      <Filter>Header files\Menu\Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="ListItem.h">
       <Filter>Header files\Menu\Elements</Filter>
     </ClInclude>
   </ItemGroup>

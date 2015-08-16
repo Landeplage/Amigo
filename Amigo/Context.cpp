@@ -47,6 +47,9 @@ int Context::Initialize()
 	glfwSetWindowCloseCallback(window, CloseWindow);
 	//glfwDisable(GLFW_MOUSE_CURSOR);
 
+	// Hide cursor
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+
 	// Initialize Glew
 	GLenum err = glewInit();
 	if (GLEW_OK != err)

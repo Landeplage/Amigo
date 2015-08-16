@@ -21,20 +21,34 @@ public:
 
 	void SetScrollX(GLfloat scroll);
 	void SetScrollY(GLfloat scroll);
+
 	void SetPosition(Vec2 position);
 	void SetSize(Vec2 size);
 	void SetOrigin(Vec2 origin);
 	void SetDrawOffset(Vec2 drawOffset);
 
+	void SetPadding(GLint padding);
+	void SetHorizontalPadding(GLint horPadding);
+	void SetVerticalPadding(GLint verPadding);
+
 	void UpdateItemAttributes();
+
+	enum ResizeMode
+	{
+		NONE, // no automatic resizing when adding items
+		RESIZE_WIDTH // auto-adjust width on items
+	};
+	void SetResizeMode(ResizeMode resizeMode);
 
 private:
 	void Render();
 	void UpdateActiveItemsList();
 	bool CheckChildrenFocus(std::vector<MenuItem*> items, MenuItem* focus);
+	bool CheckChildrenFocus(MenuItem* item, MenuItem* focus);
 	void ResizeRendertarget();
 	void UpdateScrollContentSize();
 	void RefreshContentBox();
+	void ResizeItems();
 
 	void HandleHorizontalScrollButton();
 	void HandleVerticalScrollButton();
@@ -48,18 +62,15 @@ private:
 	std::vector<MenuItem*> items;
 	std::vector<MenuItem*> activeItems;
 
-	// List of items that should be autoresized
-	struct AutoResize
-	{
-		MenuItem* item;
-		bool resizeX, resizeY;
-	};
-
-	std::vector<AutoResize*> itemsAutoresize;
-
 	// Scroller members
 	Button *scrollButtonHor, *scrollButtonVer;
 	Vec2 scrollButtonMouseOffset;
 	GLfloat mouseWheelScroll;
 	Vec2 scroll, scrollContentSize;
+
+	// Resize-mode members
+	ResizeMode resizeMode;
+
+	// Padding members
+	GLint verPadding, horPadding;
 };

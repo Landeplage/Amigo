@@ -15,6 +15,7 @@
 #include "Text.h"
 #include "Checkbox.h"
 #include "RadioBox.h"
+#include "ListBox.h"
 
 #include "Helper.h"
 #include "Color.h"
@@ -114,7 +115,6 @@ void MenuState::HandleInput()
 	{
 		if (!keyEscPrevious)
 		{
-			//radioBox->AddItem("Radio button");
 			//menuSystem->QueueMessage("Massage", "This is a massage."); // testing various situations where a message appears
 			//GameEngine::GetInstance()->StopGame();
 		}
@@ -130,7 +130,10 @@ void MenuState::HandleInput()
 	if (Input::getMouseRight())
 	{
 		Vec2 mouse = Input::getMousePos();
-		//cb->SetSize(mouse - cb->GetPosition()); // <-- Debug
+		if (menuMain->GetMenuCurrent() == MENU_MAIN)
+			gameListBox->RemoveItem(gameListBox->GetSelectedItem());
+		if (menuMain->GetMenuCurrent() == MENU_SPLASH)
+			cb->SetSize(mouse - cb->GetPosition()); // <-- Debug
 	}
 
 	// Handle menu input
@@ -146,6 +149,19 @@ void MenuState::Update(GLdouble time)
 	else
 		if (checkerScroll < 0)
 			checkerScroll += 100;
+
+	// Update the join-game button
+	if (menuMain->GetMenuCurrent() == MENU_MAIN)
+	{
+		if (gameListBox->GetSelectedItem() == NULL)
+		{
+			joinGameButton->active = false;
+		}
+		else
+		{
+			joinGameButton->active = true;
+		}
+	}
 
 	// Update menu-system (do last, or deal with checking
 	// whether or not variables have been deleted from here
@@ -263,7 +279,7 @@ void MenuState::Draw()
 	menuSystem->Draw();
 
 	// Debug
-	fontRegular->Draw(Vec2(10, 5), "focus = " + toString((GLint)menuSystem->GetFocus()), 0.0f, Vec2(1.0f, 1.0f), Color(0, 0, 0), 1.0f);
+	fontRegular->Draw(Vec2(10, 5), "focus = " + toString((GLint)menuSystem->GetFocus()), 0.0f, Vec2(1.0f, 1.0f), Color(0, 0, 0), 0.2f);
 }
 
 void MenuState::CreateMenu()
@@ -279,7 +295,6 @@ void MenuState::CreateMenu()
 	xx = 0;
 	yy = 0;
 	sep = 32;
-	MenuItem *box, *button;
 
 	// Splash screen
 	menuMain->AddItem(new Button(menuSystem, "Yup.", Vec2(centerX - 51, centerY + 200), Vec2(102, 28), MenuItem::CENTER, MENU_SPLASH,
@@ -290,22 +305,23 @@ void MenuState::CreateMenu()
 		}));
 
 	// Main Menu
-	box = menuMain->AddItem(new Box(menuSystem, "Menu", centerX - 330, centerY - 150, 130, 305, MENU_MAIN));
-	xx = (GLint)(box->GetPosition().x + box->GetSize().x / 2) - 51;
-	yy = (GLint)box->GetPosition().y + 15;
+	Box *mainBox;
+	mainBox = (Box*)menuMain->AddItem(new Box(menuSystem, "Menu", centerX - 330, centerY - 150, 130, 305, MENU_MAIN));
+	xx = (GLint)(mainBox->GetPosition().x + mainBox->GetSize().x / 2) - 51;
+	yy = (GLint)mainBox->GetPosition().y + 15;
 	menuMain->AddItem(new Button(menuSystem, "Create game", Vec2(xx, yy), Vec2(102, 28), MenuItem::CENTER, MENU_MAIN,
 		"Create an online session.",
 		[=]()
 		{
 			GameEngine::GetInstance()->ChangeState(new GameState());
 		})); yy += sep;
-	button = menuMain->AddItem(new Button(menuSystem, "Join game", Vec2(xx, yy), Vec2(102, 28), MenuItem::CENTER, MENU_MAIN,
+	joinGameButton = (Button*)menuMain->AddItem(new Button(menuSystem, "Join game", Vec2(xx, yy), Vec2(102, 28), MenuItem::CENTER, MENU_MAIN,
 		"Join the game you've selected in the game-list.",
 		[=]()
 		{
 			menuSystem->QueueMessage("Join game", "This is where one would normally join a game...");
 		})); yy += sep * 2;
-	button->active = false;
+	joinGameButton->active = false;
 	menuMain->AddItem(new Button(menuSystem, "Options", Vec2(xx, yy), Vec2(102, 28), MenuItem::CENTER, MENU_MAIN,
 		"Tinker with audio, video and controller settings.",
 		[=]()
@@ -325,7 +341,7 @@ void MenuState::CreateMenu()
 			menuSystem->QueueMessage("Map editor", "Lorem Ipsum er rett og slett dummytekst fra og for trykkeindustrien. Lorem Ipsum har vært bransjens standard for dummytekst helt siden 1500-tallet, da en ukjent boktrykker stokket en mengde bokstaver for å lage et prøveeksemplar av en bok. Lorem Ipsum har tålt tidens tann usedvanlig godt, og har i tillegg til å bestå gjennom fem århundrer også tålt spranget over til elektronisk typografi uten vesentlige endringer. Lorem Ipsum ble gjort allment kjent i 1960-årene ved lanseringen av Letraset-ark med avsnitt fra Lorem Ipsum, og senere med sideombrekkingsprogrammet Aldus PageMaker som tok i bruk nettopp Lorem Ipsum for dummytekst.");
 		})); yy += sep;
 
-	menuMain->AddItem(new Button(menuSystem, "Quit", Vec2(xx, (GLint)(box->GetPosition().y + box->GetSize().y - 43)), Vec2(102, 28), MenuItem::CENTER, MENU_MAIN,
+	menuMain->AddItem(new Button(menuSystem, "Quit", Vec2(xx, (GLint)(mainBox->GetPosition().y + mainBox->GetSize().y - 43)), Vec2(102, 28), MenuItem::CENTER, MENU_MAIN,
 		"Close the game and return to windows.",
 		[=]()
 		{
@@ -342,9 +358,13 @@ void MenuState::CreateMenu()
 			});
 		})); yy += sep;
 
-	menuMain->AddItem(new Box(menuSystem, "Games in progress", (GLint)box->GetPosition().x + (GLint)box->GetSize().x + 25, (GLint)box->GetPosition().y,
-		(GLint)(centerX - box->GetPosition().x - ((box->GetPosition().x + box->GetSize().x + 25) - centerX)), //auto-widen the box so that it all fits nicely in the middle of the screen
-		(GLint)box->GetSize().y, MENU_MAIN)); // games-in-progress box
+	gameListBox = (ListBox*)menuMain->AddItem(new ListBox(menuSystem, Vec2((GLint)mainBox->GetPosition().x + (GLint)mainBox->GetSize().x + 25, (GLint)mainBox->GetPosition().y),
+		Vec2((GLint)(centerX - mainBox->GetPosition().x - ((mainBox->GetPosition().x + mainBox->GetSize().x + 25) - centerX)), //auto-widen the box so that it all fits nicely in the middle of the screen
+			(GLint)mainBox->GetSize().y), "Games in progress", MENU_MAIN, [](){})); // games-in-progress box
+	gameListBox->AddItem("Tamschi's game#In-game#4/8");
+	gameListBox->AddItem("jalb's game#Lobby#2/8");
+	gameListBox->AddItem("Normano's game#Lobby#8/8");
+	gameListBox->AddItem("Bottolf's game#In-game#1/8");
 
 	// Options
 	ContentBox *cb;
@@ -366,6 +386,8 @@ void MenuState::CreateMenu()
 
 	// Testing contentbox
 	cb = (ContentBox*)menuMain->AddItem(new ContentBox(menuSystem, "Contentbox!", centerX - 200, 200, 400, 330, MENU_SPLASH));
+	cb->SetResizeMode(ContentBox::ResizeMode::RESIZE_WIDTH);
+	this->cb = cb;
 	/*
 	ContentBox *boxception;
 	boxception = (ContentBox*)cb->AddItem(new ContentBox(menuSystem, "Boxception", 10, 35, (GLint)cb->GetSize().x - 20, 200, 0));
@@ -377,12 +399,13 @@ void MenuState::CreateMenu()
 	// Testing radioboxes
 	RadioBox *radioBox;
 	radioBox = (RadioBox*)menuMain->AddItem(new RadioBox(menuSystem, Vec2(100, 200), 200, "What to add?", MENU_SPLASH, [=](){}));
-	GLint rb1, rb2, rb3, rb4, rb5;
+	GLint rb1, rb2, rb3, rb4, rb5, rb6;
 	rb1 = radioBox->AddItem("Button");
 	rb2 = radioBox->AddItem("Slider");
 	rb3 = radioBox->AddItem("Checkbox");
 	rb4 = radioBox->AddItem("Input field");
 	rb5 = radioBox->AddItem("Dropdown");
+	rb6 = radioBox->AddItem("ListBox");
 
 	menuMain->AddItem(new Button(menuSystem, "Add", Vec2(100, 200 + radioBox->GetSize().y + 10), Vec2(200, 28), MenuItem::Align::CENTER, MENU_SPLASH, "Add selected item to the contentbox.",[=]()
 	{
@@ -399,6 +422,15 @@ void MenuState::CreateMenu()
 			dd = (Dropdown*)cb->AddItem(new Dropdown(menuSystem, "Dropdown", Vec2(10, 10), Vec2(cb->GetSize().x - 20, 28), MENU_SPLASH, "This is a dropdown.", []() {}));
 			for (int i = 0; i < 10; i++)
 			{ dd->AddItem("Item #" + toString(i)); }
+		}
+		if (radioBox->GetSelected() == rb6)
+		{
+			lb = (ListBox*)cb->AddItem(new ListBox(menuSystem, Vec2(10, 25), Vec2(cb->GetSize().x - 20, 200), "List", MENU_SPLASH, [=]() {
+			}));
+			for (int i = 0; i < 30; i++)
+			{
+				//lb->AddItem("Item #" + toString(i));
+			}
 		}
 	}));
 

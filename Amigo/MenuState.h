@@ -8,6 +8,7 @@
 #include "Text.h"
 #include "RadioBox.h"
 #include "Dropdown.h"
+#include "ListBox.h"
 
 class MenuState : public State
 {
@@ -35,5 +36,12 @@ private:
 	MenuSystem* menuSystem;
 	Menu *menuMain, *menuTiny;
 
+	// Menu-items
+	ListBox *gameListBox;
+	Button *joinGameButton;
+
+	// Testing
 	Dropdown *dd;
+	ListBox *lb;
+	ContentBox *cb;
 };

@@ -215,6 +215,9 @@ void Font::LoadFont(const char* path, int size)
 
 void Font::Draw(Vec2 position, std::string str, float rotation, Vec2 scale, Color color, float alpha)
 {
+	// Round position floats
+	position = Vec2(round(position.x), round(position.y));
+
 	// Bind the spritefont texture
 	glBindTexture(GL_TEXTURE_2D, texture);
 

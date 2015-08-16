@@ -105,6 +105,8 @@
     <ClCompile Include="GameState.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="InputField.cpp" />
+    <ClCompile Include="ListBox.cpp" />
+    <ClCompile Include="ListItem.cpp" />
     <ClCompile Include="RadioBox.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -140,6 +142,8 @@
     <ClInclude Include="GameState.h" />
     <ClInclude Include="GLFW.h" />
     <ClInclude Include="InputField.h" />
+    <ClInclude Include="ListBox.h" />
+    <ClInclude Include="ListItem.h" />
     <ClInclude Include="RadioBox.h" />
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="Menu.h" />

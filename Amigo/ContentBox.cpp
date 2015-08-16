@@ -6,7 +6,8 @@
 // Scrollerbar constants
 const int
 	SB_WIDTH = 14,
-	SB_BMINHEIGHT = 30;
+	SB_BMINHEIGHT = 25,
+	DEFAULT_PADDING = 10;
 
 ContentBox::ContentBox(MenuSystem* menuSystem, std::string title, GLint x, GLint y, GLint w, GLint h, GLint menuID)
 {
@@ -15,20 +16,27 @@ ContentBox::ContentBox(MenuSystem* menuSystem, std::string title, GLint x, GLint
 	this->size = Vec2(w, h);
 	this->menuID = menuID;
 
-box = new Box(menuSystem, title, x, y, w, h, menuID);
-scrollButtonVer = new Button(menuSystem, "", Vec2(position.x + size.x - SB_WIDTH, position.y), Vec2(SB_WIDTH, SB_BMINHEIGHT), MenuItem::Align::CENTER, menuID, "", []() {});
-scrollButtonVer->active = false;
-scrollButtonHor = new Button(menuSystem, "", Vec2(position.x, position.y + size.y - SB_WIDTH), Vec2(SB_BMINHEIGHT, SB_WIDTH), MenuItem::Align::CENTER, menuID, "", []() {});
-scrollButtonHor->active = false;
-scrollButtonMouseOffset = Vec2();
-scroll = Vec2(0.0f, 0.0f);
-scrollContentSize.y = 0.0f;
+	box = new Box(menuSystem, title, x, y, w, h, menuID);
+	scrollButtonVer = new Button(menuSystem, "", Vec2(position.x + size.x - SB_WIDTH, position.y), Vec2(SB_WIDTH, SB_BMINHEIGHT), MenuItem::Align::CENTER, menuID, "", []() {});
+	scrollButtonVer->active = false;
+	scrollButtonHor = new Button(menuSystem, "", Vec2(position.x, position.y + size.y - SB_WIDTH), Vec2(SB_BMINHEIGHT, SB_WIDTH), MenuItem::Align::CENTER, menuID, "", []() {});
+	scrollButtonHor->active = false;
+	scrollButtonMouseOffset = Vec2();
+	scroll = Vec2(0.0f, 0.0f);
+	scrollContentSize.y = 0.0f;
 
-// Add scrollbutton to list of children
-children.push_back(scrollButtonHor);
-children.push_back(scrollButtonVer);
+	// Add scrollbutton to list of children
+	children.push_back(scrollButtonHor);
+	children.push_back(scrollButtonVer);
 
-rt = new RenderTarget(0, 0);
+	rt = new RenderTarget(0, 0);
+
+	// Init resize-mode
+	resizeMode = ResizeMode::NONE;
+
+	// Init various attributes
+	verPadding = DEFAULT_PADDING;
+	horPadding = DEFAULT_PADDING;
 }
 
 void ContentBox::HandleInput()
@@ -125,20 +133,13 @@ void ContentBox::HandleInput()
 			{
 				activeItems[i]->HandleInput();
 			}
-			activeItemsHaveBeenHandled = true;
-			/*
-			bool checked = false;
-			checked = CheckChildrenFocus(activeItems, inputField);
 
-			if (checked)
-			{
-				inputField->HandleInput();
-			}*/
+			activeItemsHaveBeenHandled = true;
 		}
 	}
 }
 
-// Returns true if any item or any of their children in this contentbox is currently focused
+// Returns true if any item or any of their children in this contentbox matches the "focus" item
 bool ContentBox::CheckChildrenFocus(std::vector<MenuItem*> items, MenuItem* focus)
 {
 	if (focus == NULL)
@@ -157,6 +158,25 @@ bool ContentBox::CheckChildrenFocus(std::vector<MenuItem*> items, MenuItem* focu
 		}
 	}
 	
+	return false;
+}
+
+// Returns true if this item or any of its children matches the "focus" item
+bool ContentBox::CheckChildrenFocus(MenuItem* item, MenuItem* focus)
+{
+	if (focus == NULL)
+		return false;
+
+	if (focus == item)
+	{
+		return true;
+	}
+	else
+	{
+		if (CheckChildrenFocus(item->GetChildren(), focus))
+			return true;
+	}
+
 	return false;
 }
 
@@ -252,10 +272,19 @@ MenuItem* ContentBox::AddItem(MenuItem* item, Vec2 position, Vec2 size)
 	// Add new item to vector
 	items.push_back(item);
 	
+	// Adjust position to adhere to the padding
+	if (position.x < horPadding)
+		position.x = horPadding;
+	if (position.y < verPadding)
+		position.y = verPadding;
+
 	// Set some attributes
 	item->SetPosition(position);
 	item->SetSize(size);
 	item->SetOrigin(this->position);
+
+	// Resize items (if a resize-mode has been set)
+	ResizeItems();
 
 	// Set callback functions for when item changes position or size
 	item->SetPositionCallback([=]()
@@ -313,13 +342,19 @@ void ContentBox::RemoveItem(MenuItem* item)
 	// If index is valid...
 	if (index > -1)
 	{
+		// If the item or any of its children is currently focused, reset focus
+		if (CheckChildrenFocus(item, menuSystem->GetFocus()))
+		{
+			menuSystem->ResetFocus();
+		}
+
 		// Move any items below the one about to be removed
 		GLint
 			itemY = item->GetPosition().y,
 			itemH = item->GetSize().y;
 		for(int i = 0; i < items.size(); i ++)
 		{
-			if (items[i]->GetPosition().y > itemY + itemH)
+			if (items[i]->GetPosition().y >= itemY + itemH)
 				items[i]->SetPosition(items[i]->GetPosition() - Vec2(0, itemH));
 		}
 
@@ -332,6 +367,9 @@ void ContentBox::RemoveItem(MenuItem* item)
 				break;
 			}
 		}
+
+		// Unload the item
+		items[index]->Unload();
 
 		//...remove the item from item list.
 		items.erase(items.begin() + index);
@@ -478,6 +516,9 @@ void ContentBox::UpdateVerticalScrollButtonAttributes()
 		if ((this->size.y / (scrollContentSize.y + sbOff)) * (this->size.y - sbOff) > SB_BMINHEIGHT)
 			buttonHeight = (this->size.y / (scrollContentSize.y + sbOff)) * (this->size.y - sbOff);
 		scrollButtonVer->SetSize(Vec2(scrollButtonVer->GetSize().x, buttonHeight));
+
+		// Resize items (if a resize-mode has been set)
+		ResizeItems();
 	}
 	else
 	{
@@ -495,10 +536,10 @@ void ContentBox::UpdateScrollContentSize()
 		w = 0;
 	for(int i = 0; i < items.size(); i ++)
 	{
-		tmpw = items[i]->GetPosition().x + items[i]->GetSize().x + 10; // the + 10 is to add some extra headroom
+		tmpw = items[i]->GetPosition().x + items[i]->GetSize().x + horPadding; // the padding is to add some extra empty space
 		if (tmpw > w)
 			w = tmpw;
-		tmph = items[i]->GetPosition().y + items[i]->GetSize().y + 10;
+		tmph = items[i]->GetPosition().y + items[i]->GetSize().y + verPadding;
 		if (tmph > h)
 			h = tmph;
 	}
@@ -603,7 +644,9 @@ void ContentBox::UpdateActiveItemsList()
 	for(int i = 0; i < items.size(); i ++)
 	{
 		if (items[i]->GetPosition().y + items[i]->GetSize().y > minY && items[i]->GetPosition().y < maxY)
+		{
 			activeItems.push_back(items[i]);
+		}
 	}
 }
 
@@ -612,22 +655,18 @@ void ContentBox::ResizeRendertarget()
 	// Recalculate content size
 	UpdateScrollContentSize();
 
-	// Limit the rt to contentbox edges
-	GLint
-		w = scrollContentSize.x,
-		h = scrollContentSize.y,
-		sbW = 0,
-		sbH = 0;
+	GLint w, h, sbW, sbH;
+	sbW = 0;
+	sbH = 0;
 
-	if (scrollButtonHor->active)
-		sbH = SB_WIDTH;
+	// Decrease width/height if scrollers are active
 	if (scrollButtonVer->active)
 		sbW = SB_WIDTH;
+	if (scrollButtonHor->active)
+		sbH = SB_WIDTH;
 
-	if (w > size.x - sbW)
-		w = size.x - sbW;
-	if (h > size.y - sbH)
-		h = size.y - sbH;
+	w = size.x - sbW;
+	h = size.y - sbH;
 
 	// Apply width/height
 	rt->SetSize(Vec2(w, h));
@@ -649,6 +688,9 @@ void ContentBox::SetSize(Vec2 size)
 {
 	MenuItem::SetSize(size);
 	box->SetSize(size);
+
+	// Resize items (if a resize-mode has been set)
+	ResizeItems();
 
 	// Move scrollbuttons to default positions according to new size
 	scrollButtonHor->SetPosition(Vec2(position.x, position.y + size.y - SB_WIDTH));
@@ -690,6 +732,9 @@ void ContentBox::SetDrawOffset(Vec2 drawOffset)
 // Do a complete refresh of the contentbox
 void ContentBox::RefreshContentBox()
 {
+	// Resize items (if a resize-mode has been set)
+	ResizeItems();
+
 	// Update the scroll content size
 	UpdateScrollContentSize();
 
@@ -710,4 +755,53 @@ void ContentBox::RefreshContentBox()
 
 	// Render items to rendertarget
 	Render();
+}
+
+// Set the empty space to the left/right and top/bottom
+void ContentBox::SetPadding(GLint padding)
+{
+	horPadding = padding;
+	verPadding = padding;
+}
+
+// Set the empty space to the left and right
+void ContentBox::SetHorizontalPadding(GLint horPadding)
+{
+	this->horPadding = horPadding;
+}
+
+// Set the empty space to the top and bottom
+void ContentBox::SetVerticalPadding(GLint verPadding)
+{
+	this->verPadding = verPadding;
+}
+
+// Set the resize-mode to be applied on new items
+void ContentBox::SetResizeMode(ResizeMode resizeMode)
+{
+	this->resizeMode = resizeMode;
+
+	// Resize items (if a resize-mode has been set)
+	ResizeItems();
+}
+
+// Resize items if a resize-mode has been set
+void ContentBox::ResizeItems()
+{
+	// If the resize-width resize mode has been set, resize width of all items
+	if (resizeMode == ResizeMode::RESIZE_WIDTH)
+	{
+		GLint sbOff;
+		sbOff = 0;
+		if (scrollButtonVer->active)
+			sbOff = SB_WIDTH;
+		GLint boxWidth;
+		boxWidth = this->size.x - sbOff - horPadding;
+
+		for (int i = 0; i < items.size(); i++)
+		{
+			if (items[i]->GetPosition().x + items[i]->GetSize().x != boxWidth)
+				items[i]->SetSize(Vec2(boxWidth - items[i]->GetPosition().x, items[i]->GetSize().y));
+		}
+	}
 }

@@ -134,6 +134,10 @@ void Menu::Update(GLdouble time)
 
 void Menu::Draw()
 {
+	// Set alpha
+	GLfloat alpha;
+	alpha = 1 - abs(slide);
+
 	// Scale
 	GLfloat tmpScale;
 	tmpScale = 1.0f + (slide * scale);
@@ -147,7 +151,7 @@ void Menu::Draw()
 	renderTarget->Draw(
 		(GLint)(position.x + (moveX * slide) - ((tmpScale - 1) * width) / 2 - rtSlide),
 		(GLint)(position.y + (moveY * slide) - ((tmpScale - 1) * height) / 2),
-		0.0f, tmpScale, tmpScale, 1 - abs(slide), 0, 0, width, height);
+		0.0f, tmpScale, tmpScale, alpha, 0, 0, width, height);
 
 	// Cheap motion-blur effect
 	/*for(int i = 1; i < abs(slide * slide * slide) * 10; i ++)
